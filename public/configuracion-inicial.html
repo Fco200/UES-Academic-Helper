@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuración - UES Helper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        :root { --ues-guinda: #800000; --personal-dark: #2c3e50; }
+        body { background-color: #f8f9fa; height: 100vh; display: flex; align-items: center; }
+        .opcion-card { cursor: pointer; transition: 0.3s; border-radius: 15px; border: 2px solid transparent; }
+        .opcion-card:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .border-ues { border-color: var(--ues-guinda); }
+        .border-personal { border-color: var(--personal-dark); }
+        .text-ues { color: var(--ues-guinda); }
+        .text-personal { color: var(--personal-dark); }
+    </style>
+</head>
+<body>
+    <div class="container text-center">
+        <h2 id="tituloSeccion" class="mb-5 fw-bold">Personaliza tu espacio</h2>
+        
+        <div class="row justify-content-center g-4" id="contenedorOpciones">
+            </div>
+
+        <div class="mt-5">
+            <a href="/home.html" class="btn btn-outline-secondary px-4">
+                <i class="fas fa-arrow-left"></i> Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const perfil = localStorage.getItem('perfilUsuario');
+        const contenedor = document.getElementById('contenedorOpciones');
+        const titulo = document.getElementById('tituloSeccion');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (perfil === 'escuela') {
+                titulo.innerText = "Enfoque Académico / Laboral";
+                contenedor.innerHTML = `
+                    <div class="col-md-4">
+                        <div class="card p-4 opcion-card shadow-sm border-ues" onclick="finalizarConfig('Estudio')">
+                            <i class="fas fa-book fa-3x text-ues mb-3"></i>
+                            <h4>Estudio</h4>
+                            <p class="text-muted">Gestiona tus materias y tareas de la UES.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 opcion-card shadow-sm border-ues" onclick="finalizarConfig('Trabajo')">
+                            <i class="fas fa-briefcase fa-3x text-ues mb-3"></i>
+                            <h4>Trabajo</h4>
+                            <p class="text-muted">Proyectos profesionales y prácticas.</p>
+                        </div>
+                    </div>`;
+            } else {
+                titulo.innerText = "Organización Personal";
+                contenedor.innerHTML = `
+                    <div class="col-md-4">
+                        <div class="card p-4 opcion-card shadow-sm border-personal" onclick="finalizarConfig('Notas')">
+                            <i class="fas fa-sticky-note fa-3x text-personal mb-3"></i>
+                            <h4>Mis Notas</h4>
+                            <p class="text-muted">Ideas rápidas y recordatorios privados.</p>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        function finalizarConfig(tipo) {
+            localStorage.setItem('tipoRegistro', tipo);
+            window.location.href = '/dashboard.html';
+        }
+    </script>
+</body>
+</html>

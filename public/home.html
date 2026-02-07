@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - UES Academic Helper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --personal-dark: #2c3e50; }
+        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        .hero-section { background: linear-gradient(135deg, var(--ues-guinda) 0%, #4a0000 100%); color: white; padding: 60px 0; border-bottom: 5px solid var(--ues-oro); }
+        .menu-card { cursor: pointer; transition: 0.3s; border: none; border-radius: 15px; height: 100%; }
+        .menu-card:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .icon-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.8rem; color: white; }
+        .bg-escuela { background-color: var(--ues-guinda); }
+        .bg-personal { background-color: var(--personal-dark); }
+        .bg-cal { background-color: #e67e22; }
+        .bg-logout { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-5">¡Bienvenido, <span id="userName">INGENIERO</span>!</h1>
+            <h2 id="relojHermosillo" class="mt-2" style="font-weight: 300; letter-spacing: 3px;">00:00:00</h2>
+            <p id="fechaHoy" class="lead"></p>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="card menu-card shadow-sm p-4 position-relative">
+                    <span id="badgeTareas" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                          style="display: none; cursor: pointer; z-index: 10;" onclick="verTareasDeHoy(event)">0</span>
+                    <div onclick="navegar('escuela')">
+                        <div class="icon-circle bg-escuela"><i class="fas fa-graduation-cap"></i></div>
+                        <h5>Escuela / Trabajo</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card menu-card shadow-sm p-4" onclick="navegar('personal')">
+                    <div class="icon-circle bg-personal"><i class="fas fa-user-tag"></i></div>
+                    <h5>Uso Personal</h5>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card menu-card shadow-sm p-4" onclick="navegar('calendario')">
+                    <div class="icon-circle bg-cal"><i class="fas fa-calendar-alt"></i></div>
+                    <h5>Calendario</h5>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card menu-card shadow-sm p-4" onclick="cerrarSesion()">
+                    <div class="icon-circle bg-logout"><i class="fas fa-sign-out-alt"></i></div>
+                    <h5>Cerrar Sesión</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalTareasHoy" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Tareas para hoy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body"><ul id="listaTareasHoy" class="list-group list-group-flush"></ul></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const userEmail = localStorage.getItem('userEmail');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!userEmail) window.location.href = '/index.html';
+            document.getElementById('userName').innerText = userEmail.split('@')[0].toUpperCase();
+            document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            setInterval(actualizarReloj, 1000);
+            actualizarReloj();
+            cargarWidgets();
+        });
+
+        function actualizarReloj() {
+            const opciones = { timeZone: 'America/Hermosillo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            document.getElementById('relojHermosillo').innerText = new Date().toLocaleTimeString('es-MX', opciones);
+        }
+
+        async function cargarWidgets() {
+            const hoy = new Date().toLocaleDateString('en-CA');
+            const res = await fetch(`/obtener-materias/${userEmail}`);
+            const materias = await res.json();
+            let hoyCount = 0;
+            materias.forEach(m => m.tareas.forEach(t => { if(t.fecha === hoy) hoyCount++; }));
+            if(hoyCount > 0) {
+                const badge = document.getElementById('badgeTareas');
+                badge.innerText = hoyCount;
+                badge.style.display = 'block';
+            }
+        }
+
+        async function verTareasDeHoy(event) {
+            event.stopPropagation();
+            const hoy = new Date().toLocaleDateString('en-CA');
+            const res = await fetch(`/obtener-materias/${userEmail}`);
+            const materias = await res.json();
+            const lista = document.getElementById('listaTareasHoy');
+            lista.innerHTML = '';
+            materias.forEach(m => m.tareas.forEach(t => {
+                if(t.fecha === hoy) lista.innerHTML += `<li class="list-group-item"><strong>${m.nombre}:</strong> ${t.descripcion}</li>`;
+            }));
+            new bootstrap.Modal(document.getElementById('modalTareasHoy')).show();
+        }
+
+        function navegar(opcion) {
+            if(opcion === 'calendario') {
+                window.location.href = '/calendario.html';
+            } else {
+                localStorage.setItem('perfilUsuario', opcion);
+                window.location.href = '/configuracion-inicial.html';
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

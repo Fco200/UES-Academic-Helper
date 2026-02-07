@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard UES</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .ues-header { background-color: #800000; color: white; padding: 20px; }
+        .card-materia { border-left: 5px solid #800000; margin-bottom: 20px; }
+        .btn-guinda { background-color: #800000; color: white; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #800000;">
+    <div class="container">
+        <a class="navbar-brand" href="/home.html">
+            <i class="fas fa-home"></i> Inicio
+        </a>
+        <span class="navbar-text text-white">
+            Panel de Control
+        </span>
+    </div>
+</nav>
+    <nav class="navbar navbar-expand-lg navbar-dark" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="#">UES Helper</a>
+        <div class="d-flex">
+            <a href="/seleccion.html" class="btn btn-outline-light me-2">Cambiar Perfil</a>
+            <a href="/index.html" class="btn btn-danger btn-sm">Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const perfil = localStorage.getItem('perfilUsuario');
+        const tipo = localStorage.getItem('tipoRegistro');
+        const nav = document.getElementById('mainNav');
+        const titulo = document.querySelector('.ues-header h1');
+
+        if (perfil === 'personal') {
+            nav.style.backgroundColor = "#2c3e50";
+            document.querySelector('.ues-header').style.backgroundColor = "#34495e";
+            titulo.innerText = `Mis ${tipo}`;
+        } else {
+            nav.style.backgroundColor = "#800000";
+            document.querySelector('.ues-header').style.backgroundColor = "#a00000";
+            titulo.innerText = `Panel de ${tipo}`;
+        }
+    });
+</script>
+    <div class="ues-header text-center">
+        <h1>Portal de Materias UES</h1>
+        <p id="userDisplay"></p>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm">
+                    <h5>Agregar Materia</h5>
+                    <input type="text" id="nombreMateria" class="form-control mb-2" placeholder="Ej. Programación I">
+                    <button onclick="guardarMateria()" class="btn btn-success w-100">Guardar Materia</button>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <h3>Mis Materias Registradas</h3>
+                <div id="listaMaterias"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const perfil = localStorage.getItem('perfilUsuario');
+const tituloHeader = document.querySelector('.ues-header h1');
+
+if (perfil === 'personal') {
+    tituloHeader.innerText = "Mi Agenda Personal";
+    document.querySelector('.ues-header').style.backgroundColor = "#2c3e50"; // Color azul oscuro para personal
+} else {
+    tituloHeader.innerText = "Portal Académico UES"; // Mantiene el guinda para escuela
+}
+        const userEmail = localStorage.getItem('userEmail');
+        document.getElementById('userDisplay').innerText = "Sesión: " + userEmail;
+
+        async function cargarMaterias() {
+            const res = await fetch(`/obtener-materias/${userEmail}`);
+            const materias = await res.json();
+            const div = document.getElementById('listaMaterias');
+            div.innerHTML = '';
+
+            materias.forEach(m => {
+                let tareasHTML = m.tareas.map(t => `
+                    <li class="list-group-item d-flex justify-content-between">
+                        ${t.descripcion} <span class="badge bg-primary">${t.fecha}</span>
+                    </li>
+                `).join('');
+
+                div.innerHTML += `
+                    <div class="card p-3 card-materia shadow-sm">
+                        <h4>${m.nombre || 'Sin nombre'}</h4>
+                        <ul class="list-group list-group-flush mb-3">
+                            ${tareasHTML || '<p class="text-muted">Sin tareas</p>'}
+                        </ul>
+                        <div class="input-group">
+                            <input type="text" id="desc-${m._id}" class="form-control" placeholder="Tarea">
+                            <input type="date" id="fecha-${m._id}" class="form-control">
+                            <button onclick="agregarTarea('${m._id}')" class="btn btn-dark">Añadir</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function guardarMateria() {
+            const nombre = document.getElementById('nombreMateria').value;
+            if(!nombre) return alert("Escribe el nombre");
+            await fetch('/agregar-materia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, nombreMateria: nombre })
+            });
+            document.getElementById('nombreMateria').value = '';
+            cargarMaterias();
+        }
+
+  
+async function agregarTarea(idMateria) {
+    const desc = document.getElementById(`desc-${idMateria}`).value;
+    const fechaVal = document.getElementById(`fecha-${idMateria}`).value;
+
+    if(!desc || !fechaVal) return alert("Llena todos los campos");
+
+    const res = await fetch('/agregar-tarea', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ materiaId: idMateria, descripcion: desc, fecha: fechaVal })
+    });
+
+    if (res.ok) {
+        // Reproducir sonido de notificación
+        const sonido = document.getElementById('audioNotificacion');
+        sonido.play().catch(e => console.log("El navegador bloqueó el audio inicial"));
+        
+        alert("¡Tarea guardada y recordatorio programado!");
+        cargarMaterias();
+    }
+}
+
+
+        
+    </script>
+<audio id="audioNotificacion">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
+</body>
+</html>

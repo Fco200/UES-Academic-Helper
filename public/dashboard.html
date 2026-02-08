@@ -1,23 +1,147 @@
-<div class="row">
-    <div class="col-md-3 sidebar">
-        <h3 class="fw-bold mb-4">UES Academic</h3>
-        <div class="ai-badge">
-            <small><i class="fas fa-robot"></i> ASISTENTE IA:</small>
-            <p id="ai-text" class="mb-0 mt-2" style="font-size: 0.8em;">Analizando tus actividades...</p>
-        </div>
-        <button class="btn btn-outline-light w-100 mb-2" onclick="cambiarPassword()">Seguridad</button>
-        <a href="/index.html" class="btn btn-danger w-100">Cerrar Sesión</a>
-    </div>
+<style>
+    :root { --ues-guinda: #800000; --ues-dark: #1a1a1a; --ues-gold: #b8860b; }
+    body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
+    
+    .sidebar { 
+        background: var(--ues-dark); color: white; min-height: 100vh; 
+        padding: 30px; box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .ai-badge { 
+        background: linear-gradient(135deg, var(--ues-guinda), #4a0000); 
+        border-left: 4px solid var(--ues-gold); border-radius: 12px; padding: 20px;
+    }
 
-    <div class="col-md-9 p-5">
-        <div class="card p-4 card-note bg-white mb-4">
-            <h5 class="fw-bold text-danger">Nuevo Registro</h5>
-            <div class="input-group mt-3">
-                <input type="text" id="nombreInput" class="form-control" placeholder="Nombre de materia o nota personal...">
-                <button onclick="guardarNuevo()" class="btn btn-dark">Guardar</button>
+    .card-note { 
+        border: none; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+    }
+    .card-note:hover { transform: translateY(-5px); }
+    
+    .btn-guinda { background-color: var(--ues-guinda); color: white; border: none; }
+    .btn-guinda:hover { background-color: #600000; color: white; }
+    
+    .task-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9em; }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 sidebar">
+            <h3 class="fw-bold mb-4 text-center">UES <span style="color: var(--ues-guinda);">Helper</span></h3>
+            <div class="ai-badge mb-4">
+                <small class="fw-bold text-uppercase" style="color: var(--ues-gold);">
+                    <i class="fas fa-robot me-1"></i> Asistente IA
+                </small>
+                <p id="ai-text" class="mb-0 mt-2" style="font-size: 0.85em; line-height: 1.4;">
+                    Analizando tu progreso académico...
+                </p>
+            </div>
+            <div class="mt-auto">
+                <button class="btn btn-outline-light w-100 mb-2 btn-sm" onclick="cambiarPassword()">
+                    <i class="fas fa-shield-alt me-2"></i>Seguridad
+                </button>
+                <a href="/home.html" class="btn btn-outline-secondary w-100 mb-2 btn-sm">
+                    <i class="fas fa-home me-2"></i>Inicio
+                </a>
+                <button onclick="cerrarSesion()" class="btn btn-danger w-100 btn-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </button>
             </div>
         </div>
-        <div id="contenedorPrincipal" class="row">
+
+        <div class="col-md-9 p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Gestión de Actividades</h2>
+                <span class="badge bg-dark" id="userBadge">Cargando usuario...</span>
             </div>
+
+            <div class="card p-4 card-note bg-white mb-5">
+                <h5 class="fw-bold text-danger mb-3">Nuevo Registro</h5>
+                <div class="input-group">
+                    <input type="text" id="nombreInput" class="form-control" placeholder="Nombre de materia o categoría de nota...">
+                    <button onclick="guardarNuevo()" class="btn btn-dark px-4">Guardar Registro</button>
+                </div>
+            </div>
+
+            <div id="contenedorPrincipal" class="row">
+                </div>
+        </div>
     </div>
 </div>
+
+<script>
+    const userEmail = localStorage.getItem('userEmail');
+    document.getElementById('userBadge').innerText = userEmail;
+
+    // 1. Cargar datos desde MongoDB
+    async function cargarTodo() {
+        const res = await fetch(`/obtener-materias/${userEmail}`);
+        const materias = await res.json();
+        const contenedor = document.getElementById('contenedorPrincipal');
+        contenedor.innerHTML = '';
+
+        materias.forEach(m => {
+            contenedor.innerHTML += `
+                <div class="col-md-6 mb-4">
+                    <div class="card p-4 card-note">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="fw-bold m-0">${m.nombre}</h4>
+                            <button onclick="pedirConsejoIA('${m.nombre}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
+                        </div>
+                        <hr>
+                        <div class="tareas-lista mb-3">
+                            ${m.tareas.map(t => `
+                                <div class="task-item d-flex justify-content-between">
+                                    <span>${t.descripcion}</span>
+                                    <span class="badge bg-light text-dark">${t.fecha}</span>
+                                </div>
+                            `).join('') || '<p class="text-muted small">Sin tareas pendientes</p>'}
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="desc-${m._id}" class="form-control" placeholder="Tarea...">
+                            <input type="date" id="fecha-${m._id}" class="form-control">
+                            <button onclick="agregarTarea('${m._id}')" class="btn btn-guinda">+</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        actualizarResumenIA(materias);
+    }
+
+    // 2. Guardar Materia/Nota con persistencia real
+    async function guardarNuevo() {
+        const nombre = document.getElementById('nombreInput').value;
+        if(!nombre) return alert("Escribe un nombre");
+
+        await fetch('/agregar-materia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail, nombreMateria: nombre })
+        });
+
+        document.getElementById('nombreInput').value = '';
+        cargarTodo();
+    }
+
+    // 3. Agregar Tareas vinculadas
+    async function agregarTarea(idMateria) {
+        const desc = document.getElementById(`desc-${idMateria}`).value;
+        const fecha = document.getElementById(`fecha-${idMateria}`).value;
+        if(!desc || !fecha) return alert("Completa los campos");
+
+        await fetch('/agregar-tarea', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ materiaId: idMateria, descripcion: desc, fecha: fecha })
+        });
+        cargarTodo();
+    }
+
+    // Lógica para cerrar sesión
+    function cerrarSesion() {
+        localStorage.clear();
+        window.location.href = '/index.html';
+    }
+
+    cargarTodo();
+</script>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ues-academic-helper-t5b5.onrender.com/sitemap.xml

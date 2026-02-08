@@ -79,4 +79,13 @@
 
     // Al cargar la página, ejecutar cargarMaterias()
     cargarMaterias();
+    async function pedirAyudaIA(notaTexto) {
+    const res = await fetch('/ia-asistente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje: `Dame un consejo de estudio para esta tarea: ${notaTexto}` })
+    });
+    const data = await res.json();
+    alert("Consejo de la IA UES: " + data.respuesta);
+}
 </script>

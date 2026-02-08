@@ -111,3 +111,24 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 SERVIDOR EN PUERTO ${PORT}`);
 });
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// Configurar la IA con tu llave del .env
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+// Ruta para que la IA ayude al alumno
+app.post('/ia-asistente', async (req, res) => {
+    const { mensaje } = req.body;
+    try {
+        const prompt = `Eres un asistente académico de la UES. Ayuda al estudiante con lo siguiente: ${mensaje}`;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const texto = response.text();
+        
+        res.status(200).send({ respuesta: texto });
+    } catch (error) {
+        console.error("Error con Gemini:", error);
+        res.status(500).send({ message: "La IA está descansando, intenta más tarde." });
+    }
+});

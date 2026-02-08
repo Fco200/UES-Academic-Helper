@@ -2,85 +2,201 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control | UES Helper</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --ues: #800000; --dark: #1a1a1a; }
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
-        .sidebar { background: var(--dark); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 250px; }
-        .main-content { margin-left: 250px; padding: 40px; }
-        .card-note { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .ai-banner { background: linear-gradient(45deg, var(--ues), #4b0000); color: white; border-radius: 12px; padding: 20px; border-left: 5px solid #b8860b; }
-        .btn-ues { background: var(--ues); color: white; }
-        .small-muted { font-size: 0.85rem; color: #6c757d; }
+        :root { 
+            --ues-guinda: #800000; 
+            --ues-dark: #121212; 
+            --ues-accent: #b8860b; 
+            --bg-body: #f4f7f6;
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Inter', sans-serif; 
+            color: #333; 
+        }
+
+        /* Sidebar Moderna */
+        .sidebar { 
+            background: var(--ues-dark); 
+            color: white; 
+            min-height: 100vh; 
+            padding: 25px; 
+            position: fixed; 
+            width: 280px; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .sidebar h3 { 
+            font-weight: 700; 
+            letter-spacing: -1px; 
+            margin-bottom: 30px; 
+            text-align: center;
+        }
+
+        /* Banner IA Rediseñado */
+        .ai-banner { 
+            background: linear-gradient(135deg, var(--ues-guinda) 0%, #4b0000 100%); 
+            color: white; 
+            border-radius: 15px; 
+            padding: 20px; 
+            border-left: 5px solid var(--ues-accent);
+            box-shadow: 0 4px 15px rgba(128, 0, 0, 0.3);
+        }
+
+        /* Área de Contenido */
+        .main-content { 
+            margin-left: 280px; 
+            padding: 40px; 
+            transition: all 0.3s;
+        }
+
+        /* Tarjetas de Materia */
+        .card-note { 
+            border: none; 
+            border-radius: 18px; 
+            background: white;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card-note:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 12px 35px rgba(0,0,0,0.1); 
+        }
+
+        .materia-header {
+            padding: 20px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Estilo de Tareas */
+        .task-row { 
+            transition: 0.2s; 
+            padding: 12px 15px; 
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .task-row:hover { background: #f9f9f9; }
+
+        .form-check-input:checked { 
+            background-color: var(--ues-guinda); 
+            border-color: var(--ues-guinda); 
+        }
+
+        /* Inputs y Botones */
+        .btn-ues { 
+            background: var(--ues-guinda); 
+            color: white; 
+            border-radius: 10px; 
+            font-weight: 600;
+        }
+
+        .form-control { 
+            border-radius: 10px; 
+            padding: 10px 15px; 
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-control:focus { 
+            border-color: var(--ues-guinda); 
+            box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.1);
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 100%; min-height: auto; position: relative; }
+            .main-content { margin-left: 0; padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h3 class="fw-bold mb-4">UES <span class="text-danger">Helper</span></h3>
+        <h3>UES <span class="text-danger">Helper</span></h3>
         <div class="ai-banner mb-4">
-            <small class="fw-bold"><i class="fas fa-robot"></i> ASISTENTE IA</small>
-            <p id="ai-text" class="small mt-2 mb-0">Analizando tus pendientes...</p>
+            <small class="fw-bold text-uppercase"><i class="fas fa-robot me-2"></i> Asistente IA</small>
+            <p id="ai-text" class="small mt-2 mb-0 opacity-75">Sincronizando tus metas académicas...</p>
         </div>
-        <hr>
-        <button class="btn btn-outline-light w-100 mb-2 btn-sm" onclick="cambiarPassword()">Seguridad</button>
-        <a href="/home.html" class="btn btn-outline-secondary w-100 mb-2 btn-sm">Regresar al Inicio</a>
-        <button class="btn btn-danger w-100 btn-sm mt-5" onclick="cerrarSesion()">Cerrar Sesión</button>
+        <hr class="opacity-25">
+        <nav class="nav flex-column">
+            <a href="/home.html" class="btn btn-outline-light text-start mb-2 border-0"><i class="fas fa-home me-3"></i> Inicio</a>
+            <button class="btn btn-outline-light text-start mb-2 border-0" onclick="cambiarPassword()"><i class="fas fa-shield-alt me-3"></i> Seguridad</button>
+            <button class="btn btn-danger w-100 mt-5 shadow-sm" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt me-3"></i> Cerrar Sesión</button>
+        </nav>
     </div>
 
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-5">
-            <h2 class="fw-bold">Gestión de Actividades</h2>
-            <div class="badge bg-dark p-2" id="userBadge">Cargando...</div>
-        </div>
-
-        <div class="card p-4 card-note bg-white mb-5">
-            <h5 class="fw-bold text-danger mb-3">Nuevo Registro</h5>
-            <div class="input-group">
-                <input type="text" id="nombreInput" class="form-control" placeholder="Materia o Nota Personal">
-                <button onclick="guardarNuevo()" class="btn btn-dark px-4">Guardar</button>
+            <div>
+                <h2 class="fw-bold text-dark m-0">Gestión Académica</h2>
+                <p class="text-muted small">Panel central de actividades e ingeniería.</p>
+            </div>
+            <div class="badge bg-white text-dark shadow-sm p-3 rounded-pill border">
+                <i class="fas fa-user-circle me-2 text-danger"></i> <span id="userBadge">Cargando...</span>
             </div>
         </div>
 
-        <div id="contenedorPrincipal" class="row"></div>
+        <div class="card p-4 card-note mb-5">
+            <h5 class="fw-bold text-danger mb-4"><i class="fas fa-plus-circle me-2"></i> Crear Nuevo Registro</h5>
+            <div class="row g-3">
+                <div class="col-md-9">
+                    <input type="text" id="nombreInput" class="form-control form-control-lg" placeholder="Nombre de materia o categoría...">
+                </div>
+                <div class="col-md-3">
+                    <button onclick="guardarNuevo()" class="btn btn-dark w-100 btn-lg shadow-sm">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="contenedorPrincipal" class="row">
+            </div>
     </div>
 
-    <!-- Modal de edición -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Editar tarea</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body">
-            <label class="form-label small-muted">Descripción</label>
-            <input type="text" id="editDesc" class="form-control mb-2" placeholder="Descripción">
-            <label class="form-label small-muted">Fecha</label>
-            <input type="date" id="editFecha" class="form-control">
-            <div class="form-check form-switch mt-3">
-              <input class="form-check-input" type="checkbox" id="editCompletada">
-              <label class="form-check-label small-muted" for="editCompletada">Marcar como completada</label>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-danger">Editar Registro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <label class="form-label small fw-bold text-muted">DESCRIPCIÓN</label>
+                    <input type="text" id="editDescripcion" class="form-control mb-3">
+                    
+                    <label class="form-label small fw-bold text-muted">FECHA DE ENTREGA</label>
+                    <input type="date" id="editFecha" class="form-control mb-3">
+                    
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="editCompletada">
+                        <label class="form-check-label small fw-bold text-muted" for="editCompletada">MARCAR COMO COMPLETADA</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-danger rounded-pill px-4" id="saveEditBtn">Guardar Cambios</button>
+                </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button class="btn btn-primary" id="saveEditBtn">Guardar</button>
-          </div>
         </div>
-      </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const userEmail = localStorage.getItem('userEmail');
         document.getElementById('userBadge').innerText = userEmail || 'Invitado';
 
-        // Variables para edición
         let editMateriaId = null, editTareaId = null;
 
-        // Cargar materias y tareas
         async function cargarTodo() {
             if (!userEmail) return window.location.href = '/index.html';
             try {
@@ -90,71 +206,61 @@
                 cont.innerHTML = '';
 
                 materias.forEach(m => {
-                    const tareasHtml = (m.tareas || []).map(t => {
-                        // Usamos JSON.stringify para escapar correctamente las cadenas en el onclick
-                        return `
-                            <div class="d-flex align-items-center border-bottom py-2">
-                                <input type="checkbox" class="form-check-input me-2" 
-                                    ${t.completada ? 'checked' : ''} 
-                                    onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})">
-                                <span class="${t.completada ? 'text-decoration-line-through text-muted' : ''} flex-grow-1 small">
-                                    ${escapeHtml(t.descripcion)}
-                                </span>
-                                <span class="badge bg-light text-dark ms-2" style="font-size: 0.7em;">${t.fecha || ''}</span>
-                                <button class="btn btn-sm btn-outline-primary ms-2" 
-                                    onclick="abrirEditor('${m._id}', '${t._id}', ${JSON.stringify(t.descripcion || '')}, ${JSON.stringify(t.fecha || '')}, ${t.completada})">
-                                    ✏️
-                                </button>
-                            </div>
-                        `;
-                    }).join('') || '<p class="text-muted small">Sin registros</p>';
+                    const tareasHtml = (m.tareas || []).map(t => `
+                        <div class="task-row d-flex align-items-center">
+                            <input type="checkbox" class="form-check-input me-3" 
+                                ${t.completada ? 'checked' : ''} 
+                                onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})">
+                            <span class="${t.completada ? 'text-decoration-line-through text-muted' : ''} flex-grow-1">
+                                ${escapeHtml(t.descripcion)}
+                            </span>
+                            <span class="badge bg-light text-dark mx-2" style="font-size: 0.75em;">${t.fecha || ''}</span>
+                            <button class="btn btn-sm btn-link text-primary p-0" 
+                                onclick="abrirEditor('${m._id}', '${t._id}', ${JSON.stringify(t.descripcion || '')}, ${JSON.stringify(t.fecha || '')}, ${t.completada})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    `).join('') || '<p class="text-muted small text-center my-3">Sin registros aún</p>';
 
                     cont.innerHTML += `
-                        <div class="col-md-6 mb-4">
-                            <div class="card p-4 card-note bg-white">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h4 class="fw-bold m-0 ${m.nombre.toLowerCase().includes('nota') ? 'text-primary' : 'text-dark'}">${escapeHtml(m.nombre)}</h4>
-                                    <button onclick="pedirIA('${escapeJs(m.nombre)}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
+                        <div class="col-lg-6 mb-4">
+                            <div class="card card-note">
+                                <div class="materia-header d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold m-0 ${m.nombre.toLowerCase().includes('nota') ? 'text-primary' : 'text-dark'}">${escapeHtml(m.nombre)}</h5>
+                                    <button onclick="pedirIA('${escapeJs(m.nombre)}')" class="btn btn-sm btn-outline-danger border-0"><i class="fas fa-lightbulb"></i> IA</button>
                                 </div>
-                                <div class="tareas-container">
-                                    ${tareasHtml}
-                                </div>
-                                <div class="input-group input-group-sm mt-3">
-                                    <input type="text" id="t-${m._id}" class="form-control" placeholder="Tarea o detalle...">
-                                    <input type="date" id="f-${m._id}" class="form-control">
-                                    <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
+                                <div class="card-body">
+                                    <div class="tareas-container mb-4">${tareasHtml}</div>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="t-${m._id}" class="form-control" placeholder="Añadir detalle...">
+                                        <input type="date" id="f-${m._id}" class="form-control">
+                                        <button onclick="agregarTarea('${m._id}')" class="btn btn-ues"><i class="fas fa-plus"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     `;
                 });
-            } catch (e) {
-                console.error(e);
-                alert('Error cargando datos.');
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // Guardar nueva materia
         async function guardarNuevo() {
             const nombre = document.getElementById('nombreInput').value.trim();
-            if (!nombre) return alert('Ingresa un nombre.');
+            if (!nombre) return;
             await fetch('/agregar-materia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmail, nombre }) });
             document.getElementById('nombreInput').value = '';
             cargarTodo();
         }
 
-        // Agregar tarea
         async function agregarTarea(idMateria) {
             const descripcion = document.getElementById(`t-${idMateria}`).value.trim();
             const fecha = document.getElementById(`f-${idMateria}`).value;
-            if (!descripcion) return alert('Describe la tarea.');
+            if (!descripcion) return;
             await fetch('/agregar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: idMateria, descripcion, fecha }) });
             document.getElementById(`t-${idMateria}`).value = '';
-            document.getElementById(`f-${idMateria}`).value = '';
             cargarTodo();
         }
 
-        // Cambiar contraseña
         async function cambiarPassword() {
             const nueva = prompt("Ingresa tu nueva contraseña:");
             if (nueva) {
@@ -163,79 +269,41 @@
             }
         }
 
-        // Pedir consejo IA
         async function pedirIA(materia) {
-            try {
-                const res = await fetch('/ia-asistente', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: `Dame un consejo corto para estudiar la materia: ${materia}` }) });
-                const data = await res.json();
-                alert("Consejo IA: " + (data.respuesta || 'Sin respuesta'));
-            } catch (e) {
-                alert('Error con IA.');
-            }
+            const res = await fetch('/ia-asistente', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: `Dame un consejo corto para: ${materia}` }) });
+            const data = await res.json();
+            alert("Consejo IA: " + data.respuesta);
         }
 
-        // Marcar completada / pendiente
-        async function toggleTarea(materiaId, tareaId, estadoActual) {
-            await fetch('/completar-tarea', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ materiaId, tareaId, completada: !estadoActual })
-            });
+        async function toggleTarea(mId, tId, est) {
+            await fetch('/completar-tarea', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ materiaId: mId, tareaId: tId, completada: !est }) });
             cargarTodo();
         }
 
-        // Abrir editor modal
-        function abrirEditor(materiaId, tareaId, desc, fecha, completada) {
-            editMateriaId = materiaId;
-            editTareaId = tareaId;
-            document.getElementById('editDesc').value = desc || '';
-            document.getElementById('editFecha').value = fecha || '';
-            document.getElementById('editCompletada').checked = !!completada;
-            const modal = new bootstrap.Modal(document.getElementById('editModal'));
-            modal.show();
+        function abrirEditor(mId, tId, desc, fecha, comp) {
+            editMateriaId = mId; editTareaId = tId;
+            document.getElementById('editDescripcion').value = desc;
+            document.getElementById('editFecha').value = fecha;
+            document.getElementById('editCompletada').checked = comp;
+            new bootstrap.Modal(document.getElementById('editModal')).show();
         }
 
-        // Guardar edición
         document.getElementById('saveEditBtn').addEventListener('click', async () => {
-            const nuevaDescripcion = document.getElementById('editDesc').value.trim();
+            const nuevaDescripcion = document.getElementById('editDescripcion').value.trim();
             const nuevaFecha = document.getElementById('editFecha').value;
             const completada = document.getElementById('editCompletada').checked;
-            if (!nuevaDescripcion) return alert('La descripción no puede quedar vacía.');
-            await fetch('/editar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, nuevaDescripcion, nuevaFecha })
-            });
-            // Actualizar estado completada si cambió
-            await fetch('/completar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, completada })
-            });
-            cargarTodo();
+            
+            await fetch('/editar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, nuevaDescripcion, nuevaFecha }) });
+            await fetch('/completar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, completada }) });
+            
             bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+            cargarTodo();
         });
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
-
-        // Helpers para evitar inyección en HTML
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#39;');
-        }
-        function escapeJs(str) {
-            if (!str) return '';
-            return String(str).replaceAll("'", "\\'");
-        }
-
+        function escapeHtml(str) { return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
+        function escapeJs(str) { return String(str).replaceAll("'", "\\'"); }
         window.onload = cargarTodo;
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

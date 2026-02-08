@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Servir carpeta "public"
 app.use(express.static(path.join(__dirname, "public")));
@@ -38,8 +39,13 @@ mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
 
 // --- CONFIGURACIÓN DE IA GEMINI ---
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+let genAI, model;
+try {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+} catch (e) {
+  console.warn('Advertencia: Gemini no configurado o clave faltante.');
+}
 
 // --- MODELOS DE DATOS ---
 const Usuario = mongoose.model('Usuario', new mongoose.Schema({
@@ -51,7 +57,18 @@ const Materia = mongoose.model('Materia', new mongoose.Schema({
   user: String,
   nombre: String,
   tareas: [{ descripcion: String, fecha: String, completada: { type: Boolean, default: false } }]
-}));
+}, { timestamps: true }));
+
+// --- CONFIGURACIÓN DE NODemailer ---
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : 465,
+  secure: process.env.EMAIL_SECURE ? process.env.EMAIL_SECURE === 'true' : true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 // --- RUTAS DE AUTENTICACIÓN ---
 app.post('/verificar-codigo', async (req, res) => {
@@ -62,7 +79,10 @@ app.post('/verificar-codigo', async (req, res) => {
     
     if (user.password === codigo) res.status(200).send({ redirect: '/home.html' });
     else res.status(401).send({ message: 'Contraseña incorrecta' });
-  } catch (e) { res.status(500).send({ message: 'Error en login' }); }
+  } catch (e) { 
+    console.error(e);
+    res.status(500).send({ message: 'Error en login' }); 
+  }
 });
 
 app.post('/cambiar-password', async (req, res) => {
@@ -70,38 +90,66 @@ app.post('/cambiar-password', async (req, res) => {
   try {
     await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword });
     res.status(200).send({ message: 'OK' });
-  } catch (e) { res.status(500).send({ message: 'Error al cambiar pass' }); }
+  } catch (e) { 
+    console.error(e);
+    res.status(500).send({ message: 'Error al cambiar pass' }); 
+  }
 });
 
 // --- RUTAS DE DATOS ---
 app.post('/agregar-materia', async (req, res) => {
   const { email, nombre } = req.body;
-  await Materia.create({ user: email, nombre, tareas: [] });
-  res.sendStatus(200);
+  try {
+    await Materia.create({ user: email, nombre, tareas: [] });
+    res.sendStatus(200);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ message: 'Error al crear materia' });
+  }
 });
 
 app.post('/agregar-tarea', async (req, res) => {
   const { materiaId, descripcion, fecha } = req.body;
   try {
     const materia = await Materia.findById(materiaId);
+    if (!materia) return res.status(404).json({ message: 'Materia no encontrada' });
     materia.tareas.push({ descripcion, fecha });
     await materia.save();
     res.sendStatus(200);
-  } catch (e) { res.status(500).send({ message: 'Error al guardar tarea' }); }
+  } catch (e) { 
+    console.error(e);
+    res.status(500).send({ message: 'Error al guardar tarea' }); 
+  }
 });
 
-app.get('/obtener-materias/:email', async (req, res) => {
-  const datos = await Materia.find({ user: req.params.email });
-  res.json(datos);
+// Acepta email o número (con o sin +)
+app.get('/obtener-materias/:identificador', async (req, res) => {
+  try {
+    const id = req.params.identificador;
+    const posibles = [
+      id,
+      id.replace(/^\+/, ''),        // sin +
+      (id.startsWith('+') ? id : '+' + id) // con +
+    ];
+    const datos = await Materia.find({ user: { $in: posibles } });
+    res.json(datos);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json([]);
+  }
 });
 
 // --- RUTA ASISTENTE IA ---
 app.post('/ia-asistente', async (req, res) => {
   const { prompt } = req.body;
   try {
+    if (!model) throw new Error('Modelo de IA no disponible');
     const result = await model.generateContent(prompt);
     res.json({ respuesta: result.response.text() });
-  } catch (e) { res.status(500).json({ respuesta: "IA ocupada, intenta luego." }); }
+  } catch (e) { 
+    console.error(e);
+    res.status(500).json({ respuesta: "IA ocupada, intenta luego." }); 
+  }
 });
 
 // --- COMPLETAR TAREA ---
@@ -109,27 +157,38 @@ app.post('/completar-tarea', async (req, res) => {
   const { materiaId, tareaId, completada } = req.body;
   try {
     const materia = await Materia.findById(materiaId);
+    if (!materia) return res.status(404).json({ message: 'Materia no encontrada' });
     const tarea = materia.tareas.id(tareaId);
-    tarea.completada = completada;
+    if (!tarea) return res.status(404).json({ message: 'Tarea no encontrada' });
+    tarea.completada = !!completada;
     await materia.save();
     res.sendStatus(200);
   } catch (e) {
+    console.error(e);
     res.status(500).send({ message: "Error al actualizar estado" });
   }
 });
 
 // --- EDITAR TAREA ---
 app.post('/editar-tarea', async (req, res) => {
-  const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
+  const { materiaId, tareaId, nuevaDescripcion, nuevaFecha, nuevaCompletada } = req.body;
   try {
+    if (!materiaId || !tareaId) return res.status(400).json({ ok: false, error: 'Faltan IDs' });
     const materia = await Materia.findById(materiaId);
+    if (!materia) return res.status(404).json({ ok: false, error: 'Materia no encontrada' });
+
     const tarea = materia.tareas.id(tareaId);
-    if (nuevaDescripcion) tarea.descripcion = nuevaDescripcion;
-    if (nuevaFecha) tarea.fecha = nuevaFecha;
+    if (!tarea) return res.status(404).json({ ok: false, error: 'Tarea no encontrada' });
+
+    if (typeof nuevaDescripcion === 'string') tarea.descripcion = nuevaDescripcion;
+    if (typeof nuevaFecha === 'string') tarea.fecha = nuevaFecha;
+    if (typeof nuevaCompletada === 'boolean') tarea.completada = nuevaCompletada;
+
     await materia.save();
-    res.sendStatus(200);
+    res.json({ ok: true, message: 'Tarea actualizada' });
   } catch (e) {
-    res.status(500).send({ message: "Error al editar tarea" });
+    console.error('Error /editar-tarea', e);
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 
@@ -138,36 +197,121 @@ app.get("/google74ea19ac0f79b1ad.html", (req, res) => {
   res.send("google-site-verification: google74ea19ac0f79b1ad.html");
 });
 
-// --- RECORDATORIOS AUTOMÁTICOS ---
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-});
-
+// --- FUNCIONES DE ENVÍO (EMAIL / SMS) ---
 async function enviarCorreo(destinatario, asunto, mensaje) {
-  await transporter.sendMail({ from: process.env.EMAIL_USER, to: destinatario, subject: asunto, text: mensaje });
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error('Credenciales de correo no configuradas');
+  }
+  const info = await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: destinatario,
+    subject: asunto,
+    text: mensaje
+  });
+  console.log('Correo enviado:', info.messageId);
+  return info;
+}
+
+function normalizarNumero(numero) {
+  if (!numero) throw new Error('Número vacío');
+  // Si ya tiene + y dígitos, devolver tal cual
+  if (/^\+\d+$/.test(numero)) return numero;
+  // Si son 10 dígitos mexicanos, agregar +52
+  if (/^\d{10}$/.test(numero)) return '+52' + numero;
+  // Si tiene 11 o más dígitos sin +, añadir +
+  if (/^\d+$/.test(numero)) return '+' + numero;
+  // fallback: devolver como vino
+  return numero;
 }
 
 async function enviarSMS(numero, mensaje) {
-  await twilio.messages.create({ body: mensaje, from: process.env.TWILIO_PHONE, to: numero });
+  if (!process.env.TWILIO_SID || !process.env.TWILIO_AUTH || !process.env.TWILIO_PHONE) {
+    throw new Error('Credenciales Twilio no configuradas');
+  }
+  const to = normalizarNumero(numero);
+  try {
+    const msg = await twilio.messages.create({
+      body: mensaje,
+      from: process.env.TWILIO_PHONE,
+      to
+    });
+    console.log('SMS enviado SID:', msg.sid, 'to:', to);
+    return msg;
+  } catch (e) {
+    console.error('Error enviando SMS:', e);
+    throw e;
+  }
 }
 
-cron.schedule("0 8 * * *", async () => {
-  const materias = await Materia.find();
-  for (const materia of materias) {
-    for (const tarea of materia.tareas) {
-      const fechaTarea = new Date(tarea.fecha);
-      const hoy = new Date();
-      const diferencia = (fechaTarea - hoy) / (1000 * 60 * 60 * 24);
+// Ruta para recibir callbacks de estado (opcional)
+app.post('/webhook-sms-status', express.urlencoded({ extended: false }), (req, res) => {
+  console.log('Twilio status callback', req.body.MessageSid, req.body.MessageStatus);
+  res.sendStatus(200);
+});
 
-      if (diferencia <= 1 && !tarea.completada) {
-        if (materia.user.includes("@")) {
-          await enviarCorreo(materia.user, "Recordatorio de tarea", `No olvides: ${tarea.descripcion} para ${tarea.fecha}`);
-        } else {
-          await enviarSMS(materia.user, `Recordatorio: ${tarea.descripcion} para ${tarea.fecha}`);
+// --- RECORDATORIOS AUTOMÁTICOS ---
+// Ruta para enviar recordatorio puntual para una tarea concreta
+app.post('/enviar-recordatorio', async (req, res) => {
+  const { materiaId, tareaId } = req.body;
+  try {
+    const materia = await Materia.findById(materiaId);
+    if (!materia) return res.status(404).json({ ok: false, message: 'Materia no encontrada' });
+
+    const tarea = materia.tareas.id(tareaId);
+    if (!tarea) return res.status(404).json({ ok: false, message: 'Tarea no encontrada' });
+
+    const mensaje = `Recordatorio: ${tarea.descripcion} - Fecha: ${tarea.fecha}`;
+
+    if (materia.user && materia.user.includes('@')) {
+      await enviarCorreo(materia.user, 'Recordatorio de tarea', mensaje);
+      return res.json({ ok: true, via: 'email', message: 'Correo enviado' });
+    } else {
+      await enviarSMS(materia.user, mensaje);
+      return res.json({ ok: true, via: 'sms', message: 'SMS enviado' });
+    }
+  } catch (e) {
+    console.error('Error enviar-recordatorio:', e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// Ruta de prueba SMS
+app.post('/test-sms', async (req, res) => {
+  const { to, mensaje } = req.body;
+  try {
+    await enviarSMS(to, mensaje || 'Prueba');
+    res.status(200).json({ ok: true, message: 'SMS enviado' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// Cron temporal para pruebas (cada minuto). Cambiar a horario definitivo en producción.
+cron.schedule("0 8 * * *", async () => {
+  try {
+    const materias = await Materia.find();
+    const hoy = new Date();
+    for (const materia of materias) {
+      for (const tarea of materia.tareas) {
+        if (!tarea.fecha) continue;
+        const fechaTarea = new Date(tarea.fecha);
+        const diferencia = (fechaTarea - hoy) / (1000 * 60 * 60 * 24);
+        if (diferencia <= 1 && diferencia >= -1 && !tarea.completada) {
+          try {
+            if (materia.user && materia.user.includes("@")) {
+              await enviarCorreo(materia.user, "Recordatorio de tarea", `No olvides: ${tarea.descripcion} para ${tarea.fecha}`);
+            } else {
+              await enviarSMS(materia.user, `Recordatorio: ${tarea.descripcion} para ${tarea.fecha}`);
+            }
+          } catch (errInner) {
+            console.error('Error enviando recordatorio para', materia._id, tarea._id, errInner);
+          }
         }
       }
     }
+  } catch (e) {
+    console.error('Error en cron recordatorios:', e);
   }
 });
 

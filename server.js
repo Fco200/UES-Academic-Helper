@@ -46,20 +46,25 @@ const transporter = nodemailer.createTransport({
 app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo } = req.body;
     try {
+        // Buscamos si el usuario ya existe por su correo o cel
         let user = await Usuario.findOne({ identificador: email });
+        
         if (!user) {
-            // Si no existe, lo creamos con la contraseña por defecto
-            user = new Usuario({ identificador: email });
+            // Si es la primera vez que entra, lo registramos con la pass default
+            user = new Usuario({ identificador: email, password: "UES2026" });
             await user.save();
+            console.log(`🆕 Nuevo usuario registrado: ${email}`);
         }
 
         if (user.password === codigo) {
-            res.status(200).send({ message: 'Acceso concedido', redirect: '/home.html' });
+            console.log(`✅ Acceso correcto: ${email}`);
+            res.status(200).send({ message: 'OK', redirect: '/home.html' });
         } else {
-            res.status(400).send({ message: 'Contraseña incorrecta' });
+            res.status(401).send({ message: 'La contraseña no coincide' });
         }
     } catch (error) {
-        res.status(500).send({ message: 'Error en el servidor' });
+        console.error("Error en login:", error);
+        res.status(500).send({ message: 'Error interno del servidor' });
     }
 });
 

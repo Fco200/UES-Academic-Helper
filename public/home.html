@@ -3,92 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - UES Academic Helper</title>
+    <title>Home | UES Academic Helper</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --personal-dark: #2c3e50; }
-        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-        .hero-section { background: linear-gradient(135deg, var(--ues-guinda) 0%, #4a0000 100%); color: white; padding: 60px 0; border-bottom: 5px solid var(--ues-oro); }
-        .menu-card { cursor: pointer; transition: 0.3s; border: none; border-radius: 15px; height: 100%; }
-        .menu-card:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .icon-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.8rem; color: white; }
-        .bg-escuela { background-color: var(--ues-guinda); }
-        .bg-personal { background-color: var(--personal-dark); }
-        .bg-cal { background-color: #e67e22; }
-        .bg-logout { background-color: #c0392b; }
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --dark: #1a1a1a; }
+        body { background: #f0f2f5; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        /* Sidebar Estilo Pro */
+        .sidebar { background: var(--dark); color: white; min-height: 100vh; position: fixed; width: 260px; padding: 20px; z-index: 1000; }
+        .main-content { margin-left: 260px; padding: 30px; }
+        
+        .nav-link-custom { 
+            color: #adb5bd; padding: 12px 15px; border-radius: 10px; 
+            margin-bottom: 8px; display: block; text-decoration: none; transition: 0.3s;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active { background: var(--ues-guinda); color: white; }
+        
+        /* Glassmorphism Cards */
+        .glass-card { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; }
+        
+        .header-status { background: linear-gradient(135deg, var(--ues-guinda), #4a0000); color: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; }
+        
+        #calendar { background: white; padding: 20px; border-radius: 15px; }
+        
+        /* Reloj Estilo Digital */
+        .reloj-box { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 1.5rem; color: var(--ues-oro); }
     </style>
 </head>
 <body>
 
-    <section class="hero-section text-center">
-        <div class="container">
-            <h1 class="display-5">¡Bienvenido, <span id="userName">INGENIERO</span>!</h1>
-            <h2 id="relojHermosillo" class="mt-2" style="font-weight: 300; letter-spacing: 3px;">00:00:00</h2>
-            <p id="fechaHoy" class="lead"></p>
+    <div class="sidebar">
+        <h3 class="fw-bold mb-4 text-center">UES <span class="text-danger">Helper</span></h3>
+        <hr>
+        <div class="mb-4">
+            <small class="text-muted text-uppercase fw-bold">Menú Principal</small>
+            <a href="#" class="nav-link-custom active" onclick="navegar('escuela')"><i class="fas fa-university me-2"></i> Universidad</a>
+            <a href="#" class="nav-link-custom" onclick="navegar('personal')"><i class="fas fa-user-shield me-2"></i> Personal</a>
         </div>
-    </section>
-
-    <div class="container my-5">
-        <div class="row g-4 text-center">
-            <div class="col-md-3">
-                <div class="card menu-card shadow-sm p-4 position-relative">
-                    <span id="badgeTareas" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
-                          style="display: none; cursor: pointer; z-index: 10;" onclick="verTareasDeHoy(event)">0</span>
-                    <div onclick="navegar('escuela')">
-                        <div class="icon-circle bg-escuela"><i class="fas fa-graduation-cap"></i></div>
-                        <h5>Escuela / Trabajo</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card menu-card shadow-sm p-4" onclick="navegar('personal')">
-                    <div class="icon-circle bg-personal"><i class="fas fa-user-tag"></i></div>
-                    <h5>Uso Personal</h5>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card menu-card shadow-sm p-4" onclick="navegar('calendario')">
-                    <div class="icon-circle bg-cal"><i class="fas fa-calendar-alt"></i></div>
-                    <h5>Calendario</h5>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card menu-card shadow-sm p-4" onclick="cerrarSesion()">
-                    <div class="icon-circle bg-logout"><i class="fas fa-sign-out-alt"></i></div>
-                    <h5>Cerrar Sesión</h5>
-                </div>
+        
+        <div class="mb-4">
+            <small class="text-muted text-uppercase fw-bold">Asistencia</small>
+            <div class="bg-dark p-3 rounded" style="font-size: 0.8em;">
+                <i class="fas fa-robot text-danger me-2"></i> <span id="ia-status">Sincronizado</span>
             </div>
         </div>
+
+        <button onclick="cerrarSesion()" class="btn btn-danger w-100 mt-5"><i class="fas fa-sign-out-alt me-2"></i> Salir</button>
     </div>
 
-    <div class="modal fade" id="modalTareasHoy" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Tareas para hoy</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="main-content">
+        <div class="header-status d-flex justify-content-between align-items-center shadow">
+            <div>
+                <h2 class="mb-0">Hola, <span id="userName">Ingeniero</span> 👋</h2>
+                <p class="mb-0 opacity-75" id="fechaHoy"></p>
+            </div>
+            <div class="text-end">
+                <div class="reloj-box" id="relojHermosillo">00:00:00</div>
+                <span class="badge bg-warning text-dark">Hermosillo, Sonora</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="glass-card shadow-sm">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-calendar-day text-danger me-2"></i> Mi Agenda Académica</h5>
+                    <div id="calendar"></div>
                 </div>
-                <div class="modal-body"><ul id="listaTareasHoy" class="list-group list-group-flush"></ul></div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-card mb-4 shadow-sm bg-white">
+                    <h5 class="fw-bold"><i class="fas fa-tasks text-danger me-2"></i> Pendientes Hoy</h5>
+                    <hr>
+                    <div id="pendientesLista" class="small">
+                        </div>
+                </div>
+                
+                <div class="glass-card text-center bg-dark text-white shadow-sm">
+                    <i class="fas fa-graduation-cap fa-3x mb-3 text-danger"></i>
+                    <h6>Ingeniería en Software</h6>
+                    <small class="opacity-50">UES - 2026</small>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
     <script>
         const userEmail = localStorage.getItem('userEmail');
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             if(!userEmail) window.location.href = '/index.html';
-            document.getElementById('userName').innerText = userEmail.split('@')[0].toUpperCase();
-            document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
+            // Nombre de usuario
+            document.getElementById('userName').innerText = userEmail.split('@')[0].toUpperCase();
+            
+            // Fecha
+            document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+
+            // Iniciar Reloj e IA
             setInterval(actualizarReloj, 1000);
             actualizarReloj();
-            cargarWidgets();
+            
+            // CARGAR CALENDARIO Y DATOS
+            await inicializarCalendario();
         });
 
         function actualizarReloj() {
@@ -96,39 +121,50 @@
             document.getElementById('relojHermosillo').innerText = new Date().toLocaleTimeString('es-MX', opciones);
         }
 
-        async function cargarWidgets() {
-            const hoy = new Date().toLocaleDateString('en-CA');
+        async function inicializarCalendario() {
             const res = await fetch(`/obtener-materias/${userEmail}`);
             const materias = await res.json();
-            let hoyCount = 0;
-            materias.forEach(m => m.tareas.forEach(t => { if(t.fecha === hoy) hoyCount++; }));
-            if(hoyCount > 0) {
-                const badge = document.getElementById('badgeTareas');
-                badge.innerText = hoyCount;
-                badge.style.display = 'block';
-            }
-        }
+            const events = [];
+            const listaPendientes = document.getElementById('pendientesLista');
+            const hoy = new Date().toISOString().split('T')[0];
+            
+            listaPendientes.innerHTML = '';
 
-        async function verTareasDeHoy(event) {
-            event.stopPropagation();
-            const hoy = new Date().toLocaleDateString('en-CA');
-            const res = await fetch(`/obtener-materias/${userEmail}`);
-            const materias = await res.json();
-            const lista = document.getElementById('listaTareasHoy');
-            lista.innerHTML = '';
-            materias.forEach(m => m.tareas.forEach(t => {
-                if(t.fecha === hoy) lista.innerHTML += `<li class="list-group-item"><strong>${m.nombre}:</strong> ${t.descripcion}</li>`;
-            }));
-            new bootstrap.Modal(document.getElementById('modalTareasHoy')).show();
+            materias.forEach(m => {
+                m.tareas.forEach(t => {
+                    // Agregar al calendario
+                    events.push({
+                        title: `${m.nombre}: ${t.descripcion}`,
+                        start: t.fecha,
+                        color: t.completada ? '#28a745' : '#800000'
+                    });
+
+                    // Si es para hoy, poner en la lista lateral
+                    if(t.fecha === hoy && !t.completada) {
+                        listaPendientes.innerHTML += `
+                            <div class="alert alert-danger py-2 mb-2">
+                                <i class="fas fa-clock me-2"></i> ${t.descripcion}
+                            </div>`;
+                    }
+                });
+            });
+
+            if(listaPendientes.innerHTML === '') listaPendientes.innerHTML = '<p class="text-muted">¡Todo al día!</p>';
+
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+                events: events,
+                themeSystem: 'bootstrap5'
+            });
+            calendar.render();
         }
 
         function navegar(opcion) {
-            if(opcion === 'calendario') {
-                window.location.href = '/calendario.html';
-            } else {
-                localStorage.setItem('perfilUsuario', opcion);
-                window.location.href = '/configuracion-inicial.html';
-            }
+            localStorage.setItem('perfilUsuario', opcion);
+            window.location.href = '/dashboard.html';
         }
 
         function cerrarSesion() {

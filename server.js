@@ -114,6 +114,10 @@ app.post('/completar-tarea', async (req, res) => {
     res.status(500).send({ message: "Error al actualizar estado" });
   }
 });
+app.get("/google74ea19ac0f79b1ad.html", (req, res) => {
+  res.send("google-site-verification: google74ea19ac0f79b1ad.html");
+});
+
 
 // --- INICIO DEL SERVIDOR ---
 app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

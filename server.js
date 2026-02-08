@@ -87,12 +87,14 @@ app.post('/enviar-codigo', (req, res) => {
 
 app.post('/verificar-codigo', (req, res) => {
     const { email, codigo } = req.body;
-    if (codigosTemporales[email] && codigosTemporales[email] == codigo) {
-        delete codigosTemporales[email];
-        // Redirige al Home dinámico
-        res.status(200).send({ message: 'Código correcto', redirect: '/home.html' });
+    
+    // Cambiamos la lógica: Si el "código" es igual a tu contraseña fija
+    const PASSWORD_MAESTRA = "UES2026"; 
+
+    if (codigo === PASSWORD_MAESTRA) {
+        res.status(200).send({ message: 'Acceso concedido', redirect: '/home.html' });
     } else {
-        res.status(400).send({ message: 'Código incorrecto' });
+        res.status(400).send({ message: 'Contraseña incorrecta' });
     }
 });
 

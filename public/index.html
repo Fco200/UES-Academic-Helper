@@ -60,33 +60,16 @@
     <script>
         const loader = document.getElementById('loader-container');
 
-        async function enviarCodigo() {
-            const email = document.getElementById('email').value;
-            if (!email) return alert("Ingresa un correo");
-
-            loader.style.display = 'flex';
-            try {
-                const res = await fetch('/enviar-codigo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-
-                if (res.ok) {
-                    localStorage.setItem('userEmail', email);
-                    document.getElementById('paso1').style.display = 'none';
-                    document.getElementById('paso2').style.display = 'block';
-                } else {
-                    alert("Error al enviar el código. Intenta de nuevo.");
-                }
-            } catch (e) {
-                alert("Error de conexión con el servidor.");
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        async function verificarCodigo() {
+      async function enviarCodigo() {
+    const email = document.getElementById('email').value;
+    if (!email) return alert("Ingresa tu correo");
+    
+    // Guardamos el correo y saltamos directo al paso de la contraseña
+    localStorage.setItem('userEmail', email);
+    document.getElementById('paso1').style.display = 'none';
+    document.getElementById('paso2').style.display = 'block';
+}
+async function verificarCodigo() {
             const email = localStorage.getItem('userEmail');
             const codigo = document.getElementById('codigo').value;
 

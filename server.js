@@ -5,12 +5,12 @@ const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-
-const express = require("express");
-const path = require("path");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
 
 // Servir carpeta "public"
 app.use(express.static(path.join(__dirname, "public")));
@@ -29,97 +29,91 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-});
-
-
-
-
-// CONEXIÓN A MONGODB (Asegúrate de tener 0.0.0.0/0 en Network Access de Atlas)
+// --- CONEXIÓN A MONGODB ---
 mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("✅ SISTEMA CONECTADO A MONGODB"))
-    .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
+  .then(() => console.log("✅ SISTEMA CONECTADO A MONGODB"))
+  .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
 
-// CONFIGURACIÓN DE IA GEMINI
+// --- CONFIGURACIÓN DE IA GEMINI ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// MODELOS DE DATOS
+// --- MODELOS DE DATOS ---
 const Usuario = mongoose.model('Usuario', new mongoose.Schema({
-    identificador: { type: String, unique: true },
-    password: { type: String, default: "UES2026" }
+  identificador: { type: String, unique: true },
+  password: { type: String, default: "UES2026" }
 }));
 
 const Materia = mongoose.model('Materia', new mongoose.Schema({
-    user: String,
-    nombre: String,
-    tareas: [{ descripcion: String, fecha: String, completada: { type: Boolean, default: false } }]
+  user: String,
+  nombre: String,
+  tareas: [{ descripcion: String, fecha: String, completada: { type: Boolean, default: false } }]
 }));
 
-// RUTAS DE AUTENTICACIÓN
+// --- RUTAS DE AUTENTICACIÓN ---
 app.post('/verificar-codigo', async (req, res) => {
-    const { email, codigo } = req.body;
-    try {
-        let user = await Usuario.findOne({ identificador: email });
-        if (!user) user = await Usuario.create({ identificador: email });
-        
-        if (user.password === codigo) res.status(200).send({ redirect: '/home.html' });
-        else res.status(401).send({ message: 'Contraseña incorrecta' });
-    } catch (e) { res.status(500).send({ message: 'Error en login' }); }
+  const { email, codigo } = req.body;
+  try {
+    let user = await Usuario.findOne({ identificador: email });
+    if (!user) user = await Usuario.create({ identificador: email });
+    
+    if (user.password === codigo) res.status(200).send({ redirect: '/home.html' });
+    else res.status(401).send({ message: 'Contraseña incorrecta' });
+  } catch (e) { res.status(500).send({ message: 'Error en login' }); }
 });
 
 app.post('/cambiar-password', async (req, res) => {
-    const { email, nuevaPassword } = req.body;
-    try {
-        await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword });
-        res.status(200).send({ message: 'OK' });
-    } catch (e) { res.status(500).send({ message: 'Error al cambiar pass' }); }
+  const { email, nuevaPassword } = req.body;
+  try {
+    await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword });
+    res.status(200).send({ message: 'OK' });
+  } catch (e) { res.status(500).send({ message: 'Error al cambiar pass' }); }
 });
 
-// RUTAS DE DATOS (Persistencia)
+// --- RUTAS DE DATOS ---
 app.post('/agregar-materia', async (req, res) => {
-    const { email, nombre } = req.body;
-    await Materia.create({ user: email, nombre, tareas: [] });
-    res.sendStatus(200);
+  const { email, nombre } = req.body;
+  await Materia.create({ user: email, nombre, tareas: [] });
+  res.sendStatus(200);
 });
 
 app.post('/agregar-tarea', async (req, res) => {
-    const { materiaId, descripcion, fecha } = req.body;
-    try {
-        const materia = await Materia.findById(materiaId);
-        materia.tareas.push({ descripcion, fecha });
-        await materia.save();
-        res.sendStatus(200);
-    } catch (e) { res.status(500).send({ message: 'Error al guardar tarea' }); }
+  const { materiaId, descripcion, fecha } = req.body;
+  try {
+    const materia = await Materia.findById(materiaId);
+    materia.tareas.push({ descripcion, fecha });
+    await materia.save();
+    res.sendStatus(200);
+  } catch (e) { res.status(500).send({ message: 'Error al guardar tarea' }); }
 });
 
 app.get('/obtener-materias/:email', async (req, res) => {
-    const datos = await Materia.find({ user: req.params.email });
-    res.json(datos);
+  const datos = await Materia.find({ user: req.params.email });
+  res.json(datos);
 });
 
-// RUTA ASISTENTE IA
+// --- RUTA ASISTENTE IA ---
 app.post('/ia-asistente', async (req, res) => {
-    const { prompt } = req.body;
-    try {
-        const result = await model.generateContent(prompt);
-        res.json({ respuesta: result.response.text() });
-    } catch (e) { res.status(500).json({ respuesta: "IA ocupada, intenta luego." }); }
+  const { prompt } = req.body;
+  try {
+    const result = await model.generateContent(prompt);
+    res.json({ respuesta: result.response.text() });
+  } catch (e) { res.status(500).json({ respuesta: "IA ocupada, intenta luego." }); }
 });
-// --- NUEVA RUTA: MARCAR TAREA COMO COMPLETADA/PENDIENTE ---
+
+// --- NUEVA RUTA: COMPLETAR TAREA ---
 app.post('/completar-tarea', async (req, res) => {
-    const { materiaId, tareaId, completada } = req.body;
-    try {
-        const materia = await Materia.findById(materiaId);
-        const tarea = materia.tareas.id(tareaId);
-        tarea.completada = completada;
-        await materia.save();
-        res.sendStatus(200);
-    } catch (e) {
-        res.status(500).send({ message: "Error al actualizar estado" });
-    }
+  const { materiaId, tareaId, completada } = req.body;
+  try {
+    const materia = await Materia.findById(materiaId);
+    const tarea = materia.tareas.id(tareaId);
+    tarea.completada = completada;
+    await materia.save();
+    res.sendStatus(200);
+  } catch (e) {
+    res.status(500).send({ message: "Error al actualizar estado" });
+  }
 });
 
-
+// --- INICIO DEL SERVIDOR ---
 app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

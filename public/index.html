@@ -10,7 +10,10 @@
         .btn-ues { background: #800000; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
         .btn-ues:hover { background: #a00000; }
         .form-control { background: #333; border: none; color: white; }
+        .alerta { font-size: 0.9em; color: #ffcc00; margin-top: 10px; }
     </style>
+    <meta name="description" content="Organiza tus materias, tareas y recibe ayuda con IA en la UES.">
+    <meta name="keywords" content="UES, académico, tareas, materias, IA, estudiantes, universidad">
 </head>
 <body>
     <div class="login-card shadow-lg">
@@ -25,18 +28,23 @@
         <div id="paso2" style="display:none;">
             <input type="password" id="passInput" class="form-control mb-3" placeholder="Contraseña">
             <button onclick="entrar()" class="btn btn-success w-100">Acceder</button>
+            <p class="alerta">⚠️ La contraseña inicial es <b>UES2026</b>. Una vez dentro, debes cambiarla obligatoriamente.</p>
         </div>
     </div>
     <script>
         function validarYPasar() {
-            const val = document.getElementById('userInput').value;
-            const esEmail = val.includes('@');
-            const esTel = /^\d{10}$/.test(val);
-            if (!esEmail && !esTel) return alert("Ingresa un correo válido o teléfono a 10 dígitos");
+            const val = document.getElementById('userInput').value.trim();
+            const esEmail = /^[^@]+@[^@]+\.[^@]+$/.test(val); // valida estructura de correo
+            const esTel = /^\d{10}$/.test(val); // valida teléfono de 10 dígitos
+            if (!esEmail && !esTel) {
+                alert("Ingresa un correo válido (con @) o un teléfono de 10 dígitos");
+                return;
+            }
             localStorage.setItem('userEmail', val);
             document.getElementById('paso1').style.display = 'none';
             document.getElementById('paso2').style.display = 'block';
         }
+
         async function entrar() {
             const email = localStorage.getItem('userEmail');
             const codigo = document.getElementById('passInput').value;
@@ -45,8 +53,11 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ email, codigo })
             });
-            if (res.ok) window.location.href = '/home.html';
-            else alert("Error de acceso");
+            if (res.ok) {
+                window.location.href = '/home.html';
+            } else {
+                alert("Error de acceso. Verifica tus datos.");
+            }
         }
     </script>
 </body>

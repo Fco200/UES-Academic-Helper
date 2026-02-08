@@ -5,20 +5,17 @@ const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
+
 const express = require("express");
 const path = require("path");
 
-
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Servir la carpeta "public"
+// Servir carpeta "public"
 app.use(express.static(path.join(__dirname, "public")));
 
-// Servir robots.txt y sitemap.xml desde la raíz
+// Servir robots.txt y sitemap.xml desde raíz
 app.get("/robots.txt", (req, res) => {
   res.sendFile(path.join(__dirname, "robots.txt"));
 });
@@ -27,8 +24,7 @@ app.get("/sitemap.xml", (req, res) => {
   res.sendFile(path.join(__dirname, "sitemap.xml"));
 });
 
-// Resto de tus rutas
-// Ejemplo:
+// Ruta principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -36,6 +32,8 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+
+
 
 
 // CONEXIÓN A MONGODB (Asegúrate de tener 0.0.0.0/0 en Network Access de Atlas)

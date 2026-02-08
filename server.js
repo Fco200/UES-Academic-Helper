@@ -9,6 +9,34 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
+const express = require("express");
+const path = require("path");
+
+
+const PORT = process.env.PORT || 3000;
+
+// Servir la carpeta "public"
+app.use(express.static(path.join(__dirname, "public")));
+
+// Servir robots.txt y sitemap.xml desde la raíz
+app.get("/robots.txt", (req, res) => {
+  res.sendFile(path.join(__dirname, "robots.txt"));
+});
+
+app.get("/sitemap.xml", (req, res) => {
+  res.sendFile(path.join(__dirname, "sitemap.xml"));
+});
+
+// Resto de tus rutas
+// Ejemplo:
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
+});
+
 
 // CONEXIÓN A MONGODB (Asegúrate de tener 0.0.0.0/0 en Network Access de Atlas)
 mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
@@ -95,5 +123,5 @@ app.post('/completar-tarea', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

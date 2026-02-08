@@ -50,32 +50,43 @@
         const userEmail = localStorage.getItem('userEmail');
         document.getElementById('userBadge').innerText = userEmail;
 
-        async function cargarTodo() {
-            const res = await fetch(`/obtener-materias/${userEmail}`);
-            const materias = await res.json();
-            const cont = document.getElementById('contenedorPrincipal');
-            cont.innerHTML = '';
+       // Función cargarTodo mejorada para el diseño de tareas
+async function cargarTodo() {
+    const res = await fetch(`/obtener-materias/${userEmail}`);
+    const materias = await res.json();
+    const cont = document.getElementById('contenedorPrincipal');
+    cont.innerHTML = '';
 
-            materias.forEach(m => {
-                cont.innerHTML += `
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4 card-note bg-white">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h4 class="fw-bold m-0">${m.nombre}</h4>
-                                <button onclick="pedirIA('${m.nombre}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
+    materias.forEach(m => {
+        cont.innerHTML += `
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 card-note bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold m-0 ${m.nombre.toLowerCase().includes('nota') ? 'text-primary' : 'text-dark'}">${m.nombre}</h4>
+                        <button onclick="pedirIA('${m.nombre}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
+                    </div>
+                    <div class="tareas-container">
+                        ${m.tareas.map(t => `
+                            <div class="d-flex align-items-center border-bottom py-2">
+                                <input type="checkbox" class="form-check-input me-2" 
+                                    ${t.completada ? 'checked' : ''} 
+                                    onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})">
+                                <span class="${t.completada ? 'text-decoration-line-through text-muted' : ''} flex-grow-1 small">
+                                    ${t.descripcion}
+                                </span>
+                                <span class="badge bg-light text-dark ms-2" style="font-size: 0.7em;">${t.fecha}</span>
                             </div>
-                            <div class="mb-3">
-                                ${m.tareas.map(t => `<div class="d-flex justify-content-between py-1 small border-bottom"><span>${t.descripcion}</span><span>${t.fecha}</span></div>`).join('')}
-                            </div>
-                            <div class="input-group input-group-sm mt-3">
-                                <input type="text" id="t-${m._id}" class="form-control" placeholder="Tarea">
-                                <input type="date" id="f-${m._id}" class="form-control">
-                                <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-        }
+                        `).join('') || '<p class="text-muted small">Sin registros</p>'}
+                    </div>
+                    <div class="input-group input-group-sm mt-3">
+                        <input type="text" id="t-${m._id}" class="form-control" placeholder="Tarea o detalle...">
+                        <input type="date" id="f-${m._id}" class="form-control">
+                        <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
 
         async function guardarNuevo() {
             const nombre = document.getElementById('nombreInput').value;
@@ -104,6 +115,19 @@
             const data = await res.json();
             alert("Consejo IA: " + data.respuesta);
         }
+        // Función para marcar como completada
+async function toggleTarea(materiaId, tareaId, estadoActual) {
+    await fetch('/completar-tarea', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            materiaId, 
+            tareaId, 
+            completada: !estadoActual 
+        })
+    });
+    cargarTodo(); // Recargar para ver el cambio
+}
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
         window.onload = cargarTodo;

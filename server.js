@@ -81,6 +81,19 @@ app.post('/ia-asistente', async (req, res) => {
         res.json({ respuesta: result.response.text() });
     } catch (e) { res.status(500).json({ respuesta: "IA ocupada, intenta luego." }); }
 });
+// --- NUEVA RUTA: MARCAR TAREA COMO COMPLETADA/PENDIENTE ---
+app.post('/completar-tarea', async (req, res) => {
+    const { materiaId, tareaId, completada } = req.body;
+    try {
+        const materia = await Materia.findById(materiaId);
+        const tarea = materia.tareas.id(tareaId);
+        tarea.completada = completada;
+        await materia.save();
+        res.sendStatus(200);
+    } catch (e) {
+        res.status(500).send({ message: "Error al actualizar estado" });
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

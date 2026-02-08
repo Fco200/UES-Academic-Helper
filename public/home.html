@@ -140,11 +140,12 @@
                     });
 
                     // Si es para hoy, poner en la lista lateral
-                    if(t.fecha === hoy && !t.completada) {
-                        listaPendientes.innerHTML += `
-                            <div class="alert alert-danger py-2 mb-2">
-                                <i class="fas fa-clock me-2"></i> ${t.descripcion}
-                            </div>`;
+                   if(t.fecha === hoy && !t.completada) {
+            listaPendientes.innerHTML += `
+                <div class="alert alert-danger py-2 mb-2 d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-exclamation-circle me-2"></i> ${t.descripcion}</span>
+                    <small class="fw-bold">${m.nombre}</small>
+                </div>`;
                     }
                 });
             });

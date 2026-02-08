@@ -17,12 +17,12 @@ mongoose.connect(process.env.MONGO_URI)
 
 // --- ESQUEMAS ---
 
-// Nuevo: Modelo de Usuario para contraseñas personalizadas
+/* Nuevo: Modelo de Usuario para contraseñas personalizadas
 const UsuarioSchema = new mongoose.Schema({
     identificador: { type: String, unique: true }, // Correo o Teléfono
     password: { type: String, default: "UES2026" }
-});
-const Usuario = mongoose.model('Usuario', UsuarioSchema);
+});*/
+
 
 const MateriaSchema = new mongoose.Schema({
     emailEstudiante: String,
@@ -40,8 +40,51 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
 });
+// ... (Mantén tus importaciones iniciales de express, mongoose, etc.)
+
+// --- ESQUEMA DE USUARIO ACTUALIZADO ---
+const UsuarioSchema = new mongoose.Schema({
+    identificador: { type: String, unique: true }, 
+    password: { type: String, default: "UES2026" },
+    esNuevo: { type: Boolean, default: true } // Para saber si ya cambió la pass inicial
+});
+const Usuario = mongoose.model('Usuario', UsuarioSchema);
+
+// --- RUTA DE CAMBIO DE CONTRASEÑA REAL ---
+app.post('/cambiar-password', async (req, res) => {
+    const { email, nuevaPassword } = req.body;
+    try {
+        await Usuario.findOneAndUpdate(
+            { identificador: email }, 
+            { password: nuevaPassword, esNuevo: false } 
+        );
+        res.status(200).send({ message: 'Contraseña actualizada correctamente' });
+    } catch (e) {
+        res.status(500).send({ message: 'Error al actualizar' });
+    }
+});
+
+// --- RUTA PARA OBTENER RESUMEN DE PENDIENTES (IA) ---
+app.get('/resumen-ia/:email', async (req, res) => {
+    try {
+        const materias = await Materia.find({ emailEstudiante: req.params.email });
+        let pendientes = [];
+        materias.forEach(m => {
+            m.tareas.filter(t => !t.completada).forEach(t => {
+                pendientes.push(`${t.descripcion} (Materia: ${m.nombre})`);
+            });
+        });
+
+        const prompt = `Tengo estas tareas pendientes: ${pendientes.join(', ')}. Dame un consejo motivador corto y dime cuál debería ser mi prioridad hoy como estudiante de la UES.`;
+        const result = await model.generateContent(prompt);
+        res.json({ resumen: result.response.text() });
+    } catch (error) {
+        res.json({ resumen: "¡Sigue esforzándote! Tienes tareas por terminar hoy." });
+    }
+});
 
 // --- RUTAS DE USUARIO ---
+
 
 app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo } = req.body;

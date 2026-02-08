@@ -10,81 +10,58 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- CONEXIÓN ---
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ Conexión establecida con MongoDB Atlas"))
-    .catch(err => console.error("❌ Error de conexión:", err));
+// CONEXIÓN ROBUSTA (Asegúrate de tener 0.0.0.0/0 en MongoDB Atlas)
+mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+    .then(() => console.log("✅ SISTEMA CONECTADO A MONGODB"))
+    .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
 
-// --- IA CONFIG ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// --- MODELOS ---
+// MODELOS
 const Usuario = mongoose.model('Usuario', new mongoose.Schema({
-    identificador: { type: String, unique: true, required: true },
-    password: { type: String, default: "UES2026" },
-    esNuevo: { type: Boolean, default: true }
+    identificador: { type: String, unique: true },
+    password: { type: String, default: "UES2026" }
 }));
 
 const Materia = mongoose.model('Materia', new mongoose.Schema({
-    emailEstudiante: String,
+    user: String,
     nombre: String,
-    tipo: String, // 'Escuela' o 'Personal'
-    tareas: [{
-        descripcion: String,
-        fecha: String,
-        completada: { type: Boolean, default: false }
-    }]
+    tareas: [{ descripcion: String, fecha: String, completada: { type: Boolean, default: false } }]
 }));
 
-// --- RUTAS CRÍTICAS ---
-
-// Login con Validación
+// RUTAS
 app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo } = req.body;
-    try {
-        let user = await Usuario.findOne({ identificador: email });
-        if (!user) {
-            user = new Usuario({ identificador: email });
-            await user.save();
-        }
-        if (user.password === codigo) {
-            res.status(200).send({ message: 'OK', redirect: '/home.html' });
-        } else {
-            res.status(401).send({ message: 'Credenciales incorrectas' });
-        }
-    } catch (e) { res.status(500).send({ message: 'Error en BD' }); }
+    let user = await Usuario.findOne({ identificador: email });
+    if (!user) user = await Usuario.create({ identificador: email });
+    
+    if (user.password === codigo) res.status(200).send({ redirect: '/dashboard.html' });
+    else res.status(401).send({ message: 'Contraseña incorrecta' });
 });
 
-// Cambio de Contraseña (Borra la fija)
 app.post('/cambiar-password', async (req, res) => {
     const { email, nuevaPassword } = req.body;
-    try {
-        await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword, esNuevo: false });
-        res.status(200).send({ message: 'Contraseña actualizada' });
-    } catch (e) { res.status(500).send({ message: 'Error' }); }
+    await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword });
+    res.status(200).send({ message: 'OK' });
 });
 
-// Persistencia de Materias/Notas
 app.post('/agregar-materia', async (req, res) => {
-    const { email, nombreMateria, tipo } = req.body;
-    const nueva = new Materia({ emailEstudiante: email, nombre: nombreMateria, tipo });
-    await nueva.save();
-    res.status(200).send({ message: 'Guardado' });
+    const { email, nombre } = req.body;
+    await Materia.create({ user: email, nombre, tareas: [] });
+    res.sendStatus(200);
 });
 
-app.get('/obtener-materias/:email', async (req, res) => {
-    const materias = await Materia.find({ emailEstudiante: req.params.email });
-    res.json(materias);
+app.get('/obtener-datos/:email', async (req, res) => {
+    const datos = await Materia.find({ user: req.params.email });
+    res.json(datos);
 });
 
-// IA Resumen de Inicio
-app.post('/ia-resumen', async (req, res) => {
-    const { tareas } = req.body;
-    const prompt = `Tengo estas tareas pendientes en la UES: ${tareas.join(', ')}. Dame un consejo de 10 palabras y prioriza una.`;
+app.post('/ia-asistente', async (req, res) => {
+    const { prompt } = req.body;
     const result = await model.generateContent(prompt);
     res.json({ respuesta: result.response.text() });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Puerto: ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

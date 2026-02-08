@@ -1,91 +1,119 @@
-<div class="container mt-3 text-end">
-    <button class="btn btn-outline-dark btn-sm" onclick="cambiarMiPassword()">Cambiar Contraseña</button>
-</div>
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm">
-                <h5 id="labelAgregar">Agregar Materia</h5>
-                <input type="text" id="nombreMateria" class="form-control mb-2" placeholder="...">
-                <button onclick="guardarMateria()" class="btn btn-success w-100">Guardar</button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel UES</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        :root { --ues: #800000; }
+        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
+        .sidebar { background: #1a1a1a; min-height: 100vh; color: white; padding: 25px; }
+        .card-note { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .ai-badge { background: linear-gradient(45deg, var(--ues), #4b0000); color: white; padding: 15px; border-radius: 10px; margin-bottom: 25px; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 sidebar">
+                <h3 class="fw-bold mb-4">UES Academic</h3>
+                <div class="ai-badge">
+                    <small><i class="fas fa-robot"></i> Asistente IA:</small>
+                    <p id="ai-text" class="mb-0 mt-2" style="font-size: 0.8em;">Cargando sabiduría...</p>
+                </div>
+                <button class="btn btn-outline-light w-100 mb-2" onclick="cambiarPassword()">Cambiar Contraseña</button>
+                <a href="/index.html" class="btn btn-danger w-100">Salir</a>
+            </div>
+            <div class="col-md-9 p-5">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card p-4 card-note bg-white">
+                            <h5 class="fw-bold"><i class="fas fa-plus-circle text-danger"></i> Agregar Nuevo Registro</h5>
+                            <div class="input-group mt-3">
+                                <input type="text" id="nombreInput" class="form-control" placeholder="Nombre de materia o categoría...">
+                                <button onclick="guardarNuevo()" class="btn btn-dark">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="contenedorPrincipal" class="row"></div>
             </div>
         </div>
-        <div class="col-md-8">
-            <h3 id="labelLista">Mis Registros</h3>
-            <div id="listaMaterias"></div>
-        </div>
     </div>
-</div>
+    <script>
+        const userEmail = localStorage.getItem('userEmail');
+        const tipoPerfil = localStorage.getItem('perfilUsuario'); // 'escuela' o 'personal'
 
-<script>
-    // Lógica para adaptar el texto según perfil
-    const tipoRegistro = localStorage.getItem('tipoRegistro'); // "Estudio", "Trabajo" o "Notas"
-    document.getElementById('labelAgregar').innerText = `Agregar ${tipoRegistro === 'Notas' ? 'Categoría de Nota' : 'Materia'}`;
-    document.getElementById('labelLista').innerText = `Mis ${tipoRegistro === 'Notas' ? 'Notas' : 'Materias'}`;
+        async function cargarTodo() {
+            const res = await fetch(`/obtener-materias/${userEmail}`);
+            const datos = await res.json();
+            const cont = document.getElementById('contenedorPrincipal');
+            cont.innerHTML = '';
+            let listaIA = [];
 
-    async function cargarMaterias() {
-        const res = await fetch(`/obtener-materias/${userEmail}`);
-        const materias = await res.json();
-        const div = document.getElementById('listaMaterias');
-        div.innerHTML = '';
+            datos.forEach(item => {
+                const tareasPendientes = item.tareas.filter(t => !t.completada);
+                tareasPendientes.forEach(t => listaIA.push(t.descripcion));
 
-        materias.forEach(m => {
-            // Filtrar solo tareas NO completadas
-            let tareasHTML = m.tareas.filter(t => !t.completada).map(t => `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="fas fa-thumbtack text-warning me-2"></i> ${t.descripcion} 
-                        <span class="badge bg-info ms-2">${t.fecha}</span>
-                    </div>
-                    <button class="btn btn-sm btn-outline-success" onclick="completarTarea('${m._id}', '${t._id}')">
-                        <i class="fas fa-check"></i> Listo
-                    </button>
-                </li>
-            `).join('');
+                cont.innerHTML += `
+                    <div class="col-md-6 mb-4">
+                        <div class="card p-4 card-note">
+                            <h4 class="fw-bold">${item.nombre}</h4>
+                            <div id="tareas-${item._id}" class="my-3">
+                                ${tareasPendientes.map(t => `
+                                    <div class="d-flex justify-content-between border-bottom py-2">
+                                        <span>${t.descripcion}</span>
+                                        <span class="badge bg-light text-dark">${t.fecha}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="t-${item._id}" class="form-control" placeholder="Tarea">
+                                <input type="date" id="f-${item._id}" class="form-control">
+                                <button onclick="agregarTarea('${item._id}')" class="btn btn-dark">+</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            pedirResumenIA(listaIA);
+        }
 
-            div.innerHTML += `
-                <div class="card p-3 card-materia shadow-sm">
-                    <h4><i class="fas fa-folder-open me-2"></i>${m.nombre}</h4>
-                    <ul class="list-group list-group-flush mb-3">${tareasHTML || '<p class="text-muted">Todo al día</p>'}</ul>
-                    <div class="input-group">
-                        <input type="text" id="desc-${m._id}" class="form-control" placeholder="Nueva anotación...">
-                        <input type="date" id="fecha-${m._id}" class="form-control">
-                        <button onclick="agregarTarea('${m._id}')" class="btn btn-guinda">Añadir</button>
-                    </div>
-                </div>`;
-        });
-    }
+        async function guardarNuevo() {
+            const nombre = document.getElementById('nombreInput').value;
+            if(!nombre) return;
+            await fetch('/agregar-materia', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: userEmail, nombreMateria: nombre, tipo: tipoPerfil })
+            });
+            document.getElementById('nombreInput').value = '';
+            cargarTodo();
+        }
 
-    async function completarTarea(mId, tId) {
-        await fetch('/completar-tarea', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ materiaId: mId, tareaId: tId })
-        });
-        cargarMaterias();
-    }
+        async function pedirResumenIA(tareas) {
+            if(tareas.length === 0) return document.getElementById('ai-text').innerText = "Todo al día, ¡disfruta!";
+            const res = await fetch('/ia-resumen', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ tareas })
+            });
+            const data = await res.json();
+            document.getElementById('ai-text').innerText = data.respuesta;
+        }
 
-    async function cambiarMiPassword() {
-        const nueva = prompt("Ingresa tu nueva contraseña:");
-        if(!nueva) return;
-        await fetch('/cambiar-password', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
-        });
-        alert("Contraseña actualizada. Úsala en tu próximo inicio de sesión.");
-    }
+        async function cambiarPassword() {
+            const nueva = prompt("Nueva contraseña:");
+            if(!nueva) return;
+            await fetch('/cambiar-password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
+            });
+            alert("Contraseña actualizada. 'UES2026' ya no funcionará.");
+        }
 
-    // Al cargar la página, ejecutar cargarMaterias()
-    cargarMaterias();
-    async function pedirAyudaIA(notaTexto) {
-    const res = await fetch('/ia-asistente', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje: `Dame un consejo de estudio para esta tarea: ${notaTexto}` })
-    });
-    const data = await res.json();
-    alert("Consejo de la IA UES: " + data.respuesta);
-}
-</script>
+        cargarTodo();
+    </script>
+</body>
+</html>

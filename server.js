@@ -1,182 +1,90 @@
 require('dotenv').config();
 const express = require('express');
-const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const mongoose = require('mongoose');
-const cron = require('node-cron');
-const app = express();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// --- CONEXIÓN ---
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("¡Conectado a MongoDB con éxito!"))
-    .catch(err => console.error("Error al conectar BD:", err));
+    .then(() => console.log("✅ Conexión establecida con MongoDB Atlas"))
+    .catch(err => console.error("❌ Error de conexión:", err));
 
-// --- ESQUEMAS ---
-
-/* Nuevo: Modelo de Usuario para contraseñas personalizadas
-const UsuarioSchema = new mongoose.Schema({
-    identificador: { type: String, unique: true }, // Correo o Teléfono
-    password: { type: String, default: "UES2026" }
-});*/
-
-
-const MateriaSchema = new mongoose.Schema({
-    emailEstudiante: String,
-    nombre: String, 
-    tareas: [{
-        descripcion: String, 
-        fecha: String,
-        completada: { type: Boolean, default: false }, // Nuevo: Estado de la tarea
-        recordatorioEnviado: { type: Boolean, default: false }
-    }]
-});
-const Materia = mongoose.model('Materia', MateriaSchema);
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-});
-// ... (Mantén tus importaciones iniciales de express, mongoose, etc.)
-
-// --- ESQUEMA DE USUARIO ACTUALIZADO ---
-const UsuarioSchema = new mongoose.Schema({
-    identificador: { type: String, unique: true }, 
-    password: { type: String, default: "UES2026" },
-    esNuevo: { type: Boolean, default: true } // Para saber si ya cambió la pass inicial
-});
-const Usuario = mongoose.model('Usuario', UsuarioSchema);
-
-// --- RUTA DE CAMBIO DE CONTRASEÑA REAL ---
-app.post('/cambiar-password', async (req, res) => {
-    const { email, nuevaPassword } = req.body;
-    try {
-        await Usuario.findOneAndUpdate(
-            { identificador: email }, 
-            { password: nuevaPassword, esNuevo: false } 
-        );
-        res.status(200).send({ message: 'Contraseña actualizada correctamente' });
-    } catch (e) {
-        res.status(500).send({ message: 'Error al actualizar' });
-    }
-});
-
-// --- RUTA PARA OBTENER RESUMEN DE PENDIENTES (IA) ---
-app.get('/resumen-ia/:email', async (req, res) => {
-    try {
-        const materias = await Materia.find({ emailEstudiante: req.params.email });
-        let pendientes = [];
-        materias.forEach(m => {
-            m.tareas.filter(t => !t.completada).forEach(t => {
-                pendientes.push(`${t.descripcion} (Materia: ${m.nombre})`);
-            });
-        });
-
-        const prompt = `Tengo estas tareas pendientes: ${pendientes.join(', ')}. Dame un consejo motivador corto y dime cuál debería ser mi prioridad hoy como estudiante de la UES.`;
-        const result = await model.generateContent(prompt);
-        res.json({ resumen: result.response.text() });
-    } catch (error) {
-        res.json({ resumen: "¡Sigue esforzándote! Tienes tareas por terminar hoy." });
-    }
-});
-
-// --- RUTAS DE USUARIO ---
-
-
-app.post('/verificar-codigo', async (req, res) => {
-    const { email, codigo } = req.body;
-    try {
-        // Buscamos si el usuario ya existe por su correo o cel
-        let user = await Usuario.findOne({ identificador: email });
-        
-        if (!user) {
-            // Si es la primera vez que entra, lo registramos con la pass default
-            user = new Usuario({ identificador: email, password: "UES2026" });
-            await user.save();
-            console.log(`🆕 Nuevo usuario registrado: ${email}`);
-        }
-
-        if (user.password === codigo) {
-            console.log(`✅ Acceso correcto: ${email}`);
-            res.status(200).send({ message: 'OK', redirect: '/home.html' });
-        } else {
-            res.status(401).send({ message: 'La contraseña no coincide' });
-        }
-    } catch (error) {
-        console.error("Error en login:", error);
-        res.status(500).send({ message: 'Error interno del servidor' });
-    }
-});
-
-app.post('/cambiar-password', async (req, res) => {
-    const { email, nuevaPassword } = req.body;
-    await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword });
-    res.status(200).send({ message: 'Contraseña actualizada' });
-});
-
-// --- RUTAS DE TAREAS ---
-
-app.post('/completar-tarea', async (req, res) => {
-    const { materiaId, tareaId } = req.body;
-    const materia = await Materia.findById(materiaId);
-    const tarea = materia.tareas.id(tareaId);
-    tarea.completada = true;
-    await materia.save();
-    res.status(200).send({ message: 'Tarea completada' });
-});
-
-// (Mantén tus rutas de agregar-materia, agregar-tarea y obtener-materias igual que antes)
-// NOTA: En obtener-materias, el filtro ya separa por emailEstudiante, así que cada quien ve lo suyo.
-
-app.get('/obtener-materias/:email', async (req, res) => {
-    try {
-        const materias = await Materia.find({ emailEstudiante: req.params.email });
-        res.json(materias);
-    } catch (error) {
-        res.status(500).send({ message: "Error" });
-    }
-});
-
-app.post('/agregar-materia', async (req, res) => {
-    const { email, nombreMateria } = req.body;
-    const nueva = new Materia({ emailEstudiante: email, nombre: nombreMateria, tareas: [] });
-    await nueva.save();
-    res.status(200).send({ message: 'Ok' });
-});
-
-app.post('/agregar-tarea', async (req, res) => {
-    const { materiaId, descripcion, fecha } = req.body;
-    const materia = await Materia.findById(materiaId);
-    materia.tareas.push({ descripcion, fecha });
-    await materia.save();
-    res.status(200).send({ message: 'Ok' });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 SERVIDOR EN PUERTO ${PORT}`);
-});
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// Configurar la IA con tu llave del .env
+// --- IA CONFIG ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Ruta para que la IA ayude al alumno
-app.post('/ia-asistente', async (req, res) => {
-    const { mensaje } = req.body;
+// --- MODELOS ---
+const Usuario = mongoose.model('Usuario', new mongoose.Schema({
+    identificador: { type: String, unique: true, required: true },
+    password: { type: String, default: "UES2026" },
+    esNuevo: { type: Boolean, default: true }
+}));
+
+const Materia = mongoose.model('Materia', new mongoose.Schema({
+    emailEstudiante: String,
+    nombre: String,
+    tipo: String, // 'Escuela' o 'Personal'
+    tareas: [{
+        descripcion: String,
+        fecha: String,
+        completada: { type: Boolean, default: false }
+    }]
+}));
+
+// --- RUTAS CRÍTICAS ---
+
+// Login con Validación
+app.post('/verificar-codigo', async (req, res) => {
+    const { email, codigo } = req.body;
     try {
-        const prompt = `Eres un asistente académico de la UES. Ayuda al estudiante con lo siguiente: ${mensaje}`;
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const texto = response.text();
-        
-        res.status(200).send({ respuesta: texto });
-    } catch (error) {
-        console.error("Error con Gemini:", error);
-        res.status(500).send({ message: "La IA está descansando, intenta más tarde." });
-    }
+        let user = await Usuario.findOne({ identificador: email });
+        if (!user) {
+            user = new Usuario({ identificador: email });
+            await user.save();
+        }
+        if (user.password === codigo) {
+            res.status(200).send({ message: 'OK', redirect: '/home.html' });
+        } else {
+            res.status(401).send({ message: 'Credenciales incorrectas' });
+        }
+    } catch (e) { res.status(500).send({ message: 'Error en BD' }); }
 });
+
+// Cambio de Contraseña (Borra la fija)
+app.post('/cambiar-password', async (req, res) => {
+    const { email, nuevaPassword } = req.body;
+    try {
+        await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPassword, esNuevo: false });
+        res.status(200).send({ message: 'Contraseña actualizada' });
+    } catch (e) { res.status(500).send({ message: 'Error' }); }
+});
+
+// Persistencia de Materias/Notas
+app.post('/agregar-materia', async (req, res) => {
+    const { email, nombreMateria, tipo } = req.body;
+    const nueva = new Materia({ emailEstudiante: email, nombre: nombreMateria, tipo });
+    await nueva.save();
+    res.status(200).send({ message: 'Guardado' });
+});
+
+app.get('/obtener-materias/:email', async (req, res) => {
+    const materias = await Materia.find({ emailEstudiante: req.params.email });
+    res.json(materias);
+});
+
+// IA Resumen de Inicio
+app.post('/ia-resumen', async (req, res) => {
+    const { tareas } = req.body;
+    const prompt = `Tengo estas tareas pendientes en la UES: ${tareas.join(', ')}. Dame un consejo de 10 palabras y prioriza una.`;
+    const result = await model.generateContent(prompt);
+    res.json({ respuesta: result.response.text() });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Puerto: ${PORT}`));

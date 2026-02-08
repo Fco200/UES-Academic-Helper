@@ -2,121 +2,52 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso | UES Academic Helper</title>
+    <title>UES Academic Helper | Login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
-        body { 
-            background: linear-gradient(135deg, #800000 0%, #2c3e50 100%);
-            height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            width: 100%; max-width: 420px;
-            transition: transform 0.3s ease;
-        }
-        .login-card:hover { transform: translateY(-5px); }
-        .ues-logo { font-size: 3rem; font-weight: 800; color: var(--ues-guinda); letter-spacing: -2px; }
-        .form-control { border-radius: 10px; padding: 12px; border: 1px solid #ddd; }
-        .form-control:focus { border-color: var(--ues-guinda); box-shadow: 0 0 0 0.25 red; }
-        .btn-ues { 
-            background: var(--ues-guinda); color: white; border-radius: 10px; 
-            padding: 12px; font-weight: 600; text-transform: uppercase;
-        }
-        .btn-ues:hover { background: #600000; color: white; transform: scale(1.02); }
-        
-        #loader { display: none; }
-        .step-transition { animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background: #1a1a1a; color: white; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #242424; border-radius: 20px; border: 1px solid #333; width: 100%; max-width: 380px; padding: 40px; }
+        .btn-ues { background: #800000; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
+        .btn-ues:hover { background: #a00000; }
+        .form-control { background: #333; border: none; color: white; }
     </style>
 </head>
 <body>
-
-<div class="card login-card p-5">
-    <div class="text-center mb-4">
-        <div class="ues-logo">UES</div>
-        <h5 class="text-muted">Academic Helper v2.0</h5>
-    </div>
-
-    <div id="paso1" class="step-transition">
-        <label class="form-label fw-bold">Usuario</label>
-        <div class="input-group mb-3">
-            <span class="input-group-text"><i class="fas fa-user"></i></span>
-            <input type="text" id="userInput" class="form-control" placeholder="Correo o Teléfono">
+    <div class="login-card shadow-lg">
+        <div class="text-center mb-4">
+            <h1 class="fw-bold text-danger">UES</h1>
+            <p class="text-muted small">Software Engineering Portal</p>
         </div>
-        <button onclick="irAPassword()" class="btn btn-ues w-100">
-            Continuar <i class="fas fa-arrow-right ms-2"></i>
-        </button>
-    </div>
-
-    <div id="paso2" style="display: none;" class="step-transition">
-        <div class="mb-3 text-center">
-            <span class="badge bg-light text-dark p-2" id="displayUser"></span>
-            <button class="btn btn-link btn-sm text-decoration-none" onclick="volver()">Cambiar</button>
+        <div id="paso1">
+            <input type="text" id="userInput" class="form-control mb-3" placeholder="Correo o Teléfono (10 dígitos)">
+            <button onclick="validarYPasar()" class="btn btn-ues w-100">Continuar</button>
         </div>
-        <label class="form-label fw-bold">Contraseña</label>
-        <div class="input-group mb-4">
-            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-            <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+        <div id="paso2" style="display:none;">
+            <input type="password" id="passInput" class="form-control mb-3" placeholder="Contraseña">
+            <button onclick="entrar()" class="btn btn-success w-100">Acceder</button>
         </div>
-        <button onclick="entrar()" class="btn btn-success w-100" id="btnEntrar">
-            <span id="btnText">Iniciar Sesión</span>
-            <div class="spinner-border spinner-border-sm ms-2" id="loader" role="status"></div>
-        </button>
     </div>
-</div>
-
-<script>
-    function irAPassword() {
-        const user = document.getElementById('userInput').value;
-        if(!user) return alert("Ingresa tus datos");
-        
-        localStorage.setItem('userEmail', user);
-        document.getElementById('displayUser').innerText = user;
-        document.getElementById('paso1').style.display = 'none';
-        document.getElementById('paso2').style.display = 'block';
-    }
-
-    function volver() {
-        document.getElementById('paso2').style.display = 'none';
-        document.getElementById('paso1').style.display = 'block';
-    }
-
-    async function entrar() {
-        const email = localStorage.getItem('userEmail');
-        const codigo = document.getElementById('passInput').value;
-        const loader = document.getElementById('loader');
-        const btnText = document.getElementById('btnText');
-
-        loader.style.display = 'inline-block';
-        btnText.innerText = "Verificando...";
-
-        try {
+    <script>
+        function validarYPasar() {
+            const val = document.getElementById('userInput').value;
+            const esEmail = val.includes('@');
+            const esTel = /^\d{10}$/.test(val);
+            if (!esEmail && !esTel) return alert("Ingresa un correo válido o teléfono a 10 dígitos");
+            localStorage.setItem('userEmail', val);
+            document.getElementById('paso1').style.display = 'none';
+            document.getElementById('paso2').style.display = 'block';
+        }
+        async function entrar() {
+            const email = localStorage.getItem('userEmail');
+            const codigo = document.getElementById('passInput').value;
             const res = await fetch('/verificar-codigo', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ email, codigo })
             });
-
-            const data = await res.json();
-            if (res.ok) {
-                window.location.href = data.redirect;
-            } else {
-                alert(data.message || "Error al entrar");
-                loader.style.display = 'none';
-                btnText.innerText = "Iniciar Sesión";
-            }
-        } catch (e) {
-            alert("No se pudo conectar con el servidor.");
-            loader.style.display = 'none';
-            btnText.innerText = "Iniciar Sesión";
+            if (res.ok) window.location.href = '/home.html';
+            else alert("Error de acceso");
         }
-    }
-</script>
+    </script>
 </body>
 </html>

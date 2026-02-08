@@ -10,11 +10,9 @@
         body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
         .sidebar { background: var(--dark); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 250px; }
         .main-content { margin-left: 250px; padding: 40px; }
-        .card-note { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: 0.3s; }
-        .card-note:hover { transform: translateY(-5px); }
+        .card-note { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         .ai-banner { background: linear-gradient(45deg, var(--ues), #4b0000); color: white; border-radius: 12px; padding: 20px; border-left: 5px solid #b8860b; }
-        .btn-ues { background: var(--ues); color: white; border-radius: 8px; font-weight: 600; }
-        .btn-ues:hover { background: #600000; color: white; }
+        .btn-ues { background: var(--ues); color: white; }
     </style>
 </head>
 <body>
@@ -23,7 +21,7 @@
         <h3 class="fw-bold mb-4">UES <span class="text-danger">Helper</span></h3>
         <div class="ai-banner mb-4">
             <small class="fw-bold"><i class="fas fa-robot"></i> ASISTENTE IA</small>
-            <p id="ai-text" class="small mt-2 mb-0">Analizando tus pendientes para darte prioridad...</p>
+            <p id="ai-text" class="small mt-2 mb-0">Analizando tus pendientes...</p>
         </div>
         <hr>
         <button class="btn btn-outline-light w-100 mb-2 btn-sm" onclick="cambiarPassword()">Seguridad</button>
@@ -38,15 +36,14 @@
         </div>
 
         <div class="card p-4 card-note bg-white mb-5">
-            <h5 class="fw-bold text-danger mb-3"><i class="fas fa-plus-circle"></i> Nuevo Registro (Materia o Nota)</h5>
+            <h5 class="fw-bold text-danger mb-3">Nuevo Registro</h5>
             <div class="input-group">
-                <input type="text" id="nombreInput" class="form-control" placeholder="Nombre: Ej. Programación III o Nota de Volkswagen">
-                <button onclick="guardarNuevo()" class="btn btn-dark px-4">Guardar Registro</button>
+                <input type="text" id="nombreInput" class="form-control" placeholder="Materia o Nota Personal">
+                <button onclick="guardarNuevo()" class="btn btn-dark px-4">Guardar</button>
             </div>
         </div>
 
-        <div id="contenedorPrincipal" class="row">
-            </div>
+        <div id="contenedorPrincipal" class="row"></div>
     </div>
 
     <script>
@@ -54,72 +51,61 @@
         document.getElementById('userBadge').innerText = userEmail;
 
         async function cargarTodo() {
-            try {
-                const res = await fetch(`/obtener-materias/${userEmail}`);
-                const materias = await res.json();
-                const cont = document.getElementById('contenedorPrincipal');
-                cont.innerHTML = '';
+            const res = await fetch(`/obtener-materias/${userEmail}`);
+            const materias = await res.json();
+            const cont = document.getElementById('contenedorPrincipal');
+            cont.innerHTML = '';
 
-                if(materias.length === 0) {
-                    cont.innerHTML = '<div class="text-center text-muted">Aún no tienes registros. ¡Agrega el primero arriba!</div>';
-                }
-
-                materias.forEach(m => {
-                    cont.innerHTML += `
-                        <div class="col-md-6 mb-4">
-                            <div class="card p-4 card-note bg-white">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h4 class="fw-bold m-0 text-dark">${m.nombre}</h4>
-                                    <button onclick="pedirConsejoIA('${m.nombre}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
-                                </div>
-                                <div id="tareas-${m._id}" class="mb-3">
-                                    ${m.tareas.map(t => `
-                                        <div class="d-flex justify-content-between border-bottom py-2 small">
-                                            <span><i class="fas fa-check-circle text-success me-2"></i>${t.descripcion}</span>
-                                            <span class="badge bg-light text-dark">${t.fecha}</span>
-                                        </div>
-                                    `).join('') || '<p class="text-muted small">Sin tareas aún</p>'}
-                                </div>
-                                <div class="input-group input-group-sm mt-3">
-                                    <input type="text" id="t-${m._id}" class="form-control" placeholder="Nueva tarea o nota...">
-                                    <input type="date" id="f-${m._id}" class="form-control">
-                                    <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
-                                </div>
+            materias.forEach(m => {
+                cont.innerHTML += `
+                    <div class="col-md-6 mb-4">
+                        <div class="card p-4 card-note bg-white">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="fw-bold m-0">${m.nombre}</h4>
+                                <button onclick="pedirIA('${m.nombre}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
                             </div>
-                        </div>`;
-                });
-            } catch (e) {
-                console.error("Error al cargar:", e);
-            }
+                            <div class="mb-3">
+                                ${m.tareas.map(t => `<div class="d-flex justify-content-between py-1 small border-bottom"><span>${t.descripcion}</span><span>${t.fecha}</span></div>`).join('')}
+                            </div>
+                            <div class="input-group input-group-sm mt-3">
+                                <input type="text" id="t-${m._id}" class="form-control" placeholder="Tarea">
+                                <input type="date" id="f-${m._id}" class="form-control">
+                                <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
         }
 
         async function guardarNuevo() {
             const nombre = document.getElementById('nombreInput').value;
-            if(!nombre) return alert("Escribe un nombre");
-            await fetch('/agregar-materia', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email: userEmail, nombreMateria: nombre })
-            });
+            await fetch('/agregar-materia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmail, nombre }) });
             document.getElementById('nombreInput').value = '';
             cargarTodo();
         }
 
         async function agregarTarea(idMateria) {
-            const desc = document.getElementById(`t-${idMateria}`).value;
+            const descripcion = document.getElementById(`t-${idMateria}`).value;
             const fecha = document.getElementById(`f-${idMateria}`).value;
-            if(!desc || !fecha) return alert("Completa los campos");
-            await fetch('/agregar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: idMateria, descripcion: desc, fecha: fecha })
-            });
+            await fetch('/agregar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: idMateria, descripcion, fecha }) });
             cargarTodo();
         }
 
+        async function cambiarPassword() {
+            const nueva = prompt("Ingresa tu nueva contraseña:");
+            if (nueva) {
+                await fetch('/cambiar-password', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmail, nuevaPassword: nueva }) });
+                alert("Contraseña actualizada con éxito.");
+            }
+        }
+
+        async function pedirIA(materia) {
+            const res = await fetch('/ia-asistente', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: `Dame un consejo corto para estudiar la materia: ${materia}` }) });
+            const data = await res.json();
+            alert("Consejo IA: " + data.respuesta);
+        }
+
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
-        
-        // Ejecución inicial
         window.onload = cargarTodo;
     </script>
 </body>

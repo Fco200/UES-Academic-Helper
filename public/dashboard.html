@@ -13,6 +13,7 @@
         .card-note { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         .ai-banner { background: linear-gradient(45deg, var(--ues), #4b0000); color: white; border-radius: 12px; padding: 20px; border-left: 5px solid #b8860b; }
         .btn-ues { background: var(--ues); color: white; }
+        .small-muted { font-size: 0.85rem; color: #6c757d; }
     </style>
 </head>
 <body>
@@ -46,62 +47,114 @@
         <div id="contenedorPrincipal" class="row"></div>
     </div>
 
+    <!-- Modal de edición -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Editar tarea</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label small-muted">Descripción</label>
+            <input type="text" id="editDesc" class="form-control mb-2" placeholder="Descripción">
+            <label class="form-label small-muted">Fecha</label>
+            <input type="date" id="editFecha" class="form-control">
+            <div class="form-check form-switch mt-3">
+              <input class="form-check-input" type="checkbox" id="editCompletada">
+              <label class="form-check-label small-muted" for="editCompletada">Marcar como completada</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button class="btn btn-primary" id="saveEditBtn">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
         const userEmail = localStorage.getItem('userEmail');
-        document.getElementById('userBadge').innerText = userEmail;
+        document.getElementById('userBadge').innerText = userEmail || 'Invitado';
 
-       // Función cargarTodo mejorada para el diseño de tareas
-async function cargarTodo() {
-    const res = await fetch(`/obtener-materias/${userEmail}`);
-    const materias = await res.json();
-    const cont = document.getElementById('contenedorPrincipal');
-    cont.innerHTML = '';
+        // Variables para edición
+        let editMateriaId = null, editTareaId = null;
 
-    materias.forEach(m => {
-        cont.innerHTML += `
-            <div class="col-md-6 mb-4">
-                <div class="card p-4 card-note bg-white">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="fw-bold m-0 ${m.nombre.toLowerCase().includes('nota') ? 'text-primary' : 'text-dark'}">${m.nombre}</h4>
-                        <button onclick="pedirIA('${m.nombre}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
-                    </div>
-                    <div class="tareas-container">
-                        ${m.tareas.map(t => `
+        // Cargar materias y tareas
+        async function cargarTodo() {
+            if (!userEmail) return window.location.href = '/index.html';
+            try {
+                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+                const materias = await res.json();
+                const cont = document.getElementById('contenedorPrincipal');
+                cont.innerHTML = '';
+
+                materias.forEach(m => {
+                    const tareasHtml = (m.tareas || []).map(t => {
+                        // Usamos JSON.stringify para escapar correctamente las cadenas en el onclick
+                        return `
                             <div class="d-flex align-items-center border-bottom py-2">
                                 <input type="checkbox" class="form-check-input me-2" 
                                     ${t.completada ? 'checked' : ''} 
                                     onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})">
                                 <span class="${t.completada ? 'text-decoration-line-through text-muted' : ''} flex-grow-1 small">
-                                    ${t.descripcion}
+                                    ${escapeHtml(t.descripcion)}
                                 </span>
-                                <span class="badge bg-light text-dark ms-2" style="font-size: 0.7em;">${t.fecha}</span>
+                                <span class="badge bg-light text-dark ms-2" style="font-size: 0.7em;">${t.fecha || ''}</span>
+                                <button class="btn btn-sm btn-outline-primary ms-2" 
+                                    onclick="abrirEditor('${m._id}', '${t._id}', ${JSON.stringify(t.descripcion || '')}, ${JSON.stringify(t.fecha || '')}, ${t.completada})">
+                                    ✏️
+                                </button>
                             </div>
-                        `).join('') || '<p class="text-muted small">Sin registros</p>'}
-                    </div>
-                    <div class="input-group input-group-sm mt-3">
-                        <input type="text" id="t-${m._id}" class="form-control" placeholder="Tarea o detalle...">
-                        <input type="date" id="f-${m._id}" class="form-control">
-                        <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
-                    </div>
-                </div>
-            </div>`;
-    });
-}
+                        `;
+                    }).join('') || '<p class="text-muted small">Sin registros</p>';
 
+                    cont.innerHTML += `
+                        <div class="col-md-6 mb-4">
+                            <div class="card p-4 card-note bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="fw-bold m-0 ${m.nombre.toLowerCase().includes('nota') ? 'text-primary' : 'text-dark'}">${escapeHtml(m.nombre)}</h4>
+                                    <button onclick="pedirIA('${escapeJs(m.nombre)}')" class="btn btn-sm btn-outline-danger">💡 IA</button>
+                                </div>
+                                <div class="tareas-container">
+                                    ${tareasHtml}
+                                </div>
+                                <div class="input-group input-group-sm mt-3">
+                                    <input type="text" id="t-${m._id}" class="form-control" placeholder="Tarea o detalle...">
+                                    <input type="date" id="f-${m._id}" class="form-control">
+                                    <button onclick="agregarTarea('${m._id}')" class="btn btn-ues">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Error cargando datos.');
+            }
+        }
+
+        // Guardar nueva materia
         async function guardarNuevo() {
-            const nombre = document.getElementById('nombreInput').value;
+            const nombre = document.getElementById('nombreInput').value.trim();
+            if (!nombre) return alert('Ingresa un nombre.');
             await fetch('/agregar-materia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmail, nombre }) });
             document.getElementById('nombreInput').value = '';
             cargarTodo();
         }
 
+        // Agregar tarea
         async function agregarTarea(idMateria) {
-            const descripcion = document.getElementById(`t-${idMateria}`).value;
+            const descripcion = document.getElementById(`t-${idMateria}`).value.trim();
             const fecha = document.getElementById(`f-${idMateria}`).value;
+            if (!descripcion) return alert('Describe la tarea.');
             await fetch('/agregar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: idMateria, descripcion, fecha }) });
+            document.getElementById(`t-${idMateria}`).value = '';
+            document.getElementById(`f-${idMateria}`).value = '';
             cargarTodo();
         }
 
+        // Cambiar contraseña
         async function cambiarPassword() {
             const nueva = prompt("Ingresa tu nueva contraseña:");
             if (nueva) {
@@ -110,27 +163,79 @@ async function cargarTodo() {
             }
         }
 
+        // Pedir consejo IA
         async function pedirIA(materia) {
-            const res = await fetch('/ia-asistente', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: `Dame un consejo corto para estudiar la materia: ${materia}` }) });
-            const data = await res.json();
-            alert("Consejo IA: " + data.respuesta);
+            try {
+                const res = await fetch('/ia-asistente', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: `Dame un consejo corto para estudiar la materia: ${materia}` }) });
+                const data = await res.json();
+                alert("Consejo IA: " + (data.respuesta || 'Sin respuesta'));
+            } catch (e) {
+                alert('Error con IA.');
+            }
         }
-        // Función para marcar como completada
-async function toggleTarea(materiaId, tareaId, estadoActual) {
-    await fetch('/completar-tarea', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            materiaId, 
-            tareaId, 
-            completada: !estadoActual 
-        })
-    });
-    cargarTodo(); // Recargar para ver el cambio
-}
+
+        // Marcar completada / pendiente
+        async function toggleTarea(materiaId, tareaId, estadoActual) {
+            await fetch('/completar-tarea', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ materiaId, tareaId, completada: !estadoActual })
+            });
+            cargarTodo();
+        }
+
+        // Abrir editor modal
+        function abrirEditor(materiaId, tareaId, desc, fecha, completada) {
+            editMateriaId = materiaId;
+            editTareaId = tareaId;
+            document.getElementById('editDesc').value = desc || '';
+            document.getElementById('editFecha').value = fecha || '';
+            document.getElementById('editCompletada').checked = !!completada;
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        // Guardar edición
+        document.getElementById('saveEditBtn').addEventListener('click', async () => {
+            const nuevaDescripcion = document.getElementById('editDesc').value.trim();
+            const nuevaFecha = document.getElementById('editFecha').value;
+            const completada = document.getElementById('editCompletada').checked;
+            if (!nuevaDescripcion) return alert('La descripción no puede quedar vacía.');
+            await fetch('/editar-tarea', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, nuevaDescripcion, nuevaFecha })
+            });
+            // Actualizar estado completada si cambió
+            await fetch('/completar-tarea', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, completada })
+            });
+            cargarTodo();
+            bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+        });
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
+
+        // Helpers para evitar inyección en HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+        function escapeJs(str) {
+            if (!str) return '';
+            return String(str).replaceAll("'", "\\'");
+        }
+
         window.onload = cargarTodo;
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

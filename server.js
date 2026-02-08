@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const nodemailer = require("nodemailer");
+const cron = require("node-cron");
+const twilio = require("twilio")(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -101,7 +104,7 @@ app.post('/ia-asistente', async (req, res) => {
   } catch (e) { res.status(500).json({ respuesta: "IA ocupada, intenta luego." }); }
 });
 
-// --- NUEVA RUTA: COMPLETAR TAREA ---
+// --- COMPLETAR TAREA ---
 app.post('/completar-tarea', async (req, res) => {
   const { materiaId, tareaId, completada } = req.body;
   try {
@@ -114,10 +117,59 @@ app.post('/completar-tarea', async (req, res) => {
     res.status(500).send({ message: "Error al actualizar estado" });
   }
 });
+
+// --- EDITAR TAREA ---
+app.post('/editar-tarea', async (req, res) => {
+  const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
+  try {
+    const materia = await Materia.findById(materiaId);
+    const tarea = materia.tareas.id(tareaId);
+    if (nuevaDescripcion) tarea.descripcion = nuevaDescripcion;
+    if (nuevaFecha) tarea.fecha = nuevaFecha;
+    await materia.save();
+    res.sendStatus(200);
+  } catch (e) {
+    res.status(500).send({ message: "Error al editar tarea" });
+  }
+});
+
+// --- GOOGLE VERIFICACIÓN ---
 app.get("/google74ea19ac0f79b1ad.html", (req, res) => {
   res.send("google-site-verification: google74ea19ac0f79b1ad.html");
 });
 
+// --- RECORDATORIOS AUTOMÁTICOS ---
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+});
+
+async function enviarCorreo(destinatario, asunto, mensaje) {
+  await transporter.sendMail({ from: process.env.EMAIL_USER, to: destinatario, subject: asunto, text: mensaje });
+}
+
+async function enviarSMS(numero, mensaje) {
+  await twilio.messages.create({ body: mensaje, from: process.env.TWILIO_PHONE, to: numero });
+}
+
+cron.schedule("0 8 * * *", async () => {
+  const materias = await Materia.find();
+  for (const materia of materias) {
+    for (const tarea of materia.tareas) {
+      const fechaTarea = new Date(tarea.fecha);
+      const hoy = new Date();
+      const diferencia = (fechaTarea - hoy) / (1000 * 60 * 60 * 24);
+
+      if (diferencia <= 1 && !tarea.completada) {
+        if (materia.user.includes("@")) {
+          await enviarCorreo(materia.user, "Recordatorio de tarea", `No olvides: ${tarea.descripcion} para ${tarea.fecha}`);
+        } else {
+          await enviarSMS(materia.user, `Recordatorio: ${tarea.descripcion} para ${tarea.fecha}`);
+        }
+      }
+    }
+  }
+});
 
 // --- INICIO DEL SERVIDOR ---
 app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

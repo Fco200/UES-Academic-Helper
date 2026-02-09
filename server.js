@@ -5,54 +5,34 @@ const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
-const cron = require("node-cron");
-const twilio = require("twilio")(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-// --- CONFIGURACIÓN DE LÍMITE (Pon esto arriba en server.js) ---
-app.use(express.json({ limit: '10mb' })); // Permite subir fotos pesadas
 
+// 1. PRIMERO: Inicializar la aplicación (Esto corrige el ReferenceError)
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- MIDDLEWARE ---
+// 2. SEGUNDO: Configurar Middlewares y límites de subida
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Movido aquí para que 'app' ya exista
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- CONEXIÓN A MONGODB (Usando Mongoose únicamente) ---
+// --- CONEXIÓN A MONGODB ---
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ SISTEMA CONECTADO A MONGODB"))
   .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
 
 // --- MODELOS DE DATOS ---
-// Busca el UsuarioSchema en tu server.js y déjalo así:
-// --- MODELO DE USUARIO ACTUALIZADO ---
 const UsuarioSchema = new mongoose.Schema({
     identificador: { type: String, unique: true },
     password: { type: String, default: "UES2026" },
     carrera: { type: String, default: "Ingeniería en Software" },
     foto: { type: String, default: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-    nombreReal: { type: String, default: "Estudiante UES" }
+    nombreReal: { type: String, default: "Estudiante UES" },
+    telefono: { type: String, default: "" },
+    biografia: { type: String, default: "" },
+    cumpleanos: { type: String, default: "" }
 });
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
-
-app.post('/actualizar-perfil-completo', async (req, res) => {
-    const { email, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
-    try {
-        await Usuario.findOneAndUpdate(
-            { identificador: email.toLowerCase() },
-            { 
-                nombreReal, 
-                foto, 
-                telefono, 
-                biografia, 
-                cumpleanos 
-            }
-        );
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ success: false });
-    }
-});
 
 const Materia = mongoose.model('Materia', new mongoose.Schema({
     user: String,
@@ -67,14 +47,6 @@ try {
     model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 } catch (e) { console.warn('IA Gemini no configurada.'); }
 
-// --- CONFIGURACIÓN DE CORREO ---
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-});
-
 // --- RUTAS DE AUTENTICACIÓN ---
 
 app.post('/verificar-codigo', async (req, res) => {
@@ -83,24 +55,19 @@ app.post('/verificar-codigo', async (req, res) => {
         const idLower = email.toLowerCase();
         let usuario = await Usuario.findOne({ identificador: idLower });
 
-        // Si no existe, lo creamos (Registro automático)
         if (!usuario) {
             usuario = await Usuario.create({ identificador: idLower, password: "UES2026", carrera });
         }
 
         if (usuario.password === codigo) {
-            // Actualizamos la carrera por si la cambió en el combo box
             usuario.carrera = carrera;
             await usuario.save();
-
             const destino = (codigo === "UES2026") ? '/dashboard.html?fuerzaCambio=true' : '/home.html';
             res.json({ success: true, redirect: destino, carrera: usuario.carrera });
         } else {
             res.status(401).json({ success: false, message: "Código incorrecto" });
         }
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
+    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
 app.get('/obtener-usuario/:email', async (req, res) => {
@@ -108,6 +75,17 @@ app.get('/obtener-usuario/:email', async (req, res) => {
         const usuario = await Usuario.findOne({ identificador: req.params.email.toLowerCase() });
         usuario ? res.json(usuario) : res.status(404).send("No encontrado");
     } catch (e) { res.status(500).send(e); }
+});
+
+app.post('/actualizar-perfil-completo', async (req, res) => {
+    const { email, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
+    try {
+        await Usuario.findOneAndUpdate(
+            { identificador: email.toLowerCase() },
+            { nombreReal, foto, telefono, biografia, cumpleanos }
+        );
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.post('/cambiar-password', async (req, res) => {
@@ -118,7 +96,7 @@ app.post('/cambiar-password', async (req, res) => {
     } catch (e) { res.status(500).send({ message: 'Error' }); }
 });
 
-// --- RUTAS DE GESTIÓN ACADÉMICA (CRUD) ---
+// --- RUTAS DE GESTIÓN ACADÉMICA ---
 
 app.get('/obtener-materias/:identificador', async (req, res) => {
     try {
@@ -165,6 +143,14 @@ app.post('/eliminar-tarea', async (req, res) => {
     } catch (e) { res.status(500).send(e); }
 });
 
+app.post('/eliminar-materia', async (req, res) => {
+    const { materiaId } = req.body;
+    try {
+        await Materia.findByIdAndDelete(materiaId);
+        res.json({ mensaje: "Materia eliminada" });
+    } catch (e) { res.status(500).send(e); }
+});
+
 app.post('/completar-tarea', async (req, res) => {
     const { materiaId, tareaId, completada } = req.body;
     try {
@@ -176,15 +162,15 @@ app.post('/completar-tarea', async (req, res) => {
     } catch (e) { res.status(500).send(e); }
 });
 
-// --- IA Y UTILIDADES ---
-
 app.post('/ia-asistente', async (req, res) => {
     const { prompt } = req.body;
     try {
+        if (!model) throw new Error("IA no configurada");
         const result = await model.generateContent(prompt);
         res.json({ respuesta: result.response.text() });
     } catch (e) { res.status(500).json({ respuesta: "IA no disponible." }); }
 });
 
 // --- INICIO DEL SERVIDOR ---
-app.listen(PORT, () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));
+// Usar '0.0.0.0' asegura que Render pueda detectar el servicio
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

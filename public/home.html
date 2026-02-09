@@ -107,9 +107,21 @@
         };
 
         async function cargarDatosPerfil() {
-            try {
-                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
-                const u = await res.json();
+    try {
+        const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+        const u = await res.json();
+        
+        // --- LÍNEA DE VALIDACIÓN PARA CONTRASEÑA INICIAL ---
+        if (u.password === "UES2026") {
+            // Creamos una alerta visual dinámica si es la primera vez
+            const alertaSeguridad = `
+                <div id="alertaPrimeraVez" class="alert alert-warning border-0 shadow-sm mb-4 rounded-4 py-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>SEGURIDAD UES:</strong> Detectamos que usas la clave inicial. 
+                    <button class="btn btn-sm btn-dark ms-3 rounded-pill" onclick="abrirEditorSeguridad()">Cambiar Ahora</button>
+                </div>`;
+            document.querySelector('.main-content').insertAdjacentHTML('afterbegin', alertaSeguridad);
+        }
                 
                 document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante UES";
                 document.getElementById('displayCarrera').innerText = u.carrera || "Ingeniería";

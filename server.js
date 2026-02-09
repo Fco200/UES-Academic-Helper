@@ -191,6 +191,21 @@ app.post('/ia-asistente', async (req, res) => {
         res.json({ respuesta: result.response.text() });
     } catch (e) { res.status(500).json({ respuesta: "IA no disponible." }); }
 });
+app.post('/cambiar-password', async (req, res) => {
+    const { email, nuevaPassword } = req.body;
+    try {
+        // Validamos que no intente poner la misma UES2026
+        if (nuevaPassword === "UES2026") {
+            return res.status(400).json({ message: "Debes elegir una clave distinta a la inicial." });
+        }
+
+        await Usuario.findOneAndUpdate(
+            { identificador: email.toLowerCase() }, 
+            { password: nuevaPassword } 
+        );
+        res.status(200).json({ success: true });
+    } catch (e) { res.status(500).json({ message: "Error" }); }
+});
 
 // --- INICIO DEL SERVIDOR ---
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

@@ -32,6 +32,17 @@ app.get("/sitemap.xml", (req, res) => {
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+app.post('/eliminar-tarea', async (req, res) => {
+    const { materiaId, tareaId } = req.body;
+    await Materia.updateOne({ _id: materiaId }, { $pull: { tareas: { _id: tareaId } } });
+    res.json({ mensaje: "Tarea eliminada" });
+});
+
+app.post('/eliminar-materia', async (req, res) => {
+    const { materiaId } = req.body;
+    await Materia.findByIdAndDelete(materiaId);
+    res.json({ mensaje: "Materia eliminada" });
+});
 
 // --- CONEXIÓN A MONGODB ---
 mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
@@ -70,19 +81,38 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// --- RUTAS DE AUTENTICACIÓN ---
+// --- ESQUEMA DE USUARIO CON CARRERA ---
+const UsuarioSchema = new mongoose.Schema({
+    identificador: { type: String, unique: true },
+    password: { type: String, default: "UES2026" },
+    carrera: { type: String, default: "Ingeniería en Software" } // Campo nuevo
+});
+
+
+// --- RUTA DE LOGIN ACTUALIZADA ---
 app.post('/verificar-codigo', async (req, res) => {
-  const { email, codigo } = req.body;
-  try {
-    let user = await Usuario.findOne({ identificador: email });
-    if (!user) user = await Usuario.create({ identificador: email });
-    
-    if (user.password === codigo) res.status(200).send({ redirect: '/home.html' });
-    else res.status(401).send({ message: 'Contraseña incorrecta' });
-  } catch (e) { 
-    console.error(e);
-    res.status(500).send({ message: 'Error en login' }); 
-  }
+    const { email, codigo, carrera } = req.body;
+    try {
+        let user = await Usuario.findOne({ identificador: email });
+        
+        if (!user) {
+            // Si es nuevo, guardamos su carrera seleccionada
+            user = new Usuario({ identificador: email, carrera: carrera });
+            await user.save();
+        }
+
+        if (user.password === codigo) {
+            // Enviamos la carrera al frontend para guardarla en localStorage
+            res.status(200).send({ 
+                redirect: '/home.html', 
+                carrera: user.carrera 
+            });
+        } else {
+            res.status(401).send({ message: 'Contraseña incorrecta' });
+        }
+    } catch (error) {
+        res.status(500).send({ message: 'Error en el servidor' });
+    }
 });
 
 app.post('/cambiar-password', async (req, res) => {

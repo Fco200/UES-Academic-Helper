@@ -7,84 +7,67 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --dark: #1a1a1a; }
-        body { background: #f0f2f5; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        
-        /* Sidebar Estilo Pro */
-        .sidebar { background: var(--dark); color: white; min-height: 100vh; position: fixed; width: 260px; padding: 20px; z-index: 1000; }
-        .main-content { margin-left: 260px; padding: 30px; }
-        
-        .nav-link-custom { 
-            color: #adb5bd; padding: 12px 15px; border-radius: 10px; 
-            margin-bottom: 8px; display: block; text-decoration: none; transition: 0.3s;
-        }
-        .nav-link-custom:hover, .nav-link-custom.active { background: var(--ues-guinda); color: white; }
-        
-        /* Glassmorphism Cards */
-        .glass-card { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; }
-        
-        .header-status { background: linear-gradient(135deg, var(--ues-guinda), #4a0000); color: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; }
-        
-        #calendar { background: white; padding: 20px; border-radius: 15px; }
-        
-        /* Reloj Estilo Digital */
-        .reloj-box { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 1.5rem; color: var(--ues-oro); }
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --dark: #121212; }
+        body { background: #f8f9fa; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .sidebar { background: var(--dark); color: white; min-height: 100vh; position: fixed; width: 260px; padding: 25px; z-index: 1000; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 260px; padding: 40px; }
+        .nav-link-custom { color: #adb5bd; padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; display: block; text-decoration: none; transition: 0.3s; }
+        .nav-link-custom:hover, .nav-link-custom.active { background: var(--ues-guinda); color: white; transform: translateX(5px); }
+        .glass-card { background: white; border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 30px; }
+        .header-status { background: linear-gradient(135deg, var(--ues-guinda), #4a0000); color: white; border-radius: 20px; padding: 35px; margin-bottom: 40px; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2); }
+        #calendar { background: white; padding: 10px; border-radius: 15px; }
+        .reloj-box { font-family: 'Monaco', monospace; font-weight: bold; font-size: 1.8rem; color: var(--ues-oro); text-shadow: 0 0 10px rgba(184, 134, 11, 0.3); }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h3 class="fw-bold mb-4 text-center">UES <span class="text-danger">Helper</span></h3>
-        <hr>
+        <h2 class="fw-bold mb-4 text-center">UES <span class="text-danger">Helper</span></h2>
+        <hr class="opacity-25">
         <div class="mb-4">
-            <small class="text-muted text-uppercase fw-bold">Menú Principal</small>
+            <small class="text-muted text-uppercase fw-bold mb-3 d-block">Gestión</small>
             <a href="#" class="nav-link-custom active" onclick="navegar('escuela')"><i class="fas fa-university me-2"></i> Universidad</a>
             <a href="#" class="nav-link-custom" onclick="navegar('personal')"><i class="fas fa-user-shield me-2"></i> Personal</a>
+            <a href="/editar.html" class="nav-link-custom"><i class="fas fa-edit me-2"></i> Editar Tareas</a>
         </div>
-        
         <div class="mb-4">
-            <small class="text-muted text-uppercase fw-bold">Asistencia</small>
-            <div class="bg-dark p-3 rounded" style="font-size: 0.8em;">
-                <i class="fas fa-robot text-danger me-2"></i> <span id="ia-status">Sincronizado</span>
+            <small class="text-muted text-uppercase fw-bold mb-3 d-block">Asistencia</small>
+            <div class="bg-dark p-3 rounded-4 border border-secondary border-opacity-25">
+                <i class="fas fa-robot text-danger me-2"></i> <span id="ia-status" class="small">Sincronizado</span>
             </div>
         </div>
-
-        <button onclick="cerrarSesion()" class="btn btn-danger w-100 mt-5"><i class="fas fa-sign-out-alt me-2"></i> Salir</button>
+        <button onclick="cerrarSesion()" class="btn btn-danger w-100 mt-5 rounded-pill shadow-sm">Cerrar Sesión</button>
     </div>
 
     <div class="main-content">
-        <div class="header-status d-flex justify-content-between align-items-center shadow">
+        <div class="header-status d-flex justify-content-between align-items-center">
             <div>
-                <h2 class="mb-0">Hola, <span id="userName">Ingeniero</span> 👋</h2>
-                <p class="mb-0 opacity-75" id="fechaHoy"></p>
+                <h1 class="mb-1 fw-bold">Hola, <span id="userName">Ingeniero</span> 👋</h1>
+                <p class="mb-0 opacity-75 fs-5" id="fechaHoy"></p>
             </div>
             <div class="text-end">
                 <div class="reloj-box" id="relojHermosillo">00:00:00</div>
-                <span class="badge bg-warning text-dark">Hermosillo, Sonora</span>
+                <span class="badge bg-warning text-dark px-3 rounded-pill mt-2">Hermosillo, Sonora</span>
             </div>
         </div>
 
-        <div class="row">
+        <div class="row g-4">
             <div class="col-lg-8">
-                <div class="glass-card shadow-sm">
-                    <h5 class="fw-bold mb-4"><i class="fas fa-calendar-day text-danger me-2"></i> Mi Agenda Académica</h5>
+                <div class="glass-card">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-calendar-alt text-danger me-2"></i> Agenda Académica</h5>
                     <div id="calendar"></div>
                 </div>
             </div>
-
             <div class="col-lg-4">
-                <div class="glass-card mb-4 shadow-sm bg-white">
-                    <h5 class="fw-bold"><i class="fas fa-tasks text-danger me-2"></i> Pendientes Hoy</h5>
-                    <hr>
-                    <div id="pendientesLista" class="small">
-                        </div>
+                <div class="glass-card mb-4">
+                    <h5 class="fw-bold mb-3 text-danger"><i class="fas fa-bolt me-2"></i> Pendientes Hoy</h5>
+                    <hr class="my-3">
+                    <div id="pendientesLista" class="small"></div>
                 </div>
-                
-                <div class="glass-card text-center bg-dark text-white shadow-sm">
+                <div class="glass-card text-center bg-dark text-white shadow">
                     <i class="fas fa-graduation-cap fa-3x mb-3 text-danger"></i>
-                    <h6>Ingeniería en Software</h6>
+                  <h6 id="displayCarrera" class="fw-bold">Cargando carrera...</h6>
                     <small class="opacity-50">UES - 2026</small>
                 </div>
             </div>
@@ -93,26 +76,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
     <script>
         const userEmail = localStorage.getItem('userEmail');
-
         document.addEventListener('DOMContentLoaded', async () => {
             if(!userEmail) window.location.href = '/index.html';
-            
-            // Nombre de usuario
+            const carrera = localStorage.getItem('userCarrera') || "Ingeniería en Software";
+document.getElementById('displayCarrera').innerText = carrera;
             document.getElementById('userName').innerText = userEmail.split('@')[0].toUpperCase();
-            
-            // Fecha
-            document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX', { 
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-            });
-
-            // Iniciar Reloj e IA
+            document.getElementById('fechaHoy').innerText = new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             setInterval(actualizarReloj, 1000);
             actualizarReloj();
-            
-            // CARGAR CALENDARIO Y DATOS
             await inicializarCalendario();
         });
 
@@ -122,56 +95,31 @@
         }
 
         async function inicializarCalendario() {
-            const res = await fetch(`/obtener-materias/${userEmail}`);
-            const materias = await res.json();
-            const events = [];
-            const listaPendientes = document.getElementById('pendientesLista');
-            const hoy = new Date().toISOString().split('T')[0];
-            
-            listaPendientes.innerHTML = '';
+            try {
+                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+                const materias = await res.json();
+                const events = [];
+                const listaPendientes = document.getElementById('pendientesLista');
+                const hoy = new Date().toLocaleDateString('sv-SE');
+                listaPendientes.innerHTML = '';
 
-            materias.forEach(m => {
-                m.tareas.forEach(t => {
-                    // Agregar al calendario
-                    events.push({
-                        title: `${m.nombre}: ${t.descripcion}`,
-                        start: t.fecha,
-                        color: t.completada ? '#28a745' : '#800000'
+                materias.forEach(m => {
+                    m.tareas.forEach(t => {
+                        events.push({ title: `${m.nombre}: ${t.descripcion}`, start: t.fecha, color: t.completada ? '#28a745' : '#800000' });
+                        if(t.fecha === hoy && !t.completada) {
+                            listaPendientes.innerHTML += `<div class="alert alert-danger border-0 py-2 mb-2 shadow-sm small d-flex justify-content-between"><span>${t.descripcion}</span><b class="ms-2">${m.nombre}</b></div>`;
+                        }
                     });
-
-                    // Si es para hoy, poner en la lista lateral
-                   if(t.fecha === hoy && !t.completada) {
-            listaPendientes.innerHTML += `
-                <div class="alert alert-danger py-2 mb-2 d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-exclamation-circle me-2"></i> ${t.descripcion}</span>
-                    <small class="fw-bold">${m.nombre}</small>
-                </div>`;
-                    }
                 });
-            });
 
-            if(listaPendientes.innerHTML === '') listaPendientes.innerHTML = '<p class="text-muted">¡Todo al día!</p>';
-
-            const calendarEl = document.getElementById('calendar');
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'es',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-                events: events,
-                themeSystem: 'bootstrap5'
-            });
-            calendar.render();
+                if(listaPendientes.innerHTML === '') listaPendientes.innerHTML = '<p class="text-muted text-center">¡Todo listo por hoy!</p>';
+                const calendarEl = document.getElementById('calendar');
+                new FullCalendar.Calendar(calendarEl, { initialView: 'dayGridMonth', locale: 'es', headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' }, events: events, themeSystem: 'bootstrap5' }).render();
+            } catch (e) { console.error("Error cargando calendario"); }
         }
 
-        function navegar(opcion) {
-            localStorage.setItem('perfilUsuario', opcion);
-            window.location.href = '/dashboard.html';
-        }
-
-        function cerrarSesion() {
-            localStorage.clear();
-            window.location.href = '/index.html';
-        }
+        function navegar(opcion) { localStorage.setItem('perfilUsuario', opcion); window.location.href = '/dashboard.html'; }
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>
 </html>

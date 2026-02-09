@@ -18,10 +18,15 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // 3. CONFIGURACIÓN DE CORREO (NODEMAILER)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // Usar false para puerto 587
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS // Contraseña de aplicación de 16 letras
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false // Esto ayuda a evitar bloqueos de red en Render
     }
 });
 
@@ -72,7 +77,7 @@ app.post('/verificar-codigo', async (req, res) => {
         const idLower = email.toLowerCase().trim();
         let usuario = await Usuario.findOne({ identificador: idLower });
 
-      if (!usuario) {
+     if (!usuario) {
     usuario = await Usuario.create({ 
         identificador: idLower, 
         password: "UES2026", 
@@ -81,8 +86,8 @@ app.post('/verificar-codigo', async (req, res) => {
         nombreReal: "Estudiante UES" 
     });
     
-    // LLAMADA NECESARIA PARA QUE FUNCIONE EL CORREO
-    await enviarCorreoBienvenida(idLower, "Estudiante"); 
+    // IMPORTANTE: Quita el 'await' de aquí abajo
+    enviarCorreoBienvenida(idLower, "Estudiante"); 
 }
 
         if (usuario.password === codigo) {
@@ -94,7 +99,11 @@ app.post('/verificar-codigo', async (req, res) => {
         } else {
             res.status(401).json({ success: false });
         }
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) {
+    console.error("Error crítico:", e);
+    // IMPORTANTE: Si no envías esta respuesta, el botón se queda en "VALIDANDO"
+    res.status(500).json({ success: false, message: "Error interno" });
+}
 });
 
 app.get('/obtener-usuario/:email', async (req, res) => {

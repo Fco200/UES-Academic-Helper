@@ -228,17 +228,36 @@ async function entrar() {
     btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Validando...`;
     btn.disabled = true;
 
+    // --- SEGURO DE TIEMPO (TIMEOUT) ---
+    // Si el servidor no responde en 10 segundos, liberamos el botón
+    const timeout = setTimeout(() => {
+        if (btn.disabled) {
+            btn.disabled = false;
+            btn.innerHTML = textoOriginal;
+            alert("⚠️ El servidor en Render está tardando demasiado. Reintenta el ingreso.");
+        }
+    }, 10000);
+
     try {
         const res = await fetch('/verificar-codigo', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: email.trim(), codigo: codigo.trim(), carrera, universidad })
+            body: JSON.stringify({ 
+                email: email.trim(), 
+                codigo: codigo.trim(), 
+                carrera, 
+                universidad 
+            })
         });
+        
+        // Limpiamos el timeout porque el servidor ya respondió
+        clearTimeout(timeout);
         
         const data = await res.json();
         
         if(res.ok) {
             // MENSAJE DE BIENVENIDA DINÁMICO
+            // Usamos el nombre real que viene desde la base de datos
             btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, ${data.nombreUsuario || 'Estudiante'}!`;
             btn.style.background = "#28a745";
             
@@ -250,6 +269,8 @@ async function entrar() {
             btn.disabled = false;
         }
     } catch (e) {
+        clearTimeout(timeout);
+        console.error("Error de conexión:", e);
         alert("❌ Error de conexión. Revisa el servidor en Render.");
         btn.innerHTML = textoOriginal;
         btn.disabled = false;

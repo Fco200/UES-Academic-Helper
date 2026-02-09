@@ -92,20 +92,25 @@ const UsuarioSchema = new mongoose.Schema({
 // --- RUTA DE LOGIN ACTUALIZADA ---
 app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo, carrera } = req.body;
+    const PASS_INICIAL = "UES2026";
+
     try {
         let user = await Usuario.findOne({ identificador: email });
         
         if (!user) {
-            // Si es nuevo, guardamos su carrera seleccionada
-            user = new Usuario({ identificador: email, carrera: carrera });
+            user = new Usuario({ identificador: email, carrera: carrera, password: PASS_INICIAL });
             await user.save();
         }
 
         if (user.password === codigo) {
-            // Enviamos la carrera al frontend para guardarla en localStorage
+            // LÓGICA DE SEGURIDAD BANCARIA:
+            // Si la contraseña sigue siendo la inicial, lo mandamos a seguridad, si no, al home.
+            const destino = (codigo === PASS_INICIAL) ? '/dashboard.html?fuerzaCambio=true' : '/home.html';
+            
             res.status(200).send({ 
-                redirect: '/home.html', 
-                carrera: user.carrera 
+                redirect: destino, 
+                carrera: user.carrera,
+                fuerzaCambio: (codigo === PASS_INICIAL)
             });
         } else {
             res.status(401).send({ message: 'Contraseña incorrecta' });
@@ -200,26 +205,37 @@ app.post('/completar-tarea', async (req, res) => {
 });
 
 // --- EDITAR TAREA ---
+// --- RUTAS DE EDICIÓN Y ELIMINACIÓN ---
+
+// 1. Editar una tarea específica
 app.post('/editar-tarea', async (req, res) => {
-  const { materiaId, tareaId, nuevaDescripcion, nuevaFecha, nuevaCompletada } = req.body;
-  try {
-    if (!materiaId || !tareaId) return res.status(400).json({ ok: false, error: 'Faltan IDs' });
-    const materia = await Materia.findById(materiaId);
-    if (!materia) return res.status(404).json({ ok: false, error: 'Materia no encontrada' });
+    const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
+    try {
+        await Materia.updateOne(
+            { _id: materiaId, "tareas._id": tareaId },
+            { $set: { 
+                "tareas.$.descripcion": nuevaDescripcion, 
+                "tareas.$.fecha": nuevaFecha 
+            }}
+        );
+        res.status(200).send({ message: "Tarea actualizada" });
+    } catch (e) {
+        res.status(500).send({ message: "Error al editar" });
+    }
+});
 
-    const tarea = materia.tareas.id(tareaId);
-    if (!tarea) return res.status(404).json({ ok: false, error: 'Tarea no encontrada' });
-
-    if (typeof nuevaDescripcion === 'string') tarea.descripcion = nuevaDescripcion;
-    if (typeof nuevaFecha === 'string') tarea.fecha = nuevaFecha;
-    if (typeof nuevaCompletada === 'boolean') tarea.completada = nuevaCompletada;
-
-    await materia.save();
-    res.json({ ok: true, message: 'Tarea actualizada' });
-  } catch (e) {
-    console.error('Error /editar-tarea', e);
-    res.status(500).json({ ok: false, error: e.message });
-  }
+// 2. Eliminar una tarea específica
+app.post('/eliminar-tarea', async (req, res) => {
+    const { materiaId, tareaId } = req.body;
+    try {
+        await Materia.updateOne(
+            { _id: materiaId },
+            { $pull: { tareas: { _id: tareaId } } }
+        );
+        res.status(200).send({ message: "Tarea eliminada" });
+    } catch (e) {
+        res.status(500).send({ message: "Error al eliminar" });
+    }
 });
 
 // --- GOOGLE VERIFICACIÓN ---

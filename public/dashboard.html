@@ -304,6 +304,41 @@ document.getElementById('userBadge').innerText = userEmail || 'Invitado';
         function escapeHtml(str) { return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
         function escapeJs(str) { return String(str).replaceAll("'", "\\'"); }
         window.onload = cargarTodo;
+
+        window.onload = function() {
+    cargarTodo(); // Tu función actual
+    
+    // Revisar si la URL trae la orden de forzar cambio
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('fuerzaCambio') === 'true') {
+        alert("🚨 SEGURIDAD UES: Detectamos que usas la contraseña inicial. Por favor, cámbiala ahora para proteger tu cuenta.");
+        
+        // Ejecutamos tu función de cambiar contraseña automáticamente
+        cambiarPassword(); 
+    }
+};
+
+// Mejora tu función cambiarPassword para que valide que no pongan la misma
+async function cambiarPassword() {
+    const nueva = prompt("Ingresa tu nueva contraseña (diferente a UES2026):");
+    
+    if (!nueva || nueva === "UES2026") {
+        alert("Error: Debes elegir una contraseña segura y distinta a la inicial.");
+        return cambiarPassword(); // Reintento obligatorio
+    }
+
+    const res = await fetch('/cambiar-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
+    });
+
+    if (res.ok) {
+        alert("✅ ¡Éxito! Tu contraseña ha sido actualizada. Ya puedes usar el sistema.");
+        // Limpiamos la URL para que no vuelva a pedirlo
+        window.history.replaceState({}, document.title, "/dashboard.html");
+    }
+}
     </script>
 </body>
 </html>

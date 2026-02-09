@@ -6,110 +6,68 @@
     <title>UES Academic Helper | Login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
-    
     <style>
-        :root { --ues-guinda: #800000; --ues-dark: #121212; }
+        :root { --ues-guinda: #800000; --dark-bg: #121212; }
         body { 
-            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); 
-            color: white; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #000 100%); 
+            color: white; height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: 'Inter', sans-serif;
         }
         .login-card { 
-            background: #242424; border-radius: 24px; border: 1px solid #333; 
-            width: 100%; max-width: 400px; padding: 45px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); 
+            width: 100%; max-width: 400px; padding: 45px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
+        .form-control { 
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); 
+            color: white; padding: 12px 15px; border-radius: 12px;
+        }
+        .form-control:focus { background: rgba(255,255,255,0.12); color: white; border-color: var(--ues-guinda); box-shadow: none; }
         .btn-ues { 
             background: var(--ues-guinda); color: white; border: none; padding: 14px; 
-            border-radius: 12px; font-weight: 700; transition: 0.3s;
+            border-radius: 12px; font-weight: 700; transition: 0.3s; width: 100%;
         }
-        .btn-ues:hover { background: #a00000; transform: translateY(-2px); }
-        .form-control, .form-select { 
-            background: #333; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; 
-        }
-        .form-control:focus, .form-select:focus { 
-            background: #3d3d3d; color: white; border-color: var(--ues-guinda); box-shadow: none; 
-        }
-        /* Estilo para el mensaje de advertencia parpadeante */
-        .alerta-seguridad { 
-            font-size: 0.85em; background: rgba(255, 193, 7, 0.1); 
-            border: 1px solid #ffc107; color: #ffc107; padding: 15px; border-radius: 12px; margin-top: 15px;
-            animation: pulse 2s infinite; display: none; /* Se activa por JS */
-        }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .step-transition { animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-ues:hover { background: #a00000; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(128,0,0,0.3); }
+        .alerta { font-size: 0.8em; color: #ffcc00; margin-top: 15px; text-align: center; }
     </style>
 </head>
 <body>
-
-    <div class="login-card shadow-lg">
-        <div class="text-center mb-4">
+    <div class="login-card">
+        <div class="text-center mb-5">
             <h1 class="fw-bold text-danger mb-0">UES</h1>
-            <p class="text-muted small">Portal Académico Multicarrera</p>
+            <p class="text-muted small uppercase tracking-widest">Portal Académico</p>
         </div>
 
-        <div id="paso1" class="step-transition">
-            <label class="form-label small fw-bold text-muted">CORREO O TELÉFONO</label>
+        <div id="paso1">
+            <label class="form-label small fw-bold text-muted">USUARIO</label>
             <div class="input-group mb-4">
-                <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-user"></i></span>
-                <input type="text" id="userInput" class="form-control" placeholder="Ej. 6625374491">
+                <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-envelope"></i></span>
+                <input type="text" id="userInput" class="form-control border-start-0" placeholder="Correo o Celular (10 dígitos)">
             </div>
-            <button onclick="validarYPasar()" class="btn btn-ues w-100">Continuar <i class="fas fa-arrow-right ms-2"></i></button>
+            <button onclick="validarYPasar()" class="btn btn-ues">Continuar <i class="fas fa-arrow-right ms-2"></i></button>
         </div>
 
-        <div id="paso2" style="display:none;" class="step-transition text-center">
-            <div class="mb-3">
-                <span class="badge bg-dark p-2 border border-secondary" id="displayUser"></span>
-            </div>
-
-            <label class="form-label small fw-bold text-muted d-block text-start">TU CARRERA</label>
-            <select id="carreraInput" class="form-select mb-3">
-                <option value="" selected disabled>-- Seleccione su carrera --</option>
-                <optgroup label="Ingenierías">
-                    <option value="Ingeniería en Software">Ingeniería en Software</option>
-                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                    <option value="Ingeniería Mecatrónica">Ingeniería Mecatrónica</option>
-                </optgroup>
-                <optgroup label="Licenciaturas">
-                    <option value="Lic. en Administración">Lic. en Administración</option>
-                    <option value="Lic. en Derecho">Lic. en Derecho</option>
-                    <option value="Lic. en Psicología">Lic. en Psicología</option>
-                </optgroup>
+        <div id="paso2" style="display:none;" class="animate__animated animate__fadeIn">
+            <label class="form-label small fw-bold text-muted">CARRERA</label>
+            <select id="carreraInput" class="form-control mb-4">
+                <option value="Ingeniería en Software">Ingeniería en Software</option>
+                <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                <option value="Lic. en Administración">Lic. en Administración</option>
             </select>
-
-            <label class="form-label small fw-bold text-muted d-block text-start">CONTRASEÑA</label>
-            <div class="input-group mb-3">
-                <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-lock"></i></span>
-                <input type="password" id="passInput" class="form-control" placeholder="••••••••" onkeyup="checkDefaultPass()">
-            </div>
-
-            <div id="mensajeSeguridad" class="alerta-seguridad text-start">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <b>Aviso:</b> Estás usando la clave temporal. Es obligatorio cambiarla al ingresar.
-            </div>
-
-            <button onclick="entrar()" class="btn btn-success w-100 py-3 fw-bold rounded-3 mt-3">ENTRAR AL PORTAL</button>
+            <label class="form-label small fw-bold text-muted">CONTRASEÑA</label>
+            <input type="password" id="passInput" class="form-control mb-4" placeholder="••••••••">
+            <button onclick="entrar()" class="btn btn-success w-100 py-3 rounded-3 fw-bold">Acceder al Sistema</button>
+            <p class="alerta"><i class="fas fa-shield-alt"></i> Clave inicial: <b>UES2026</b></p>
         </div>
     </div>
 
     <script>
         function validarYPasar() {
             const val = document.getElementById('userInput').value.trim();
-            if (val.length < 5) return alert("Ingresa un usuario válido");
+            if (val.length < 5) return alert("Ingresa un correo o celular válido");
             localStorage.setItem('userEmail', val);
-            document.getElementById('displayUser').innerText = val;
             document.getElementById('paso1').style.display = 'none';
             document.getElementById('paso2').style.display = 'block';
-        }
-
-        // FUNCIÓN CLAVE: Muestra el mensaje solo si la contraseña es la de fábrica
-        function checkDefaultPass() {
-            const pass = document.getElementById('passInput').value;
-            const alerta = document.getElementById('mensajeSeguridad');
-            if (pass === "UES2026") {
-                alerta.style.display = "block";
-            } else {
-                alerta.style.display = "none";
-            }
         }
 
         async function entrar() {
@@ -117,23 +75,19 @@
             const codigo = document.getElementById('passInput').value;
             const carrera = document.getElementById('carreraInput').value;
 
-            if (!carrera) return alert("Selecciona tu carrera");
+            const res = await fetch('/verificar-codigo', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, codigo, carrera })
+            });
 
-            try {
-                const res = await fetch('/verificar-codigo', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email, codigo, carrera })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    localStorage.setItem('userCarrera', data.carrera || carrera);
-                    window.location.href = data.redirect;
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) { alert("Error de conexión"); }
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('userCarrera', data.carrera || carrera);
+                window.location.href = data.redirect;
+            } else {
+                alert("Datos incorrectos");
+            }
         }
     </script>
 </body>

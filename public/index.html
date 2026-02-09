@@ -49,33 +49,53 @@
         </div>
 
         <div id="paso2" style="display:none;">
-            <label>TELÉFONO DE CONTACTO</label>
-            <input type="text" id="telInput" class="form-control" placeholder="662XXXXXXX">
-            
-            <label>CORREO INSTITUCIONAL</label>
-            <input type="email" id="emailInput" class="form-control" placeholder="usuario@correo.com">
-            
-            <label>CONTRASEÑA</label>
-            <input type="password" id="passInput" class="form-control" placeholder="••••••••">
-            
-            <button onclick="entrar()" class="btn btn-ues" style="background: #28a745;">Entrar al Sistema</button>
-            <button onclick="regresar()" class="btn btn-link text-white-50 w-100 mt-2 btn-sm">Regresar</button>
+    <label>CARRERA</label>
+    <select id="carreraInput" class="form-select mb-3">
+        </select>
+
+    <label>CONTRASEÑA</label>
+    <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+    
+    <div class="text-end mb-4">
+        <button onclick="recuperarPassword()" class="btn btn-link text-warning p-0 small" style="text-decoration: none; font-size: 0.7rem;">
+            ¿Olvidaste tu contraseña?
         </div>
-        <button onclick="recuperarPassword()" class="btn btn-link text-warning w-100 mt-2 small">¿Olvidaste tu contraseña?</button>
+    </div>
+    
+    <button onclick="entrar()" class="btn btn-ues" style="background: #28a745;">Entrar al Sistema</button>
+    <button onclick="regresar()" class="btn btn-link text-white-50 w-100 mt-2 btn-sm">Regresar</button>
+</div>
 
 <script>
+// --- FUNCIÓN CORREGIDA DE RECUPERACIÓN ---
 async function recuperarPassword() {
-    const email = document.getElementById('emailInput').value;
-    if(!email) return alert("Por favor, escribe tu correo primero.");
+    const email = localStorage.getItem('userEmail'); // Usamos el correo del Paso 1
+    if(!email) return alert("Error: No se detectó tu correo.");
 
-    const res = await fetch('/recuperar-password', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email })
-    });
+    // Feedback visual de carga
+    const btnRecuperar = event.target;
+    const textoOriginal = btnRecuperar.innerText;
+    btnRecuperar.innerText = "Enviando...";
+    btnRecuperar.disabled = true;
 
-    if(res.ok) alert("✅ Te hemos enviado un correo con tu contraseña.");
-    else alert("❌ El correo no existe en nuestra base de datos.");
+    try {
+        const res = await fetch('/recuperar-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email })
+        });
+
+        if(res.ok) {
+            alert("✅ Éxito: Revisa tu bandeja de entrada (y la carpeta de Spam).");
+        } else {
+            alert("❌ Error: No pudimos encontrar ese correo en el sistema.");
+        }
+    } catch (e) {
+        alert("❌ Error de conexión con el servidor.");
+    } finally {
+        btnRecuperar.innerText = textoOriginal;
+        btnRecuperar.disabled = false;
+    }
 }
 </script>
     </div>

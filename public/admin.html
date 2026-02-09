@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel | UES Helper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #0a0a0a; color: white; font-family: sans-serif; padding: 50px; }
+        .admin-card { background: #111; border: 1px solid #800000; padding: 30px; border-radius: 20px; max-width: 600px; margin: auto; }
+        .form-control { background: #000; border-color: #333; color: white !important; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="admin-card">
+        <h2 class="fw-bold text-danger mb-4">Publicar Noticia UES</h2>
+        <input type="password" id="passAdmin" class="form-control" placeholder="Clave Maestra de Administrador">
+        <hr>
+        <input type="text" id="titNoticia" class="form-control" placeholder="Título de la Noticia">
+        <textarea id="contNoticia" class="form-control" rows="4" placeholder="Cuerpo de la noticia..."></textarea>
+        <input type="text" id="imgNoticia" class="form-control" placeholder="URL de la imagen (Opcional)">
+        
+        <button onclick="enviarNoticia()" class="btn btn-danger w-100 fw-bold py-3">PUBLICAR AHORA</button>
+    </div>
+
+    <script>
+        async function enviarNoticia() {
+            const datos = {
+                passwordAdmin: document.getElementById('passAdmin').value,
+                titulo: document.getElementById('titNoticia').value,
+                contenido: document.getElementById('contNoticia').value,
+                imagen: document.getElementById('imgNoticia').value
+            };
+
+            const res = await fetch('/publicar-noticia-secreta', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(datos)
+            });
+
+            if(res.ok) {
+                alert("✅ Noticia lanzada al Home con éxito");
+                location.href = "/home.html";
+            } else {
+                alert("❌ Clave incorrecta o error en servidor");
+            }
+        }
+    </script>
+</body>
+</html>

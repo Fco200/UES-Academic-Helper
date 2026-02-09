@@ -170,7 +170,40 @@ app.post('/ia-asistente', async (req, res) => {
         res.json({ respuesta: result.response.text() });
     } catch (e) { res.status(500).json({ respuesta: "IA no disponible." }); }
 });
+// --- MODELO DE NOTICIAS ---
+const Noticia = mongoose.model('Noticia', new mongoose.Schema({
+    titulo: String,
+    contenido: String,
+    imagen: String, // URL de la imagen
+    fecha: { type: Date, default: Date.now }
+}));
 
+// --- RUTA PARA OBTENER NOTICIAS ---
+app.get('/obtener-noticias', async (req, res) => {
+    try {
+        const noticias = await Noticia.find().sort({ fecha: -1 }); // Las más nuevas primero
+        res.json(noticias);
+    } catch (e) {
+        res.status(500).json([]);
+    }
+});
+// RUTA SECRETA PARA PUBLICAR NOTICIAS (Back-end)
+app.post('/publicar-noticia-secreta', async (req, res) => {
+    const { titulo, contenido, imagen, passwordAdmin } = req.body;
+
+    // Validación de seguridad simple
+    if (passwordAdmin !== "UES_ADMIN_2026") { 
+        return res.status(403).json({ success: false, message: "Acceso denegado" });
+    }
+
+    try {
+        const nueva = new Noticia({ titulo, contenido, imagen });
+        await nueva.save();
+        res.json({ success: true, message: "Noticia publicada con éxito" });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
+});
 // --- INICIO DEL SERVIDOR ---
 // Usar '0.0.0.0' asegura que Render pueda detectar el servicio
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

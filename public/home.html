@@ -99,6 +99,11 @@
                     <button class="btn btn-danger w-100 py-3 fw-bold rounded-4" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
                 </div>
             </div>
+            <div class="mt-5">
+    <h3 class="fw-bold mb-4"><i class="fas fa-newspaper text-danger me-2"></i> Noticias UES</h3>
+    <div id="contenedorNoticias" class="row g-4">
+        </div>
+</div>
         </div>
     </div>
 
@@ -127,6 +132,36 @@
             document.getElementById('editCumple').value = u.cumpleanos || "";
             document.getElementById('editBio').value = u.biografia || "";
             fotoBase64 = u.foto || "";
+            async function cargarNoticias() {
+    try {
+        const res = await fetch('/obtener-noticias');
+        const noticias = await res.json();
+        const contenedor = document.getElementById('contenedorNoticias');
+        
+        if (noticias.length === 0) {
+            contenedor.innerHTML = '<p class="text-muted">No hay noticias relevantes por el momento.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = noticias.map(n => `
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary rounded-4 h-100 overflow-hidden shadow">
+                    ${n.imagen ? `<img src="${n.imagen}" class="card-img-top" style="height: 200px; object-fit: cover;">` : ''}
+                    <div class="card-body p-4">
+                        <small class="text-danger fw-bold">${new Date(n.fecha).toLocaleDateString()}</small>
+                        <h5 class="card-title fw-bold text-white mt-2">${n.titulo}</h5>
+                        <p class="card-text text-muted small">${n.contenido}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error("Error cargando noticias", e);
+    }
+}
+
+// Llama a la función al cargar la página
+cargarNoticias();
         };
 
         // 2. Convertir imagen a Base64 para guardarla en la BD

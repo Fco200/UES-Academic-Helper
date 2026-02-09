@@ -76,9 +76,9 @@
                          <input type="text" id="editNombre" class="form-control" placeholder="Ej: Francisco Aguayo">
                     </div>
                     <div class="mb-3">
-                        <label class="small text-muted fw-bold">CORREO DE CONTACTO / INSTITUCIONAL</label>
-                        <input type="email" id="editEmail" class="form-control" placeholder="ejemplo@ues.mx">
-                    </div>
+    <label class="small text-muted fw-bold">CORREO DE CONTACTO</label>
+    <input type="email" id="editEmail" class="form-control" placeholder="ejemplo@ues.mx">
+</div>
                     <div class="mb-3">
                          <label class="small text-muted fw-bold">NÚMERO TELEFÓNICO (10 DÍGITOS)</label>
                         <input type="text" id="editTelefono" class="form-control" placeholder="662XXXXXXX">
@@ -237,10 +237,12 @@
         }
 
        async function guardarTodo() {
-    const nuevoEmail = document.getElementById('editEmail').value;
+    const elEmail = document.getElementById('editEmail');
+    if(!elEmail) return console.error("Error: No se encontró el campo editEmail en el HTML");
+
     const datos = {
-        email: userEmail, // Email actual (ID en la DB)
-        nuevoEmail: nuevoEmail.toLowerCase().trim(),
+        email: userEmail, // ID actual
+        nuevoEmail: elEmail.value.toLowerCase().trim(),
         nombreReal: document.getElementById('editNombre').value,
         telefono: document.getElementById('editTelefono').value,
         cumpleanos: document.getElementById('editCumple').value,
@@ -255,9 +257,8 @@
     });
 
     if(res.ok) {
-        // Si el usuario cambió su correo, actualizamos el localStorage
         localStorage.setItem('userEmail', datos.nuevoEmail);
-        alert("✅ Perfil y Correo actualizados correctamente");
+        alert("✅ Perfil actualizado");
         location.reload();
     }
 }

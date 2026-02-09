@@ -20,14 +20,12 @@ app.use(express.static(path.join(__dirname, "public")));
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // Usar false para puerto 587
+    secure: false, // Puerto 587 usa false
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    tls: {
-        rejectUnauthorized: false // Esto ayuda a evitar bloqueos de red en Render
-    }
+    tls: { rejectUnauthorized: false }
 });
 
 // --- CONEXIÓN A MONGODB ---
@@ -84,9 +82,9 @@ app.post('/verificar-codigo', async (req, res) => {
         carrera, 
         universidad, 
         nombreReal: "Estudiante UES" 
+        
     });
     
-    // IMPORTANTE: Quita el 'await' de aquí abajo
     enviarCorreoBienvenida(idLower, "Estudiante"); 
 }
 

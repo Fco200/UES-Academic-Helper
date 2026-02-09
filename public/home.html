@@ -17,6 +17,7 @@
         .data-card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 25px; border-left: 5px solid var(--ues-guinda); }
         .nav-link-custom { color: #888; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; transition: 0.3s; }
         .nav-link-custom.active { background: var(--ues-guinda); color: white; }
+        .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -39,7 +40,7 @@
                 <input type="file" id="inputFoto" hidden accept="image/*" onchange="procesarImagen(this)">
             </div>
             <div>
-                <h1 id="displayNombre" class="fw-bold m-0">Cargando...</h1>
+                <h1 id="displayNombre" class="fw-bold m-0">Nombre de Usuario</h1>
                 <p id="displayCarrera" class="text-warning fw-bold mb-1"></p>
                 <p id="displayCorreo" class="text-muted small"></p>
                 <button class="btn btn-danger btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar Información</button>
@@ -52,17 +53,16 @@
             <div class="col-md-12"><div class="data-card"><small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small><p id="displayBio" class="m-0 opacity-75">Cuéntanos algo sobre ti...</p></div></div>
         </div>
 
-        <div class="container-fluid mt-5">
-            <h3 class="fw-bold mb-4"><i class="fas fa-newspaper text-danger me-2"></i> Noticias Recientes UES</h3>
-            <div id="contenedorNoticias" class="row g-4">
-                </div>
-        </div>
-        <div class="col-lg-4">
-        <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-warning me-2"></i> Mis Pendientes</h4>
-        <div id="listaPendientesHome" class="glass-card p-3" style="background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
+        <div class="row mt-5">
+            <div class="col-lg-8">
+                <h3 class="fw-bold mb-4"><i class="fas fa-newspaper text-danger me-2"></i> Noticias UES</h3>
+                <div id="contenedorNoticias" class="row g-4"></div>
             </div>
-    </div>
-</div>
+            <div class="col-lg-4">
+                <h3 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-warning me-2"></i> Mis Pendientes</h3>
+                <div id="listaPendientesHome" class="glass-card p-3"></div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="modalEditar" tabindex="-1">
@@ -97,21 +97,28 @@
         const userEmail = localStorage.getItem('userEmail');
         let fotoBase64 = "";
 
-        async function cargarDatosPerfil() {
+        window.onload = async () => {
             if(!userEmail) return window.location.href = '/index.html';
+            
+            // Cargamos todo al iniciar
+            await cargarDatosPerfil();
+            await cargarNoticiasHome();
+            await cargarPendientesHome();
+        };
+
+        async function cargarDatosPerfil() {
             try {
                 const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
                 const u = await res.json();
                 
-                document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante";
+                document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante UES";
                 document.getElementById('displayCarrera').innerText = u.carrera || "Ingeniería";
                 document.getElementById('displayCorreo').innerText = u.identificador;
                 document.getElementById('displayFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-                document.getElementById('displayTelefono').innerText = u.telefono || "Sin registrar";
-                document.getElementById('displayCumple').innerText = u.cumpleanos || "No definida";
-                document.getElementById('displayBio').innerText = u.biografia || "Sin biografía";
+                document.getElementById('displayTelefono').innerText = u.telefono || "No registrado";
+                document.getElementById('displayCumple').innerText = u.cumpleanos || "-- / -- / --";
+                document.getElementById('displayBio').innerText = u.biografia || "Sin biografía...";
                 
-                // Llenar inputs del modal
                 document.getElementById('editNombre').value = u.nombreReal || "";
                 document.getElementById('editTelefono').value = u.telefono || "";
                 document.getElementById('editCumple').value = u.cumpleanos || "";
@@ -127,16 +134,16 @@
                 const contenedor = document.getElementById('contenedorNoticias');
                 
                 if (!noticias || noticias.length === 0) {
-                    contenedor.innerHTML = '<p class="text-muted">No hay noticias nuevas por ahora.</p>';
+                    contenedor.innerHTML = '<p class="text-muted small">No hay noticias nuevas por ahora.</p>';
                     return;
                 }
 
                 contenedor.innerHTML = noticias.map(n => `
-                    <div class="col-md-6 mb-3">
-                        <div class="card bg-dark border-secondary rounded-4 h-100 shadow-lg">
+                    <div class="col-md-6">
+                        <div class="card bg-dark border-secondary rounded-4 h-100 shadow">
                             ${n.imagen ? `<img src="${n.imagen}" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">` : ''}
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold text-white">${n.titulo}</h5>
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold text-white mb-1">${n.titulo}</h6>
                                 <p class="card-text text-muted small">${n.contenido}</p>
                                 <small class="text-danger">${new Date(n.fecha).toLocaleDateString()}</small>
                             </div>
@@ -144,6 +151,38 @@
                     </div>
                 `).join('');
             } catch (e) { console.error("Error al cargar noticias:", e); }
+        }
+
+        async function cargarPendientesHome() {
+            try {
+                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+                const materias = await res.json();
+                const contenedor = document.getElementById('listaPendientesHome');
+                
+                let htmlTareas = "";
+                let contador = 0;
+
+                materias.forEach(m => {
+                    if (m.tareas) {
+                        m.tareas.forEach(t => {
+                            if (!t.completada) {
+                                contador++;
+                                htmlTareas += `
+                                    <div class="p-2 mb-2 rounded-3 border-start border-warning border-4" style="background: rgba(255,255,255,0.05);">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <span class="small fw-bold text-white">${t.descripcion}</span>
+                                            <span class="badge bg-black text-warning" style="font-size: 0.6rem;">${t.fecha || 'S/F'}</span>
+                                        </div>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">${m.nombre}</small>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+                });
+
+                contenedor.innerHTML = contador > 0 ? htmlTareas : '<p class="text-muted small">¡Todo al día!</p>';
+            } catch (e) { console.error("Error cargando tareas:", e); }
         }
 
         function procesarImagen(input) {
@@ -180,51 +219,6 @@
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
-
-        // Inicialización
-        window.onload = () => {
-            cargarDatosPerfil();
-            cargarNoticiasHome();
-        };
-        async function cargarPendientesHome() {
-    try {
-        const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-        const materias = await res.json();
-        const contenedor = document.getElementById('listaPendientesHome');
-        
-        let htmlTareas = "";
-        let contador = 0;
-
-        materias.forEach(m => {
-            m.tareas.forEach(t => {
-                // Solo mostramos las que NO están completadas
-                if (!t.completada) {
-                    contador++;
-                    htmlTareas += `
-                        <div class="p-2 mb-2 rounded-3 border-start border-warning border-4" style="background: rgba(255,255,255,0.05);">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <span class="small fw-bold text-white">${t.descripcion}</span>
-                                <span class="badge bg-dark text-warning" style="font-size: 0.6rem;">${t.fecha || 'Sin fecha'}</span>
-                            </div>
-                            <small class="text-muted" style="font-size: 0.7rem;">${m.nombre}</small>
-                        </div>
-                    `;
-                }
-            });
-        });
-
-        contenedor.innerHTML = contador > 0 ? htmlTareas : '<p class="text-muted small">¡Todo al día! No hay pendientes.</p>';
-    } catch (e) {
-        console.error("Error al cargar pendientes:", e);
-    }
-}
-
-// ACTUALIZA TU WINDOW.ONLOAD PARA INCLUIR ESTO
-window.onload = () => {
-    cargarHome();         // Carga tu perfil
-    cargarNoticiasHome(); // Carga las noticias
-    cargarPendientesHome(); // Carga las tareas
-};
     </script>
 </body>
 </html>

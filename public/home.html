@@ -26,40 +26,41 @@
         <h4 class="fw-bold mb-5">UES <span class="text-danger">HELPER</span></h4>
         <nav>
             <a href="/home.html" class="nav-link-custom active"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
-            <a href="/calendario.html" class="nav-link-custom"><i class="fas fa-calendar-alt me-2"></i> Calendario</a>
             <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tasks me-2"></i> Tareas</a>
+            <a href="/soporte.html" class="nav-link-custom"><i class="fas fa-headset me-2"></i> Soporte</a>
         </nav>
         <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill mt-5">Salir</button>
     </div>
 
-    <div class="main-content">
-        <div class="d-flex align-items-center mb-5 profile-header p-4 bg-dark rounded-5">
+    <div class="main-content" id="mainContent">
+        <div class="d-flex align-items-center mb-5 profile-header p-4 bg-dark rounded-5 shadow-lg">
             <div class="profile-wrapper">
                 <img id="displayFoto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo">
                 <label for="inputFoto" class="upload-btn"><i class="fas fa-camera"></i></label>
                 <input type="file" id="inputFoto" hidden accept="image/*" onchange="procesarImagen(this)">
             </div>
             <div>
-                <h1 id="displayNombre" class="fw-bold m-0">Nombre de Usuario</h1>
+                <h1 id="displayNombre" class="fw-bold m-0 text-white">Nombre de Usuario</h1>
                 <p id="displayCarrera" class="text-warning fw-bold mb-1"></p>
                 <p id="displayCorreo" class="text-muted small"></p>
                 <button class="btn btn-danger btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar Información</button>
+                <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="abrirEditorSeguridad()">Seguridad</button>
             </div>
         </div>
 
         <div class="row g-4 mb-5">
-            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">TELÉFONO</small><p id="displayTelefono" class="m-0 fs-5">No registrado</p></div></div>
-            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">CUMPLEAÑOS</small><p id="displayCumple" class="m-0 fs-5">-- / -- / --</p></div></div>
-            <div class="col-md-12"><div class="data-card"><small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small><p id="displayBio" class="m-0 opacity-75">Cuéntanos algo sobre ti...</p></div></div>
+            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">TELÉFONO</small><p id="displayTelefono" class="m-0 fs-5 text-white">No registrado</p></div></div>
+            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">CUMPLEAÑOS</small><p id="displayCumple" class="m-0 fs-5 text-white">-- / -- / --</p></div></div>
+            <div class="col-md-12"><div class="data-card"><small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small><p id="displayBio" class="m-0 opacity-75 text-white">Cuéntanos algo sobre ti...</p></div></div>
         </div>
 
         <div class="row mt-5">
             <div class="col-lg-8">
-                <h3 class="fw-bold mb-4"><i class="fas fa-newspaper text-danger me-2"></i> Noticias UES</h3>
+                <h3 class="fw-bold mb-4 text-white"><i class="fas fa-newspaper text-danger me-2"></i> Noticias UES</h3>
                 <div id="contenedorNoticias" class="row g-4"></div>
             </div>
             <div class="col-lg-4">
-                <h3 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-warning me-2"></i> Mis Pendientes</h3>
+                <h3 class="fw-bold mb-4 text-white"><i class="fas fa-clipboard-list text-warning me-2"></i> Mis Pendientes</h3>
                 <div id="listaPendientesHome" class="glass-card p-3"></div>
             </div>
         </div>
@@ -86,7 +87,20 @@
                         <label class="small text-muted">BIOGRAFÍA</label>
                         <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3"></textarea>
                     </div>
-                    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
+                    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalSeguridad" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-warning text-white rounded-5">
+                <div class="modal-body p-4 text-center">
+                    <i class="fas fa-shield-alt text-warning fa-3x mb-3"></i>
+                    <h5 class="fw-bold mb-4">Actualizar Contraseña</h5>
+                    <input type="password" id="nuevaPass" class="form-control bg-black text-white border-secondary mb-3 text-center" placeholder="Nueva Clave">
+                    <button class="btn btn-warning w-100 py-3 fw-bold rounded-4 shadow" onclick="ejecutarCambioPass()">ACTUALIZAR CLAVE</button>
                 </div>
             </div>
         </div>
@@ -99,29 +113,25 @@
 
         window.onload = async () => {
             if(!userEmail) return window.location.href = '/index.html';
-            
-            // Cargamos todo al iniciar
             await cargarDatosPerfil();
             await cargarNoticiasHome();
             await cargarPendientesHome();
         };
 
         async function cargarDatosPerfil() {
-    try {
-        const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
-        const u = await res.json();
-        
-        // --- LÍNEA DE VALIDACIÓN PARA CONTRASEÑA INICIAL ---
-        if (u.password === "UES2026") {
-            // Creamos una alerta visual dinámica si es la primera vez
-            const alertaSeguridad = `
-                <div id="alertaPrimeraVez" class="alert alert-warning border-0 shadow-sm mb-4 rounded-4 py-3">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>SEGURIDAD UES:</strong> Detectamos que usas la clave inicial. 
-                    <button class="btn btn-sm btn-dark ms-3 rounded-pill" onclick="abrirEditorSeguridad()">Cambiar Ahora</button>
-                </div>`;
-            document.querySelector('.main-content').insertAdjacentHTML('afterbegin', alertaSeguridad);
-        }
+            try {
+                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+                const u = await res.json();
+                
+                if (u.password === "UES2026") {
+                    const alertaSeguridad = `
+                        <div id="alertaPrimeraVez" class="alert alert-warning border-0 shadow-sm mb-4 rounded-4 py-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>SEGURIDAD UES:</strong> Estás usando la clave genérica. Por favor actualízala.
+                            <button class="btn btn-sm btn-dark ms-3 rounded-pill" onclick="abrirEditorSeguridad()">Cambiar Ahora</button>
+                        </div>`;
+                    document.getElementById('mainContent').insertAdjacentHTML('afterbegin', alertaSeguridad);
+                }
                 
                 document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante UES";
                 document.getElementById('displayCarrera').innerText = u.carrera || "Ingeniería";
@@ -136,7 +146,31 @@
                 document.getElementById('editCumple').value = u.cumpleanos || "";
                 document.getElementById('editBio').value = u.biografia || "";
                 fotoBase64 = u.foto || "";
-            } catch (e) { console.error("Error cargando perfil", e); }
+            } catch (e) { console.error("Error perfil", e); }
+        }
+
+        // FUNCIONES DE SEGURIDAD
+        function abrirEditorSeguridad() {
+            const modal = new bootstrap.Modal(document.getElementById('modalSeguridad'));
+            modal.show();
+        }
+
+        async function ejecutarCambioPass() {
+            const nuevaPassword = document.getElementById('nuevaPass').value;
+            if(!nuevaPassword || nuevaPassword.length < 4) return alert("Clave muy corta");
+
+            const res = await fetch('/cambiar-password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: userEmail, nuevaPassword })
+            });
+
+            if(res.ok) {
+                alert("✅ Clave actualizada. Reiniciaremos tu sesión por seguridad.");
+                cerrarSesion();
+            } else {
+                alert("Error al cambiar clave");
+            }
         }
 
         async function cargarNoticiasHome() {
@@ -144,25 +178,22 @@
                 const res = await fetch('/obtener-noticias');
                 const noticias = await res.json();
                 const contenedor = document.getElementById('contenedorNoticias');
-                
-                if (!noticias || noticias.length === 0) {
-                    contenedor.innerHTML = '<p class="text-muted small">No hay noticias nuevas por ahora.</p>';
+                if (noticias.length === 0) {
+                    contenedor.innerHTML = '<p class="text-muted small">No hay noticias.</p>';
                     return;
                 }
-
                 contenedor.innerHTML = noticias.map(n => `
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="card bg-dark border-secondary rounded-4 h-100 shadow">
                             ${n.imagen ? `<img src="${n.imagen}" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">` : ''}
                             <div class="card-body p-3">
                                 <h6 class="fw-bold text-white mb-1">${n.titulo}</h6>
                                 <p class="card-text text-muted small">${n.contenido}</p>
-                                <small class="text-danger">${new Date(n.fecha).toLocaleDateString()}</small>
                             </div>
                         </div>
                     </div>
                 `).join('');
-            } catch (e) { console.error("Error al cargar noticias:", e); }
+            } catch (e) { console.error("Error noticias", e); }
         }
 
         async function cargarPendientesHome() {
@@ -170,37 +201,25 @@
                 const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
                 const materias = await res.json();
                 const contenedor = document.getElementById('listaPendientesHome');
-                
-                let htmlTareas = "";
-                let contador = 0;
-
+                let html = "";
                 materias.forEach(m => {
-                    if (m.tareas) {
-                        m.tareas.forEach(t => {
-                            if (!t.completada) {
-                                contador++;
-                                htmlTareas += `
-                                    <div class="p-2 mb-2 rounded-3 border-start border-warning border-4" style="background: rgba(255,255,255,0.05);">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <span class="small fw-bold text-white">${t.descripcion}</span>
-                                            <span class="badge bg-black text-warning" style="font-size: 0.6rem;">${t.fecha || 'S/F'}</span>
-                                        </div>
-                                        <small class="text-muted d-block" style="font-size: 0.7rem;">${m.nombre}</small>
-                                    </div>
-                                `;
-                            }
-                        });
-                    }
+                    m.tareas.forEach(t => {
+                        if (!t.completada) {
+                            html += `<div class="p-2 mb-2 rounded-3 border-start border-warning border-4" style="background: rgba(255,255,255,0.05);">
+                                        <span class="small fw-bold text-white d-block">${t.descripcion}</span>
+                                        <small class="text-muted">${m.nombre}</small>
+                                     </div>`;
+                        }
+                    });
                 });
-
-                contenedor.innerHTML = contador > 0 ? htmlTareas : '<p class="text-muted small">¡Todo al día!</p>';
-            } catch (e) { console.error("Error cargando tareas:", e); }
+                contenedor.innerHTML = html || '<p class="text-muted small">¡Todo libre!</p>';
+            } catch (e) { console.error("Error tareas", e); }
         }
 
         function procesarImagen(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     document.getElementById('displayFoto').src = e.target.result;
                     fotoBase64 = e.target.result;
                 };
@@ -217,17 +236,12 @@
                 biografia: document.getElementById('editBio').value,
                 foto: fotoBase64
             };
-
             const res = await fetch('/actualizar-perfil-completo', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(datos)
             });
-
-            if(res.ok) {
-                alert("✅ Perfil UES actualizado correctamente");
-                location.reload();
-            }
+            if(res.ok) { alert("Perfil actualizado"); location.reload(); }
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }

@@ -1,67 +1,206 @@
-<div id="paso1">
-    <label>UNIVERSIDAD</label>
-    <select id="uniInput" class="form-select mb-3" onchange="actualizarCarreras()">
-        <option value="UES">UES - Estatal de Sonora</option>
-        <option value="UNISON">UNISON - Univ. de Sonora</option>
-        <option value="ITH">ITH - Tec. de Hermosillo</option>
-    </select>
-    <label>CARRERA</label>
-    <select id="carreraInput" class="form-select mb-4">
-        </select>
-    <button onclick="validarYPasar()" class="btn btn-ues">Siguiente</button>
-</div>
-
-<div id="paso2" style="display:none;">
-    <label id="infoCarreraSeleccionada" class="text-warning small mb-3"></label>
-    <input type="email" id="emailInput" class="form-control mb-3" placeholder="Correo Institucional">
-    <input type="password" id="passInput" class="form-control mb-3" placeholder="Contraseña">
-    <button onclick="entrar()" class="btn btn-success w-100">ENTRAR AL SISTEMA</button>
-</div>
-
-<script>
-    const oferta = {
-        "UES": ["Ingeniería en Software", "Ingeniería Mecatrónica"],
-        "UNISON": ["Lic. en Medicina", "Lic. en Derecho"],
-        "ITH": ["Ingeniería Industrial", "Sistemas"]
-    };
-
-    function actualizarCarreras() {
-        const uni = document.getElementById('uniInput').value;
-        const select = document.getElementById('carreraInput');
-        select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-    window.onload = actualizarCarreras;
-
-    function validarYPasar() {
-        const carrera = document.getElementById('carreraInput').value;
-        if(!carrera) return alert("Selecciona una carrera");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Universitario | UES Helper</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --ues-guinda: #800000; --ues-oro: #FFD700; --bg-dark: #050505; }
         
-        // Guardamos la carrera visualmente para confirmar
-        document.getElementById('infoCarreraSeleccionada').innerText = "Carrera: " + carrera;
-        document.getElementById('paso1').style.display = 'none';
-        document.getElementById('paso2').style.display = 'block';
-    }
-
-    async function entrar() {
-        const email = document.getElementById('emailInput').value;
-        const codigo = document.getElementById('passInput').value;
-        const carrera = document.getElementById('carreraInput').value; // Ahora sí lo encontrará
-        const universidad = document.getElementById('uniInput').value;
-
-        if(!email || !codigo) return alert("Llena todos los campos");
-
-        const res = await fetch('/verificar-codigo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email, codigo, carrera, universidad })
-        });
-        
-        const data = await res.json();
-        if(res.ok) {
-            localStorage.setItem('userEmail', email);
-            window.location.href = data.redirect;
-        } else {
-            alert("Error de acceso");
+        body { 
+            background: radial-gradient(circle at top right, #1a0000, var(--bg-dark));
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; color: white;
         }
-    }
-</script>
+
+        /* Contenedor Principal con Efecto Glass */
+        .login-container {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 35px;
+            width: 100%; max-width: 480px;
+            padding: 50px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+        }
+
+        .login-container::before {
+            content: ""; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(128,0,0,0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .brand-header { text-align: center; margin-bottom: 40px; }
+        .brand-logo { width: 70px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(128,0,0,0.5)); }
+        .brand-title { font-weight: 800; font-size: 2.2rem; letter-spacing: -1px; margin: 0; }
+        .brand-title span { color: var(--ues-guinda); }
+
+        /* Estilización de Inputs */
+        .form-label { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .input-group-custom { position: relative; margin-bottom: 25px; }
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border-radius: 15px; padding: 14px 20px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: var(--ues-guinda) !important;
+            box-shadow: 0 0 15px rgba(128, 0, 0, 0.2);
+        }
+
+        /* Botones Robustos */
+        .btn-main {
+            background: var(--ues-guinda);
+            border: none; border-radius: 15px;
+            padding: 16px; width: 100%;
+            font-weight: 700; color: white;
+            transition: 0.4s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-main:hover {
+            background: #a00000;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(128, 0, 0, 0.4);
+        }
+
+        .step-indicator { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; }
+        .step { width: 40px; height: 6px; border-radius: 10px; background: rgba(255,255,255,0.1); transition: 0.4s; }
+        .step.active { background: var(--ues-guinda); width: 60px; }
+
+        /* Animación de entrada */
+        #paso1, #paso2 { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="brand-header">
+            <img src="logo.png" class="brand-logo" alt="Logo UES">
+            <h1 class="brand-title">UES <span>HELPER</span></h1>
+            <p class="text-muted small fw-bold mt-2">Portal Académico Multiversidad</p>
+        </div>
+
+        <div class="step-indicator">
+            <div id="dot1" class="step active"></div>
+            <div id="dot2" class="step"></div>
+        </div>
+
+        <div id="paso1">
+            <div class="input-group-custom">
+                <label class="form-label">Institución</label>
+                <select id="uniInput" class="form-select" onchange="actualizarCarreras()">
+                    <option value="UES">Universidad Estatal de Sonora</option>
+                    <option value="UNISON">Universidad de Sonora</option>
+                    <option value="ITH">Tecnológico de Hermosillo</option>
+                </select>
+            </div>
+            <div class="input-group-custom">
+                <label class="form-label">Programa Académico</label>
+                <select id="carreraInput" class="form-select"></select>
+            </div>
+            <button onclick="validarYPasar()" class="btn-main">
+                Siguiente Paso <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+
+        <div id="paso2" style="display:none;">
+            <div class="text-center mb-4">
+                <span id="infoCarreraSeleccionada" class="badge bg-dark text-warning py-2 px-3 rounded-pill border border-warning"></span>
+                <button class="btn btn-link btn-sm text-muted text-decoration-none d-block mt-2" onclick="regresar()">
+                    <i class="fas fa-undo me-1"></i> Cambiar carrera
+                </button>
+            </div>
+            
+            <div class="input-group-custom">
+                <label class="form-label">Identificador / Correo</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted" style="border-radius: 15px 0 0 15px; border-color: rgba(255,255,255,0.1);"><i class="fas fa-envelope"></i></span>
+                    <input type="email" id="emailInput" class="form-control border-start-0" placeholder="usuario@ues.mx" style="border-radius: 0 15px 15px 0;">
+                </div>
+            </div>
+
+            <div class="input-group-custom">
+                <label class="form-label">Clave de Acceso</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted" style="border-radius: 15px 0 0 15px; border-color: rgba(255,255,255,0.1);"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="passInput" class="form-control border-start-0" placeholder="••••••••" style="border-radius: 0 15px 15px 0;">
+                </div>
+            </div>
+
+            <button onclick="entrar()" class="btn-main" style="background: #28a745;">
+                Ingresar al Portal <i class="fas fa-sign-in-alt ms-2"></i>
+            </button>
+        </div>
+        
+        <div class="mt-5 text-center">
+            <p class="small text-muted mb-0">© 2026 UES Academic Helper</p>
+            <p class="small text-muted">Hermosillo, Sonora, México</p>
+        </div>
+    </div>
+
+    <script>
+        const oferta = {
+            "UES": ["Ingeniería en Software", "Ingeniería Mecatrónica"],
+            "UNISON": ["Lic. en Medicina", "Lic. en Derecho"],
+            "ITH": ["Ingeniería Industrial", "Sistemas"]
+        };
+
+        function actualizarCarreras() {
+            const uni = document.getElementById('uniInput').value;
+            const select = document.getElementById('carreraInput');
+            select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        window.onload = actualizarCarreras;
+
+        function validarYPasar() {
+            const carrera = document.getElementById('carreraInput').value;
+            if(!carrera) return alert("Selecciona una carrera");
+            
+            document.getElementById('infoCarreraSeleccionada').innerText = carrera;
+            document.getElementById('paso1').style.display = 'none';
+            document.getElementById('paso2').style.display = 'block';
+            document.getElementById('dot1').classList.remove('active');
+            document.getElementById('dot2').classList.add('active');
+        }
+
+        function regresar() {
+            document.getElementById('paso2').style.display = 'none';
+            document.getElementById('paso1').style.display = 'block';
+            document.getElementById('dot2').classList.remove('active');
+            document.getElementById('dot1').classList.add('active');
+        }
+
+        async function entrar() {
+            const email = document.getElementById('emailInput').value;
+            const codigo = document.getElementById('passInput').value;
+            const carrera = document.getElementById('carreraInput').value;
+            const universidad = document.getElementById('uniInput').value;
+
+            if(!email || !codigo) return alert("Ingresa tus credenciales");
+
+            const res = await fetch('/verificar-codigo', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, codigo, carrera, universidad })
+            });
+            
+            const data = await res.json();
+            if(res.ok) {
+                localStorage.setItem('userEmail', email);
+                window.location.href = data.redirect;
+            } else {
+                alert("Identificador o clave incorrecta");
+            }
+        }
+    </script>
+</body>
+</html>

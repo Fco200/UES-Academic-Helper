@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const nodemailer = require("nodemailer");
 
 // 1. INICIALIZACIÓN
 const app = express();
@@ -24,6 +25,7 @@ mongoose.connect(process.env.MONGO_URI)
 const UsuarioSchema = new mongoose.Schema({
     identificador: { type: String, unique: true },
     password: { type: String, default: "UES2026" },
+    universidad: { type: String, default: "UES" },
     carrera: { type: String, default: "Ingeniería en Software" },
     foto: { type: String, default: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
     nombreReal: { type: String, default: "Estudiante UES" },
@@ -55,24 +57,50 @@ try {
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
+// Asegúrate de que tu UsuarioSchema tenga: universidad y telefono
 app.post('/verificar-codigo', async (req, res) => {
-    const { email, codigo, carrera } = req.body;
+    const { email, codigo, carrera, universidad, telefono } = req.body;
     try {
         const idLower = email.toLowerCase();
         let usuario = await Usuario.findOne({ identificador: idLower });
+
+        // Si es nuevo, lo creamos con todos los datos
         if (!usuario) {
-            usuario = await Usuario.create({ identificador: idLower, password: "UES2026", carrera });
+            usuario = await Usuario.create({ 
+                identificador: idLower, 
+                password: "UES2026", 
+                carrera, 
+                universidad, 
+                telefono 
+            });
+            
+            // OPCIONAL: Enviar correo de bienvenida
+            enviarCorreoBienvenida(idLower, nombreReal || "Estudiante");
         }
+
         if (usuario.password === codigo) {
-            usuario.carrera = carrera;
-            await usuario.save();
-            const destino = (codigo === "UES2026") ? '/dashboard.html?fuerzaCambio=true' : '/home.html';
-            res.json({ success: true, redirect: destino, carrera: usuario.carrera });
+            const destino = (codigo === "UES2026") ? '/home.html?fuerzaCambio=true' : '/home.html';
+            res.json({ success: true, redirect: destino });
         } else {
-            res.status(401).json({ success: false, message: "Código incorrecto" });
+            res.status(401).json({ success: false });
         }
-    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+    } catch (e) { res.status(500).json({ success: false }); }
 });
+
+// Función para enviar correos (Nodemailer)
+async function enviarCorreoBienvenida(email, nombre) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    });
+    
+    await transporter.sendMail({
+        from: '"UES Helper" <tu-correo@gmail.com>',
+        to: email,
+        subject: "¡Bienvenido al Portal Académico!",
+        text: `Hola ${nombre}, tu cuenta ha sido activada con éxito en el portal.`
+    });
+}
 
 app.get('/obtener-usuario/:email', async (req, res) => {
     try {
@@ -100,6 +128,23 @@ app.post('/actualizar-perfil-completo', async (req, res) => {
         console.error("Error al actualizar:", e);
         res.status(500).json({ success: false }); 
     }
+});
+// --- RUTA PARA ENVIAR CORREOS ---
+app.post('/enviar-correo', async (req, res) => {
+    const { mensaje, destino, asunto } = req.body;
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: destino,
+            subject: asunto,
+            text: mensaje
+        });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // --- RUTAS DE NOTICIAS ---
@@ -205,6 +250,56 @@ app.post('/cambiar-password', async (req, res) => {
         );
         res.status(200).json({ success: true });
     } catch (e) { res.status(500).json({ message: "Error" }); }
+});
+// Configuración de transporte (Usa variables de entorno en Render)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // Tu correo de Gmail
+        pass: process.env.EMAIL_PASS  // Tu "App Password" de Google
+    }
+});
+
+// --- RUTA: RECUPERAR CONTRASEÑA ---
+app.post('/recuperar-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const usuario = await Usuario.findOne({ identificador: email.toLowerCase() });
+        if (!usuario) return res.status(404).json({ message: "Correo no registrado" });
+
+        const mailOptions = {
+            from: '"Soporte Académico" <' + process.env.EMAIL_USER + '>',
+            to: email,
+            subject: "Recuperación de Contraseña - UES Helper",
+            html: `
+                <div style="font-family: sans-serif; border: 1px solid #800000; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: #800000;">Tu Contraseña</h2>
+                    <p>Has solicitado recuperar tu acceso al portal.</p>
+                    <p>Tu contraseña actual es: <strong style="font-size: 1.2rem; color: #333;">${usuario.password}</strong></p>
+                    <hr>
+                    <p style="font-size: 0.8rem; color: #666;">Si no solicitaste esto, te recomendamos cambiar tu clave al entrar.</p>
+                </div>`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Correo enviado" });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// --- RUTA: BUZÓN DE MEJORAS Y OPINIONES ---
+app.post('/enviar-sugerencia', async (req, res) => {
+    const { nombre, email, mensaje } = req.body;
+    try {
+        const mailOptions = {
+            from: '"Buzón de Sugerencias" <' + process.env.EMAIL_USER + '>',
+            to: process.env.EMAIL_USER, // Te llega a ti mismo
+            subject: `Nueva Opinión de: ${nombre}`,
+            text: `De: ${email}\n\nMensaje:\n${mensaje}`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 // --- INICIO DEL SERVIDOR ---

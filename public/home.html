@@ -57,6 +57,12 @@
             <div id="contenedorNoticias" class="row g-4">
                 </div>
         </div>
+        <div class="col-lg-4">
+        <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-warning me-2"></i> Mis Pendientes</h4>
+        <div id="listaPendientesHome" class="glass-card p-3" style="background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+    </div>
+</div>
     </div>
 
     <div class="modal fade" id="modalEditar" tabindex="-1">
@@ -180,6 +186,45 @@
             cargarDatosPerfil();
             cargarNoticiasHome();
         };
+        async function cargarPendientesHome() {
+    try {
+        const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+        const materias = await res.json();
+        const contenedor = document.getElementById('listaPendientesHome');
+        
+        let htmlTareas = "";
+        let contador = 0;
+
+        materias.forEach(m => {
+            m.tareas.forEach(t => {
+                // Solo mostramos las que NO están completadas
+                if (!t.completada) {
+                    contador++;
+                    htmlTareas += `
+                        <div class="p-2 mb-2 rounded-3 border-start border-warning border-4" style="background: rgba(255,255,255,0.05);">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="small fw-bold text-white">${t.descripcion}</span>
+                                <span class="badge bg-dark text-warning" style="font-size: 0.6rem;">${t.fecha || 'Sin fecha'}</span>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">${m.nombre}</small>
+                        </div>
+                    `;
+                }
+            });
+        });
+
+        contenedor.innerHTML = contador > 0 ? htmlTareas : '<p class="text-muted small">¡Todo al día! No hay pendientes.</p>';
+    } catch (e) {
+        console.error("Error al cargar pendientes:", e);
+    }
+}
+
+// ACTUALIZA TU WINDOW.ONLOAD PARA INCLUIR ESTO
+window.onload = () => {
+    cargarHome();         // Carga tu perfil
+    cargarNoticiasHome(); // Carga las noticias
+    cargarPendientesHome(); // Carga las tareas
+};
     </script>
 </body>
 </html>

@@ -4,15 +4,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const nodemailer = require("nodemailer");
 
-// 1. PRIMERO: Inicializar la aplicación (Esto corrige el ReferenceError)
+// 1. INICIALIZACIÓN
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 2. SEGUNDO: Configurar Middlewares y límites de subida
+// 2. MIDDLEWARES (Límites aumentados para las fotos de perfil)
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Movido aquí para que 'app' ya exista
+app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -34,6 +33,13 @@ const UsuarioSchema = new mongoose.Schema({
 });
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
 
+const Noticia = mongoose.model('Noticia', new mongoose.Schema({
+    titulo: String,
+    contenido: String,
+    imagen: String,
+    fecha: { type: Date, default: Date.now }
+}));
+
 const Materia = mongoose.model('Materia', new mongoose.Schema({
     user: String,
     nombre: String,
@@ -54,11 +60,9 @@ app.post('/verificar-codigo', async (req, res) => {
     try {
         const idLower = email.toLowerCase();
         let usuario = await Usuario.findOne({ identificador: idLower });
-
         if (!usuario) {
             usuario = await Usuario.create({ identificador: idLower, password: "UES2026", carrera });
         }
-
         if (usuario.password === codigo) {
             usuario.carrera = carrera;
             await usuario.save();
@@ -77,26 +81,49 @@ app.get('/obtener-usuario/:email', async (req, res) => {
     } catch (e) { res.status(500).send(e); }
 });
 
+// --- RUTA CORREGIDA: ACTUALIZAR PERFIL ---
 app.post('/actualizar-perfil-completo', async (req, res) => {
     const { email, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
     try {
-        await Usuario.findOneAndUpdate(
+        // El { new: true } es vital para que MongoDB devuelva y confirme el dato actualizado
+        const usuarioActualizado = await Usuario.findOneAndUpdate(
             { identificador: email.toLowerCase() },
-            { nombreReal, foto, telefono, biografia, cumpleanos }
+            { nombreReal, foto, telefono, biografia, cumpleanos },
+            { new: true }
         );
-        res.json({ success: true });
+        if (usuarioActualizado) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: "Usuario no encontrado" });
+        }
+    } catch (e) { 
+        console.error("Error al actualizar:", e);
+        res.status(500).json({ success: false }); 
+    }
+});
+
+// --- RUTAS DE NOTICIAS ---
+
+app.get('/obtener-noticias', async (req, res) => {
+    try {
+        const noticias = await Noticia.find().sort({ fecha: -1 });
+        res.json(noticias);
+    } catch (e) { res.status(500).json([]); }
+});
+
+app.post('/publicar-noticia-secreta', async (req, res) => {
+    const { titulo, contenido, imagen, passwordAdmin } = req.body;
+    if (passwordAdmin !== "UES_ADMIN_2026") { 
+        return res.status(403).json({ success: false, message: "Acceso denegado" });
+    }
+    try {
+        const nueva = new Noticia({ titulo, contenido, imagen });
+        await nueva.save();
+        res.json({ success: true, message: "Noticia publicada" });
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-app.post('/cambiar-password', async (req, res) => {
-    const { email, nuevaPassword } = req.body;
-    try {
-        await Usuario.findOneAndUpdate({ identificador: email.toLowerCase() }, { password: nuevaPassword });
-        res.status(200).send({ message: 'OK' });
-    } catch (e) { res.status(500).send({ message: 'Error' }); }
-});
-
-// --- RUTAS DE GESTIÓN ACADÉMICA ---
+// --- RUTAS DE GESTIÓN (CRUD) ---
 
 app.get('/obtener-materias/:identificador', async (req, res) => {
     try {
@@ -124,33 +151,6 @@ app.post('/agregar-tarea', async (req, res) => {
     } catch (e) { res.status(500).send(e); }
 });
 
-app.post('/editar-tarea', async (req, res) => {
-    const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
-    try {
-        await Materia.updateOne(
-            { _id: materiaId, "tareas._id": tareaId },
-            { $set: { "tareas.$.descripcion": nuevaDescripcion, "tareas.$.fecha": nuevaFecha } }
-        );
-        res.status(200).json({ message: "Éxito" });
-    } catch (e) { res.status(500).json({ message: "Error" }); }
-});
-
-app.post('/eliminar-tarea', async (req, res) => {
-    const { materiaId, tareaId } = req.body;
-    try {
-        await Materia.updateOne({ _id: materiaId }, { $pull: { tareas: { _id: tareaId } } });
-        res.json({ message: "Eliminado" });
-    } catch (e) { res.status(500).send(e); }
-});
-
-app.post('/eliminar-materia', async (req, res) => {
-    const { materiaId } = req.body;
-    try {
-        await Materia.findByIdAndDelete(materiaId);
-        res.json({ mensaje: "Materia eliminada" });
-    } catch (e) { res.status(500).send(e); }
-});
-
 app.post('/completar-tarea', async (req, res) => {
     const { materiaId, tareaId, completada } = req.body;
     try {
@@ -170,40 +170,6 @@ app.post('/ia-asistente', async (req, res) => {
         res.json({ respuesta: result.response.text() });
     } catch (e) { res.status(500).json({ respuesta: "IA no disponible." }); }
 });
-// --- MODELO DE NOTICIAS ---
-const Noticia = mongoose.model('Noticia', new mongoose.Schema({
-    titulo: String,
-    contenido: String,
-    imagen: String, // URL de la imagen
-    fecha: { type: Date, default: Date.now }
-}));
 
-// --- RUTA PARA OBTENER NOTICIAS ---
-app.get('/obtener-noticias', async (req, res) => {
-    try {
-        const noticias = await Noticia.find().sort({ fecha: -1 }); // Las más nuevas primero
-        res.json(noticias);
-    } catch (e) {
-        res.status(500).json([]);
-    }
-});
-// RUTA SECRETA PARA PUBLICAR NOTICIAS (Back-end)
-app.post('/publicar-noticia-secreta', async (req, res) => {
-    const { titulo, contenido, imagen, passwordAdmin } = req.body;
-
-    // Validación de seguridad simple
-    if (passwordAdmin !== "UES_ADMIN_2026") { 
-        return res.status(403).json({ success: false, message: "Acceso denegado" });
-    }
-
-    try {
-        const nueva = new Noticia({ titulo, contenido, imagen });
-        await nueva.save();
-        res.json({ success: true, message: "Noticia publicada con éxito" });
-    } catch (e) {
-        res.status(500).json({ success: false });
-    }
-});
 // --- INICIO DEL SERVIDOR ---
-// Usar '0.0.0.0' asegura que Render pueda detectar el servicio
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

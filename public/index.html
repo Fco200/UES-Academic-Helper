@@ -7,61 +7,88 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <style>
-        :root { --ues-guinda: #800000; --oro: #b8860b; }
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
         body { 
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1541339907198-e08756defe73?q=80&w=2070&auto=format&fit=crop');
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop');
             background-size: cover; background-position: center;
             height: 100vh; display: flex; align-items: center; justify-content: center;
-            font-family: 'Inter', sans-serif; color: white;
+            font-family: 'Inter', sans-serif;
         }
         .login-card { 
-            background: rgba(20, 20, 20, 0.95); border-radius: 28px; 
-            border: 2px solid var(--ues-guinda); width: 100%; max-width: 420px; 
-            padding: 50px; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5);
-            backdrop-filter: blur(15px);
+            background: rgba(30, 30, 30, 0.98); border-radius: 28px; 
+            border: 2px solid var(--ues-guinda); width: 100%; max-width: 450px; 
+            padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
         }
-        .text-resaltado { color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: 700; }
+        .text-resaltado { color: white; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
         .form-control, .form-select { 
-            background: #2a2a2a; border: 1px solid #444; color: white !important; 
-            padding: 14px; border-radius: 12px; font-weight: 500;
+            background: #1a1a1a !important; border: 1px solid #444 !important; 
+            color: #ffffff !important; padding: 12px; border-radius: 10px; 
+            margin-bottom: 5px; /* Evita que se peguen los elementos */
         }
-        .form-control::placeholder { color: #aaa; }
+        .form-control:focus, .form-select:focus { border-color: var(--ues-guinda); box-shadow: 0 0 10px rgba(128,0,0,0.3); }
         .btn-ues { 
             background: var(--ues-guinda); color: white; border: none; padding: 15px; 
-            border-radius: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-            transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(128,0,0,0.4);
+            border-radius: 12px; font-weight: 800; transition: 0.3s; width: 100%;
         }
-        .btn-ues:hover { background: #a00000; transform: scale(1.02); }
-        .label-pro { font-size: 0.75rem; color: var(--oro); letter-spacing: 1.5px; margin-bottom: 8px; }
+        .btn-ues:hover { background: #a00000; transform: translateY(-2px); }
+        .alerta-box { 
+            background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; 
+            color: #ffc107; padding: 15px; border-radius: 12px; margin-top: 20px; font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <div class="text-center mb-5">
-            <h1 class="fw-bold text-danger display-4 mb-0" style="text-shadow: 0 0 15px rgba(255,0,0,0.3);">UES</h1>
-            <p class="text-white small fw-bold">PORTAL ACADÉMICO OFICIAL</p>
+        <div class="text-center mb-4">
+            <h1 class="fw-bold text-danger mb-0">UES</h1>
+            <p class="text-muted small">Software Engineering Portal</p>
         </div>
 
         <div id="paso1">
-            <label class="label-pro fw-bold">IDENTIFICACIÓN</label>
-            <input type="text" id="userInput" class="form-control mb-4" placeholder="Correo institucional o Celular">
-            <button onclick="validarYPasar()" class="btn btn-ues">Siguiente <i class="fas fa-chevron-right ms-2"></i></button>
+            <label class="text-resaltado mb-2 d-block">Identificación</label>
+            <input type="text" id="userInput" class="form-control mb-4" placeholder="Correo o Celular">
+            <button onclick="validarYPasar()" class="btn btn-ues">Siguiente <i class="fas fa-arrow-right ms-2"></i></button>
         </div>
 
-        <div id="paso2" style="display:none;" class="animate__animated animate__fadeIn">
-            <label class="label-pro fw-bold">CARRERA</label>
+        <div id="paso2" style="display:none;">
+            <label class="text-resaltado mb-2 d-block">Selecciona tu Carrera</label>
             <select id="carreraInput" class="form-select mb-3">
-                <option value="Ingeniería en Software">Ingeniería en Software</option>
-                <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                <option value="Lic. en Administración">Lic. en Administración</option>
+                <option value="" selected disabled>-- Todas las Carreras UES --</option>
+                <optgroup label="Ingenierías">
+                    <option value="Ingeniería en Software">Ingeniería en Software</option>
+                    <option value="Ingeniería Mecatrónica">Ingeniería Mecatrónica</option>
+                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                    <option value="Ingeniería en Sistemas Computacionales">Ingeniería en Sistemas</option>
+                    <option value="Ingeniería Ambiental">Ingeniería Ambiental</option>
+                    <option value="Ingeniería en Geociencias">Ingeniería en Geociencias</option>
+                    <option value="Ingeniería Biomédica">Ingeniería Biomédica</option>
+                    <option value="Ingeniería en Horticultura">Ingeniería en Horticultura</option>
+                </optgroup>
+                <optgroup label="Licenciaturas">
+                    <option value="Lic. en Administración">Lic. en Administración</option>
+                    <option value="Lic. en Contaduría">Lic. en Contaduría</option>
+                    <option value="Lic. en Derecho">Lic. en Derecho</option>
+                    <option value="Lic. en Psicología">Lic. en Psicología</option>
+                    <option value="Lic. en Enfermería">Lic. en Enfermería</option>
+                    <option value="Lic. en Nutrición Humana">Lic. en Nutrición</option>
+                    <option value="Lic. en Fisioterapia">Lic. en Fisioterapia</option>
+                    <option value="Lic. en Entrenamiento Deportivo">Entrenamiento Deportivo</option>
+                    <option value="Lic. en Enseñanza del Inglés">Enseñanza del Inglés</option>
+                    <option value="Lic. en Criminología">Lic. en Criminología</option>
+                </optgroup>
             </select>
-            
-            <label class="label-pro fw-bold">CONTRASEÑA</label>
-            <input type="password" id="passInput" class="form-control mb-4" placeholder="••••••••">
-            
-            <button onclick="entrar()" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow">ACCEDER AHORA</button>
-            <div class="mt-4 p-3 rounded-3 border border-warning bg-dark">
-                <small class="text-warning"><i class="fas fa-key me-2"></i><b>Clave temporal:</b> UES2026</small>
+
+            <label class="text-resaltado mb-2 d-block">Contraseña</label>
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-lock"></i></span>
+                <input type="password" id="passInput" class="form-control" placeholder="Escribe aquí..." onkeyup="detectarTemporal()">
+            </div>
+
+            <button onclick="entrar()" class="btn btn-success w-100 py-3 fw-bold rounded-3">ENTRAR AL PORTAL</button>
+
+            <div id="alertaTemporal" class="alerta-box" style="display:none;">
+                <i class="fas fa-key me-2"></i> <b>Nota:</b> Usas la clave <b>UES2026</b>. Deberás cambiarla obligatoriamente al entrar.
             </div>
         </div>
     </div>
@@ -69,25 +96,39 @@
     <script>
         function validarYPasar() {
             const val = document.getElementById('userInput').value.trim();
-            if (val.length < 5) return alert("Por favor, introduce tus datos correctamente.");
+            if (val.length < 5) return alert("Ingresa un usuario válido");
             localStorage.setItem('userEmail', val);
             document.getElementById('paso1').style.display = 'none';
             document.getElementById('paso2').style.display = 'block';
+        }
+
+        function detectarTemporal() {
+            const pass = document.getElementById('passInput').value;
+            const alerta = document.getElementById('alertaTemporal');
+            alerta.style.display = (pass === "UES2026") ? "block" : "none";
         }
 
         async function entrar() {
             const email = localStorage.getItem('userEmail');
             const codigo = document.getElementById('passInput').value;
             const carrera = document.getElementById('carreraInput').value;
+
+            if(!carrera) return alert("Selecciona tu carrera");
+
             const res = await fetch('/verificar-codigo', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ email, codigo, carrera })
             });
+
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem('userCarrera', data.carrera || carrera);
+                // Si la clave es la temporal, el server debe mandarte a ?fuerzaCambio=true
                 window.location.href = data.redirect;
-            } else { alert("Acceso denegado."); }
+            } else {
+                alert("Credenciales incorrectas");
+            }
         }
     </script>
 </body>

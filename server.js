@@ -105,7 +105,8 @@ app.post('/verificar-codigo', async (req, res) => {
         if (user.password === codigo) {
             // LÓGICA DE SEGURIDAD BANCARIA:
             // Si la contraseña sigue siendo la inicial, lo mandamos a seguridad, si no, al home.
-            const destino = (codigo === PASS_INICIAL) ? '/dashboard.html?fuerzaCambio=true' : '/home.html';
+            
+const destino = (codigo === "UES2026") ? '/dashboard.html?fuerzaCambio=true' : '/home.html';
             
             res.status(200).send({ 
                 redirect: destino, 

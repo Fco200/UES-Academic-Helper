@@ -251,56 +251,68 @@ app.post('/cambiar-password', async (req, res) => {
         res.status(200).json({ success: true });
     } catch (e) { res.status(500).json({ message: "Error" }); }
 });
-// Configuración de transporte (Usa variables de entorno en Render)
+
+
+// --- CONFIGURACIÓN DE NODEMAILER ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Tu correo de Gmail
-        pass: process.env.EMAIL_PASS  // Tu "App Password" de Google
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS // Recuerda: Contraseña de Aplicación de 16 letras
     }
 });
 
-// --- RUTA: RECUPERAR CONTRASEÑA ---
+// --- RUTA: RECUPERACIÓN DE CONTRASEÑA ---
 app.post('/recuperar-password', async (req, res) => {
     const { email } = req.body;
     try {
         const usuario = await Usuario.findOne({ identificador: email.toLowerCase() });
-        if (!usuario) return res.status(404).json({ message: "Correo no registrado" });
+        
+        if (!usuario) {
+            return res.status(404).json({ success: false, message: "El correo no está registrado en el sistema." });
+        }
 
-        const mailOptions = {
-            from: '"Soporte Académico" <' + process.env.EMAIL_USER + '>',
+        const info = await transporter.sendMail({
+            from: `"Soporte UES Helper" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: "Recuperación de Contraseña - UES Helper",
+            subject: "Recuperación de Acceso - Portal Académico",
             html: `
-                <div style="font-family: sans-serif; border: 1px solid #800000; padding: 20px; border-radius: 10px;">
-                    <h2 style="color: #800000;">Tu Contraseña</h2>
-                    <p>Has solicitado recuperar tu acceso al portal.</p>
-                    <p>Tu contraseña actual es: <strong style="font-size: 1.2rem; color: #333;">${usuario.password}</strong></p>
-                    <hr>
-                    <p style="font-size: 0.8rem; color: #666;">Si no solicitaste esto, te recomendamos cambiar tu clave al entrar.</p>
+                <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                    <div style="background: white; padding: 30px; border-radius: 10px; border-top: 5px solid #800000;">
+                        <h2 style="color: #800000;">Hola, ${usuario.nombreReal}</h2>
+                        <p>Has solicitado recuperar tu contraseña de acceso.</p>
+                        <div style="background: #eee; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #333;">
+                            ${usuario.password}
+                        </div>
+                        <p style="margin-top: 20px;">Te recomendamos cambiar tu clave una vez que ingreses al portal.</p>
+                    </div>
                 </div>`
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
-        res.json({ success: true, message: "Correo enviado" });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+        res.json({ success: true, message: "Correo enviado con éxito." });
+    } catch (e) {
+        console.error("Error en recuperación:", e);
+        res.status(500).json({ success: false, message: "Error interno al enviar el correo." });
+    }
 });
 
-// --- RUTA: BUZÓN DE MEJORAS Y OPINIONES ---
+// --- RUTA: BUZÓN DE SOPORTE ---
 app.post('/enviar-sugerencia', async (req, res) => {
     const { nombre, email, mensaje } = req.body;
     try {
-        const mailOptions = {
-            from: '"Buzón de Sugerencias" <' + process.env.EMAIL_USER + '>',
-            to: process.env.EMAIL_USER, // Te llega a ti mismo
-            subject: `Nueva Opinión de: ${nombre}`,
-            text: `De: ${email}\n\nMensaje:\n${mensaje}`
-        };
-
-        await transporter.sendMail(mailOptions);
+        await transporter.sendMail({
+            from: `"Buzón UES" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER, // Te llega a ti
+            subject: `Feedback de: ${nombre}`,
+            text: `Usuario: ${email}\n\nMensaje:\n${mensaje}`
+        });
         res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
 });
+
+
 
 // --- INICIO DEL SERVIDOR ---
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`));

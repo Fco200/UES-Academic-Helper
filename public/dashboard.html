@@ -320,23 +320,32 @@ document.getElementById('userBadge').innerText = userEmail || 'Invitado';
 
 // Mejora tu función cambiarPassword para que valide que no pongan la misma
 async function cambiarPassword() {
-    const nueva = prompt("Ingresa tu nueva contraseña (diferente a UES2026):");
+    const nueva = prompt("Ingresa tu nueva contraseña personalizada (Mínimo 6 caracteres):");
     
     if (!nueva || nueva === "UES2026") {
-        alert("Error: Debes elegir una contraseña segura y distinta a la inicial.");
-        return cambiarPassword(); // Reintento obligatorio
+        alert("🚨 ERROR: Debes elegir una clave segura y diferente a la temporal.");
+        return;
     }
 
-    const res = await fetch('/cambiar-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
-    });
+    try {
+        const res = await fetch('/cambiar-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
+        });
 
-    if (res.ok) {
-        alert("✅ ¡Éxito! Tu contraseña ha sido actualizada. Ya puedes usar el sistema.");
-        // Limpiamos la URL para que no vuelva a pedirlo
-        window.history.replaceState({}, document.title, "/dashboard.html");
+        if (res.ok) {
+            // MENSAJE SOLICITADO
+            alert("✅ CONTRASEÑA ACTUALIZADA CON ÉXITO.\n\nRecuerda: La clave temporal 'UES2026' ya no funcionará. Por seguridad, el sistema se cerrará.");
+            
+            // LIMPIEZA Y REDIRECCIÓN AL INICIO (INDEX)
+            localStorage.clear();
+            window.location.href = '/index.html'; 
+        } else {
+            alert("Hubo un problema al actualizar. Intenta de nuevo.");
+        }
+    } catch (e) {
+        console.error("Error en servidor:", e);
     }
 }
     </script>

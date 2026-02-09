@@ -108,12 +108,32 @@
         </div>
 
         <div id="paso2" style="display:none;">
-            <div class="text-center mb-4">
-                <span id="infoCarreraSeleccionada" class="badge bg-dark text-warning py-2 px-3 rounded-pill border border-warning shadow-sm"></span>
-                <button class="btn btn-link btn-sm text-muted text-decoration-none d-block mt-2 mx-auto" onclick="regresar()">
-                    <i class="fas fa-arrow-left me-1"></i> Cambiar elección
-                </button>
-            </div>
+    <div class="text-end mb-3">
+        <button onclick="recuperarPassword()" class="btn btn-link text-warning p-0 small" style="text-decoration: none; font-size: 0.7rem;">
+            ¿Olvidaste tu contraseña?
+        </button>
+    </div>
+    <button onclick="entrar()" class="btn-main">Entrar al Sistema</button>
+</div>
+
+<script>
+async function recuperarPassword() {
+    const email = document.getElementById('emailInput').value;
+    if(!email) return alert("⚠️ Escribe tu correo en el campo de arriba para poder enviarte la clave.");
+
+    const res = await fetch('/recuperar-password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email: email.trim() })
+    });
+
+    if(res.ok) {
+        alert("✅ Te hemos enviado un correo. Revisa tu bandeja de entrada.");
+    } else {
+        alert("❌ No encontramos una cuenta con ese correo.");
+    }
+}
+</script>
             
             <label class="form-label">Correo Institucional</label>
             <div class="input-group mb-3">
@@ -201,12 +221,10 @@
             document.getElementById('dot2').classList.remove('active');
             document.getElementById('dot1').classList.add('active');
         }
-       async function entrar() {
+      async function entrar() {
     const btn = document.querySelector('#paso2 .btn-main');
     const email = document.getElementById('emailInput').value;
     const codigo = document.getElementById('passInput').value;
-    const carrera = document.getElementById('carreraInput').value;
-    const universidad = document.getElementById('uniInput').value;
 
     if(!email || !codigo) return alert("⚠️ Ingresa tus credenciales");
 
@@ -219,28 +237,34 @@
         const res = await fetch('/verificar-codigo', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: email.trim(), codigo: codigo.trim(), carrera, universidad })
+            body: JSON.stringify({ 
+                email: email.trim(), 
+                codigo: codigo.trim(),
+                carrera: document.getElementById('carreraInput').value,
+                universidad: document.getElementById('uniInput').value
+            })
         });
         
         const data = await res.json();
         
         if(res.ok) {
-            // MOSTRAR MENSAJE DE BIENVENIDA
-            btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, Francisco!`;
-            btn.style.background = "#28a745"; // Cambia a verde éxito
+            // USAMOS EL NOMBRE QUE VIENE DE LA BASE DE DATOS
+            const nombreAMostrar = data.nombreUsuario;
+            btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, ${nombreAMostrar}!`;
+            btn.style.background = "#28a745"; 
 
-            // Guardamos datos y esperamos 1.5 segundos para que vea el mensaje
             localStorage.setItem('userEmail', email.toLowerCase().trim());
+            
             setTimeout(() => {
                 window.location.href = data.redirect;
             }, 1500);
         } else {
-            alert("❌ Acceso Denegado: Revisa tu correo o contraseña.");
+            alert("❌ Acceso Denegado");
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
         }
     } catch (e) {
-        alert("❌ Error de servidor: Verifica tu conexión en Render.");
+        alert("❌ Error de servidor");
         btn.innerHTML = textoOriginal;
         btn.disabled = false;
     }

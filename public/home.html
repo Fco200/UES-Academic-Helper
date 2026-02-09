@@ -155,23 +155,32 @@
             modal.show();
         }
 
-        async function ejecutarCambioPass() {
-            const nuevaPassword = document.getElementById('nuevaPass').value;
-            if(!nuevaPassword || nuevaPassword.length < 4) return alert("Clave muy corta");
+      async function ejecutarCambioPass() {
+    const nuevaPassword = document.getElementById('nuevaPass').value;
+    
+    // Validación de robustez
+    if(nuevaPassword === "UES2026") {
+        return alert("❌ No puedes usar la contraseña inicial.");
+    }
+    if(nuevaPassword.length < 5) {
+        return alert("❌ La contraseña debe tener al menos 5 caracteres.");
+    }
 
-            const res = await fetch('/cambiar-password', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email: userEmail, nuevaPassword })
-            });
+    try {
+        const res = await fetch('/cambiar-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email: userEmail, nuevaPassword })
+        });
 
-            if(res.ok) {
-                alert("✅ Clave actualizada. Reiniciaremos tu sesión por seguridad.");
-                cerrarSesion();
-            } else {
-                alert("Error al cambiar clave");
-            }
+        if(res.ok) {
+            alert("✅ ¡Contraseña actualizada! Por seguridad, inicia sesión de nuevo.");
+            cerrarSesion();
         }
+    } catch (e) {
+        alert("❌ Error al conectar con el servidor.");
+    }
+}
 
         async function cargarNoticiasHome() {
             try {

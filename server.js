@@ -67,31 +67,23 @@ try {
 // --- RUTAS DE AUTENTICACIÓN ---
 
 app.post('/verificar-codigo', async (req, res) => {
-    const { email, codigo, carrera, universidad, telefono } = req.body;
+    const { email, codigo } = req.body;
     try {
-        const idLower = email.toLowerCase();
-        let usuario = await Usuario.findOne({ identificador: idLower });
+        const idLower = email.toLowerCase().trim();
+        const usuario = await Usuario.findOne({ identificador: idLower });
 
-        if (!usuario) {
-            usuario = await Usuario.create({ 
-                identificador: idLower, 
-                password: "UES2026", 
-                carrera, 
-                universidad, 
-                telefono 
+        if (usuario && usuario.password === codigo) {
+            // Enviamos el nombre real para que el Front-end lo use
+            res.json({ 
+                success: true, 
+                redirect: '/home.html',
+                nombreUsuario: usuario.nombreReal || "Estudiante"
             });
-            // Enviar correo de bienvenida al crear cuenta
-            enviarCorreoBienvenida(idLower, "Estudiante");
-        }
-
-        if (usuario.password === codigo) {
-            const destino = (codigo === "UES2026") ? '/home.html?fuerzaCambio=true' : '/home.html';
-            res.json({ success: true, redirect: destino });
         } else {
-            res.status(401).json({ success: false, message: "Contraseña incorrecta" });
+            res.status(401).json({ success: false, message: "Datos incorrectos" });
         }
     } catch (e) { res.status(500).json({ success: false }); }
-});
+}); 
 
 app.get('/obtener-usuario/:email', async (req, res) => {
     try {
@@ -122,24 +114,34 @@ app.post('/cambiar-password', async (req, res) => {
     } catch (e) { res.status(500).json({ message: "Error" }); }
 });
 
-// --- RUTA: RECUPERACIÓN DE CONTRASEÑA ---
+// --- RUTA: ENVIAR CONTRASEÑA ACTUAL POR CORREO ---
 app.post('/recuperar-password', async (req, res) => {
     const { email } = req.body;
     try {
-        const usuario = await Usuario.findOne({ identificador: email.toLowerCase() });
-        if (!usuario) return res.status(404).json({ success: false, message: "Correo no registrado." });
+        const usuario = await Usuario.findOne({ identificador: email.toLowerCase().trim() });
+        
+        if (!usuario) {
+            return res.status(404).json({ success: false, message: "El correo no está registrado." });
+        }
 
+        // Enviamos el correo con la contraseña actual
         await transporter.sendMail({
             from: `"Soporte UES Helper" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: "Recuperación de Acceso - Portal Académico",
-            html: `<div style="font-family: Arial; border-top: 5px solid #800000; padding: 20px;">
-                    <h2>Hola, ${usuario.nombreReal}</h2>
-                    <p>Tu contraseña de acceso es: <b>${usuario.password}</b></p>
-                   </div>`
+            subject: "Recuperación de Acceso - UES",
+            html: `
+                <div style="font-family: sans-serif; border-top: 5px solid #800000; padding: 20px;">
+                    <h2 style="color: #800000;">Hola, ${usuario.nombreReal}</h2>
+                    <p>Has solicitado recuperar tu acceso al portal académico.</p>
+                    <p>Tu contraseña actual es: <strong style="font-size: 1.2rem;">${usuario.password}</strong></p>
+                    <p>Por seguridad, cámbiala en cuanto logres ingresar.</p>
+                </div>`
         });
-        res.json({ success: true, message: "Correo enviado." });
-    } catch (e) { res.status(500).json({ success: false }); }
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
 });
 
 // --- RUTAS DE PERFIL Y SOPORTE ---

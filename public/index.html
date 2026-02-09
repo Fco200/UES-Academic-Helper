@@ -72,29 +72,56 @@
             <button onclick="validarYPasar()" class="btn btn-ues w-100">Continuar <i class="fas fa-arrow-right ms-2"></i></button>
         </div>
 
-        <div id="paso2" style="display:none;" class="step-transition text-center">
-            <div class="mb-3">
-                <span class="badge bg-dark p-2 border border-secondary" id="displayUser"></span>
-            </div>
+       <div id="paso2" style="display:none;" class="step-transition text-center">
+    <div class="mb-3">
+        <span class="badge bg-dark p-2 border border-secondary" id="displayUser"></span>
+    </div>
 
-            <label class="form-label small fw-bold text-muted d-block text-start">SELECCIONA TU CARRERA</label>
-            <select id="carreraInput" class="form-select mb-3">
-                <option value="Ingeniería en Software">Ingeniería en Software</option>
-                <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                <option value="Lic. en Administración">Lic. en Administración</option>
-                <option value="Ingeniería Mecatrónica">Ingeniería Mecatrónica</option>
-                <option value="Lic. en Contaduría">Lic. en Contaduría</option>
-            </select>
+    <label class="form-label small fw-bold text-muted d-block text-start">SELECCIONA TU CARRERA</label>
+    <select id="carreraInput" class="form-select mb-3 shadow-sm">
+        <option value="" selected disabled>-- Selecciona tu carrera --</option>
+        
+        <optgroup label="Ingenierías">
+            <option value="Ingeniería en Software">Ingeniería en Software</option>
+            <option value="Ingeniería en Sistemas Computacionales">Ingeniería en Sistemas Computacionales</option>
+            <option value="Ingeniería Mecatrónica">Ingeniería Mecatrónica</option>
+            <option value="Ingeniería Industrial y de Sistemas">Ingeniería Industrial y de Sistemas</option>
+            <option value="Ingeniería en Geociencias">Ingeniería en Geociencias</option>
+            <option value="Ingeniería en Horticultura">Ingeniería en Horticultura</option>
+            <option value="Ingeniería en Tecnología de Alimentos">Ingeniería en Tecnología de Alimentos</option>
+            <option value="Ingeniería Ambiental">Ingeniería Ambiental</option>
+            <option value="Ingeniería en Biomédica">Ingeniería en Biomédica</option>
+        </optgroup>
 
-            <label class="form-label small fw-bold text-muted d-block text-start">CONTRASEÑA</label>
-            <div class="input-group mb-3">
-                <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-lock"></i></span>
-                <input type="password" id="passInput" class="form-control" placeholder="••••••••">
-            </div>
+        <optgroup label="Licenciaturas">
+            <option value="Lic. en Administración de Empresas">Lic. en Administración de Empresas</option>
+            <option value="Lic. en Contaduría">Lic. en Contaduría</option>
+            <option value="Lic. en Agronegocios">Lic. en Agronegocios</option>
+            <option value="Lic. en Comercio Internacional">Lic. en Comercio Internacional</option>
+            <option value="Lic. en Gestión y Desarrollo Turístico">Lic. en Gestión y Desarrollo Turístico</option>
+            <option value="Lic. en Derecho">Lic. en Derecho</option>
+            <option value="Lic. en Criminología">Lic. en Criminología</option>
+            <option value="Lic. en Enseñanza del Inglés">Lic. en Enseñanza del Inglés</option>
+        </optgroup>
 
-            <button onclick="entrar()" class="btn btn-success w-100 py-3 fw-bold rounded-3">ENTRAR AL SISTEMA</button>
-            <p class="alerta mb-0 text-start"><i class="fas fa-info-circle me-1"></i> Pass inicial: <b>UES2026</b></p>
-        </div>
+        <optgroup label="Ciencias de la Salud">
+            <option value="Lic. en Enfermería">Lic. en Enfermería</option>
+            <option value="Lic. en Fisioterapia">Lic. en Fisioterapia</option>
+            <option value="Lic. en Nutrición Humana">Lic. en Nutrición Humana</option>
+            <option value="Lic. en Psicología">Lic. en Psicología</option>
+            <option value="Lic. en Entrenamiento Deportivo">Lic. en Entrenamiento Deportivo</option>
+        </optgroup>
+    </select>
+
+    <label class="form-label small fw-bold text-muted d-block text-start">CONTRASEÑA</label>
+    <div class="input-group mb-3">
+        <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-lock"></i></span>
+        <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+    </div>
+
+    <button onclick="entrar()" class="btn btn-success w-100 py-3 fw-bold rounded-3 shadow">ENTRAR AL SISTEMA</button>
+    <p class="alerta mb-0 text-start"><i class="fas fa-info-circle me-1"></i> Pass inicial: <b>UES2026</b></p>
+</div>
     </div>
 
     <script>
@@ -115,30 +142,34 @@
         }
 
         async function entrar() {
-            const email = localStorage.getItem('userEmail');
-            const codigo = document.getElementById('passInput').value;
-            const carrera = document.getElementById('carreraInput').value;
+    const email = localStorage.getItem('userEmail');
+    const codigo = document.getElementById('passInput').value;
+    const carrera = document.getElementById('carreraInput').value;
 
-            try {
-                const res = await fetch('/verificar-codigo', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email, codigo, carrera })
-                });
+    // Validación de que seleccionó carrera
+    if (!carrera) {
+        alert("Por favor, selecciona una carrera de la lista.");
+        return;
+    }
 
-                const data = await res.json();
+    try {
+        const res = await fetch('/verificar-codigo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email, codigo, carrera })
+        });
 
-                if (res.ok) {
-                    // Guardamos carrera en memoria local para mostrarla en Home/Dashboard
-                    localStorage.setItem('userCarrera', data.carrera || carrera);
-                    window.location.href = data.redirect;
-                } else {
-                    alert(data.message || "Error de acceso. Verifica tu contraseña.");
-                }
-            } catch (error) {
-                alert("No se pudo conectar con el servidor.");
-            }
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem('userCarrera', data.carrera || carrera);
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || "Error de acceso.");
         }
+    } catch (error) {
+        alert("Error de conexión con el servidor.");
+    }
+}
     </script>
 </body>
 </html>

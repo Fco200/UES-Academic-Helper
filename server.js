@@ -67,24 +67,40 @@ try {
 // --- RUTAS DE AUTENTICACIÓN ---
 
 app.post('/verificar-codigo', async (req, res) => {
-    const { email, codigo } = req.body;
+    const { email, codigo, carrera, universidad } = req.body;
     try {
         const idLower = email.toLowerCase().trim();
-        const usuario = await Usuario.findOne({ identificador: idLower });
+        let usuario = await Usuario.findOne({ identificador: idLower });
 
-        if (usuario && usuario.password === codigo) {
-            // Enviamos el nombre real para que el Front-end lo use
+        // --- MEJORA: REGISTRO AUTOMÁTICO SI ES NUEVO ---
+        if (!usuario) {
+            console.log("Creando nuevo usuario para:", idLower);
+            usuario = await Usuario.create({ 
+                identificador: idLower, 
+                password: "UES2026", // Clave inicial
+                carrera: carrera || "Ingeniería en Software",
+                universidad: universidad || "UES",
+                nombreReal: "Estudiante UES"
+            });
+            // Enviar correo de bienvenida opcional
+            enviarCorreoBienvenida(idLower, "Estudiante");
+        }
+
+        // --- VALIDACIÓN DE CREDENCIALES ---
+        if (usuario.password === codigo) {
             res.json({ 
                 success: true, 
                 redirect: '/home.html',
-                nombreUsuario: usuario.nombreReal || "Estudiante"
+                nombreUsuario: usuario.nombreReal
             });
         } else {
-            res.status(401).json({ success: false, message: "Datos incorrectos" });
+            res.status(401).json({ success: false, message: "Contraseña incorrecta" });
         }
-    } catch (e) { res.status(500).json({ success: false }); }
-}); 
-
+    } catch (e) { 
+        console.error("Error en login:", e);
+        res.status(500).json({ success: false, message: "Error de servidor" }); 
+    }
+});
 app.get('/obtener-usuario/:email', async (req, res) => {
     try {
         let usuario = await Usuario.findOne({ identificador: req.params.email.toLowerCase() });

@@ -4,46 +4,101 @@
     <meta charset="UTF-8">
     <title>Admin Panel | UES Helper</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <style>
-        body { background: #0a0a0a; color: white; font-family: sans-serif; padding: 50px; }
-        .admin-card { background: #111; border: 1px solid #800000; padding: 30px; border-radius: 20px; max-width: 600px; margin: auto; }
-        .form-control { background: #000; border-color: #333; color: white !important; margin-bottom: 20px; }
+        body { background: #0a0a0a; color: white; padding: 40px; }
+        .admin-card { background: #111; border: 1px solid #800000; padding: 25px; border-radius: 20px; margin-bottom: 30px; }
+        .form-control { background: #000; border-color: #333; color: white !important; margin-bottom: 15px; }
+        .noticia-item { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #800000; }
     </style>
 </head>
 <body>
-    <div class="admin-card">
-        <h2 class="fw-bold text-danger mb-4">Publicar Noticia UES</h2>
-        <input type="password" id="passAdmin" class="form-control" placeholder="Clave Maestra de Administrador">
-        <hr>
-        <input type="text" id="titNoticia" class="form-control" placeholder="Título de la Noticia">
-        <textarea id="contNoticia" class="form-control" rows="4" placeholder="Cuerpo de la noticia..."></textarea>
-        <input type="text" id="imgNoticia" class="form-control" placeholder="URL de la imagen (Opcional)">
-        
-        <button onclick="enviarNoticia()" class="btn btn-danger w-100 fw-bold py-3">PUBLICAR AHORA</button>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="admin-card">
+                    <h3 id="formTitle" class="fw-bold text-danger mb-4">Nueva Noticia</h3>
+                    <input type="password" id="passAdmin" class="form-control" placeholder="Clave Maestra">
+                    <input type="hidden" id="editId">
+                    <input type="text" id="titNoticia" class="form-control" placeholder="Título">
+                    <textarea id="contNoticia" class="form-control" rows="4" placeholder="Contenido"></textarea>
+                    <input type="text" id="imgNoticia" class="form-control" placeholder="URL Imagen">
+                    
+                    <button id="btnAccion" onclick="enviarNoticia()" class="btn btn-danger w-100 fw-bold">PUBLICAR</button>
+                    <button id="btnCancelar" onclick="limpiarForm()" class="btn btn-outline-light w-100 mt-2 d-none">CANCELAR EDICIÓN</button>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <h3 class="fw-bold mb-4">Gestionar Existentes</h3>
+                <div id="listaNoticias"></div>
+            </div>
+        </div>
     </div>
 
     <script>
+        async function cargarGestion() {
+            const res = await fetch('/obtener-noticias');
+            const noticias = await res.json();
+            const lista = document.getElementById('listaNoticias');
+            lista.innerHTML = noticias.map(n => `
+                <div class="noticia-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="m-0 fw-bold">${n.titulo}</h6>
+                        <small class="text-muted">${new Date(n.fecha).toLocaleDateString()}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-warning me-2" onclick='prepararEdicion(${JSON.stringify(n)})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarNoticia('${n._id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function prepararEdicion(n) {
+            document.getElementById('formTitle').innerText = "Editando Noticia";
+            document.getElementById('editId').value = n._id;
+            document.getElementById('titNoticia').value = n.titulo;
+            document.getElementById('contNoticia').value = n.contenido;
+            document.getElementById('imgNoticia').value = n.imagen || "";
+            document.getElementById('btnAccion').innerText = "GUARDAR CAMBIOS";
+            document.getElementById('btnCancelar').classList.remove('d-none');
+        }
+
+        function limpiarForm() {
+            document.getElementById('formTitle').innerText = "Nueva Noticia";
+            document.getElementById('editId').value = "";
+            document.getElementById('titNoticia').value = "";
+            document.getElementById('contNoticia').value = "";
+            document.getElementById('imgNoticia').value = "";
+            document.getElementById('btnAccion').innerText = "PUBLICAR";
+            document.getElementById('btnCancelar').classList.add('d-none');
+        }
+
         async function enviarNoticia() {
+            const id = document.getElementById('editId').value;
+            const ruta = id ? '/editar-noticia' : '/publicar-noticia-secreta';
             const datos = {
+                id,
                 passwordAdmin: document.getElementById('passAdmin').value,
                 titulo: document.getElementById('titNoticia').value,
                 contenido: document.getElementById('contNoticia').value,
                 imagen: document.getElementById('imgNoticia').value
             };
 
-            const res = await fetch('/publicar-noticia-secreta', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(datos)
-            });
-
-            if(res.ok) {
-                alert("✅ Noticia lanzada al Home con éxito");
-                location.href = "/home.html";
-            } else {
-                alert("❌ Clave incorrecta o error en servidor");
-            }
+            const res = await fetch(ruta, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos) });
+            if(res.ok) { alert("Operación exitosa"); limpiarForm(); cargarGestion(); }
+            else { alert("Error: Verifica la clave maestra"); }
         }
+
+        async function eliminarNoticia(id) {
+            if(!confirm("¿Seguro que quieres borrar esta noticia?")) return;
+            const passwordAdmin = document.getElementById('passAdmin').value;
+            const res = await fetch('/eliminar-noticia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, passwordAdmin}) });
+            if(res.ok) cargarGestion();
+        }
+
+        window.onload = cargarGestion;
     </script>
 </body>
 </html>

@@ -122,6 +122,27 @@ app.post('/publicar-noticia-secreta', async (req, res) => {
         res.json({ success: true, message: "Noticia publicada" });
     } catch (e) { res.status(500).json({ success: false }); }
 });
+// --- RUTA PARA ELIMINAR NOTICIA ---
+app.post('/eliminar-noticia', async (req, res) => {
+    const { id, passwordAdmin } = req.body;
+    if (passwordAdmin !== "UES_ADMIN_2026") return res.status(403).json({ success: false });
+
+    try {
+        await Noticia.findByIdAndDelete(id);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+// --- RUTA PARA EDITAR NOTICIA ---
+app.post('/editar-noticia', async (req, res) => {
+    const { id, titulo, contenido, imagen, passwordAdmin } = req.body;
+    if (passwordAdmin !== "UES_ADMIN_2026") return res.status(403).json({ success: false });
+
+    try {
+        await Noticia.findByIdAndUpdate(id, { titulo, contenido, imagen });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
 
 // --- RUTAS DE GESTIÓN (CRUD) ---
 

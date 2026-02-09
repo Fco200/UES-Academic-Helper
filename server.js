@@ -210,27 +210,23 @@ app.post('/completar-tarea', async (req, res) => {
 
 // 1. Editar una tarea específica
 // RUTA PARA EDITAR TAREA
+// --- RUTAS DE GESTIÓN (CRUD) ---
+
+// 1. Ruta para editar (Actualizar)
 app.post('/editar-tarea', async (req, res) => {
     const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
     try {
-        // Usamos el operador $set con el filtro posicional $ para actualizar la tarea correcta
         await Materia.updateOne(
             { _id: materiaId, "tareas._id": tareaId },
-            { 
-                $set: { 
-                    "tareas.$.descripcion": nuevaDescripcion, 
-                    "tareas.$.fecha": nuevaFecha 
-                } 
-            }
+            { $set: { "tareas.$.descripcion": nuevaDescripcion, "tareas.$.fecha": nuevaFecha } }
         );
-        res.status(200).send({ message: "Tarea actualizada con éxito" });
+        res.status(200).json({ message: "Éxito" });
     } catch (e) {
-        console.error("Error al editar:", e);
-        res.status(500).send({ message: "Error interno al editar la tarea" });
+        res.status(500).json({ message: "Error al editar" });
     }
 });
 
-// 2. Eliminar una tarea específica
+// 2. Ruta para eliminar (Borrar)
 app.post('/eliminar-tarea', async (req, res) => {
     const { materiaId, tareaId } = req.body;
     try {
@@ -238,11 +234,10 @@ app.post('/eliminar-tarea', async (req, res) => {
             { _id: materiaId },
             { $pull: { tareas: { _id: tareaId } } }
         );
-        res.status(200).send({ message: "Tarea eliminada" });
-    } catch (e) {
-        res.status(500).send({ message: "Error al eliminar" });
-    }
+        res.json({ message: "Eliminado" });
+    } catch (e) { res.status(500).send(e); }
 });
+
 
 // --- GOOGLE VERIFICACIÓN ---
 app.get("/google74ea19ac0f79b1ad.html", (req, res) => {

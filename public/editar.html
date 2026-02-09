@@ -100,44 +100,29 @@
             new bootstrap.Modal(document.getElementById('modalEdicion')).show();
         }
 
-       async function guardarCambios() {
-    // 1. Obtenemos los valores de los inputs del modal
+      async function guardarCambios() {
     const materiaId = document.getElementById('editMateriaId').value;
     const tareaId = document.getElementById('editTareaId').value;
-    const nuevaDescripcion = document.getElementById('descEdit').value.trim();
+    const nuevaDescripcion = document.getElementById('descEdit').value;
     const nuevaFecha = document.getElementById('fechaEdit').value;
 
-    if (!nuevaDescripcion || !nuevaFecha) {
-        return alert("Por favor, completa todos los campos.");
-    }
+    if(!nuevaDescripcion || !nuevaFecha) return alert("Completa todos los campos");
 
     try {
-        // 2. Enviamos la petición al servidor
         const res = await fetch('/editar-tarea', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                materiaId, 
-                tareaId, 
-                nuevaDescripcion, 
-                nuevaFecha 
-            })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ materiaId, tareaId, nuevaDescripcion, nuevaFecha })
         });
 
         if (res.ok) {
-            alert("✅ Registro actualizado.");
-            // 3. Cerramos el modal y recargamos los datos
-            const modalElement = document.getElementById('modalEdicion');
-            const modalInstance = bootstrap.Modal.getInstance(modalElement);
-            if (modalInstance) modalInstance.hide();
-            
-            cargarEditor(); // Recarga la lista de tareas
+            alert("✅ Registro actualizado correctamente");
+            location.reload(); // Esto refresca la lista de inmediato
         } else {
-            alert("❌ No se pudo actualizar en el servidor.");
+            alert("❌ Error al guardar en el servidor");
         }
     } catch (error) {
-        console.error("Error en la conexión:", error);
-        alert("Error de conexión con el servidor.");
+        alert("Error de conexión");
     }
 }
 

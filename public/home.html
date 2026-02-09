@@ -71,20 +71,24 @@
             <div class="modal-content bg-dark border-secondary text-white rounded-5">
                 <div class="modal-body p-4">
                     <h5 class="fw-bold text-danger mb-4">Actualizar mi Perfil</h5>
-                   <div class="mb-3">
+                    <div class="mb-3">
                         <label class="small text-muted fw-bold">NOMBRE COMPLETO</label>
-                         <input type="text" id="editNombre" class="form-control" placeholder="Ej: Francisco Aguayo">
+                        <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary" placeholder="Ej: Francisco Aguayo">
                     </div>
                     <div class="mb-3">
-    <label class="small text-muted fw-bold">CORREO DE CONTACTO</label>
-    <input type="email" id="editEmail" class="form-control" placeholder="ejemplo@ues.mx">
-</div>
-                    <div class="mb-3">
-                         <label class="small text-muted fw-bold">NÚMERO TELEFÓNICO (10 DÍGITOS)</label>
-                        <input type="text" id="editTelefono" class="form-control" placeholder="662XXXXXXX">
+                        <label class="small text-muted fw-bold">CORREO DE CONTACTO</label>
+                        <input type="email" id="editEmail" class="form-control bg-black text-white border-secondary" placeholder="ejemplo@ues.mx">
                     </div>
                     <div class="mb-3">
-                        <label class="small text-muted">BIOGRAFÍA</label>
+                        <label class="small text-muted fw-bold">NÚMERO TELEFÓNICO (10 DÍGITOS)</label>
+                        <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary" placeholder="662XXXXXXX">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">FECHA DE NACIMIENTO</label>
+                        <input type="date" id="editCumple" class="form-control bg-black text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">BIOGRAFÍA</label>
                         <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3"></textarea>
                     </div>
                     <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
@@ -142,6 +146,7 @@
                 document.getElementById('displayBio').innerText = u.biografia || "Sin biografía...";
                 
                 document.getElementById('editNombre').value = u.nombreReal || "";
+                document.getElementById('editEmail').value = u.identificador || "";
                 document.getElementById('editTelefono').value = u.telefono || "";
                 document.getElementById('editCumple').value = u.cumpleanos || "";
                 document.getElementById('editBio').value = u.biografia || "";
@@ -149,38 +154,64 @@
             } catch (e) { console.error("Error perfil", e); }
         }
 
-        // FUNCIONES DE SEGURIDAD
         function abrirEditorSeguridad() {
             const modal = new bootstrap.Modal(document.getElementById('modalSeguridad'));
             modal.show();
         }
 
-      async function ejecutarCambioPass() {
-    const nuevaPassword = document.getElementById('nuevaPass').value;
-    
-    // Validación de robustez
-    if(nuevaPassword === "UES2026") {
-        return alert("❌ No puedes usar la contraseña inicial.");
-    }
-    if(nuevaPassword.length < 5) {
-        return alert("❌ La contraseña debe tener al menos 5 caracteres.");
-    }
+        async function ejecutarCambioPass() {
+            const nuevaPassword = document.getElementById('nuevaPass').value;
+            if(nuevaPassword === "UES2026") return alert("❌ No puedes usar la contraseña inicial.");
+            if(nuevaPassword.length < 5) return alert("❌ La contraseña debe tener al menos 5 caracteres.");
 
-    try {
-        const res = await fetch('/cambiar-password', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: userEmail, nuevaPassword })
-        });
-
-        if(res.ok) {
-            alert("✅ ¡Contraseña actualizada! Por seguridad, inicia sesión de nuevo.");
-            cerrarSesion();
+            try {
+                const res = await fetch('/cambiar-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: userEmail, nuevaPassword })
+                });
+                if(res.ok) {
+                    alert("✅ ¡Contraseña actualizada! Por seguridad, inicia sesión de nuevo.");
+                    cerrarSesion();
+                }
+            } catch (e) { alert("❌ Error al conectar con el servidor."); }
         }
-    } catch (e) {
-        alert("❌ Error al conectar con el servidor.");
-    }
-}
+
+        async function guardarTodo() {
+            const inputNombre = document.getElementById('editNombre');
+            const inputEmail = document.getElementById('editEmail');
+            const inputTel = document.getElementById('editTelefono');
+            const inputBio = document.getElementById('editBio');
+            const inputCumple = document.getElementById('editCumple');
+
+            if (!inputNombre || !inputEmail) {
+                alert("❌ Error: No se encontraron los campos del formulario.");
+                return;
+            }
+
+            const datos = {
+                email: userEmail,
+                nuevoEmail: inputEmail.value.toLowerCase().trim(),
+                nombreReal: inputNombre.value,
+                telefono: inputTel.value,
+                cumpleanos: inputCumple.value,
+                biografia: inputBio.value,
+                foto: fotoBase64
+            };
+
+            try {
+                const res = await fetch('/actualizar-perfil-completo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
+                if(res.ok) {
+                    localStorage.setItem('userEmail', datos.nuevoEmail);
+                    alert("✅ Perfil actualizado correctamente.");
+                    location.reload();
+                }
+            } catch (e) { alert("❌ Error al conectar con el servidor."); }
+        }
 
         async function cargarNoticiasHome() {
             try {
@@ -236,32 +267,6 @@
             }
         }
 
-       async function guardarTodo() {
-    const elEmail = document.getElementById('editEmail');
-    if(!elEmail) return console.error("Error: No se encontró el campo editEmail en el HTML");
-
-    const datos = {
-        email: userEmail, // ID actual
-        nuevoEmail: elEmail.value.toLowerCase().trim(),
-        nombreReal: document.getElementById('editNombre').value,
-        telefono: document.getElementById('editTelefono').value,
-        cumpleanos: document.getElementById('editCumple').value,
-        biografia: document.getElementById('editBio').value,
-        foto: fotoBase64
-    };
-
-    const res = await fetch('/actualizar-perfil-completo', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(datos)
-    });
-
-    if(res.ok) {
-        localStorage.setItem('userEmail', datos.nuevoEmail);
-        alert("✅ Perfil actualizado");
-        location.reload();
-    }
-}
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>

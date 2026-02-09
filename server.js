@@ -75,33 +75,34 @@ app.post('/verificar-codigo', async (req, res) => {
         const idLower = email.toLowerCase().trim();
         let usuario = await Usuario.findOne({ identificador: idLower });
 
-     if (!usuario) {
-    usuario = await Usuario.create({ 
-        identificador: idLower, 
-        password: "UES2026", 
-        carrera, 
-        universidad, 
-        nombreReal: "Estudiante UES" 
-        
-    });
-    
-    enviarCorreoBienvenida(idLower, "Estudiante"); 
-}
+        // Si el usuario no existe, lo creamos
+        if (!usuario) {
+            usuario = await Usuario.create({ 
+                identificador: idLower, 
+                password: "UES2026", 
+                carrera: carrera || "Ingeniería", 
+                universidad: universidad || "UES",
+                nombreReal: "Estudiante UES" 
+            });
+            
+            // IMPORTANTE: Quitamos el 'await' para que el login no se congele 
+            // si hay errores de conexión con el puerto 465/587
+            enviarCorreoBienvenida(idLower, "Estudiante"); 
+        }
 
         if (usuario.password === codigo) {
             res.json({ 
                 success: true, 
                 redirect: '/home.html',
-                nombreUsuario: usuario.nombreReal
+                nombreUsuario: usuario.nombreReal 
             });
         } else {
-            res.status(401).json({ success: false });
+            res.status(401).json({ success: false, message: "Clave incorrecta" });
         }
-    } catch (e) {
-    console.error("Error crítico:", e);
-    // IMPORTANTE: Si no envías esta respuesta, el botón se queda en "VALIDANDO"
-    res.status(500).json({ success: false, message: "Error interno" });
-}
+    } catch (e) { 
+        console.error("Error Login:", e);
+        res.status(500).json({ success: false }); 
+    }
 });
 
 app.get('/obtener-usuario/:email', async (req, res) => {

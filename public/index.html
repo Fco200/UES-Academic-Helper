@@ -79,18 +79,18 @@
     <div id="particles-js"></div>
 
     <div class="login-container">
-        <div class="brand-header">
-            <img src="logo.png" class="brand-logo" alt="Logo UES">
-            <h1 class="brand-title">UES <span>HELPER</span></h1>
-            <p class="text-muted small fw-bold mt-1">Portal Académico Multiversidad</p>
-        </div>
+    <div class="brand-header">
+        <h1 class="brand-title">UES <span>HELPER</span></h1>
+        <p class="text-muted small fw-bold">Portal Académico Multiversidad</p>
+    </div>
 
-        <div class="step-indicator">
-            <div id="dot1" class="step active"></div>
-            <div id="dot2" class="step"></div>
-        </div>
+    <div class="step-indicator">
+        <div id="dot1" class="step active"></div>
+        <div id="dot2" class="step"></div>
+    </div>
 
-        <div id="paso1">
+    <div id="paso1">
+        <div class="mb-3">
             <label class="form-label">Institución Universitaria</label>
             <select id="uniInput" class="form-select" onchange="actualizarCarreras()">
                 <option value="" disabled selected>Selecciona Universidad</option>
@@ -98,59 +98,44 @@
                 <option value="UNISON">Universidad de Sonora</option>
                 <option value="ITH">Tecnológico de Hermosillo</option>
             </select>
-            
+        </div>
+        
+        <div class="mb-4">
             <label class="form-label">Carrera / Programa</label>
             <select id="carreraInput" class="form-select">
                 <option value="">Esperando universidad...</option>
             </select>
-
-            <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-1"></i></button>
         </div>
 
-        <div id="paso2" style="display:none;">
-    <div class="text-end mb-3">
-        <button onclick="recuperarPassword()" class="btn btn-link text-warning p-0 small" style="text-decoration: none; font-size: 0.7rem;">
-            ¿Olvidaste tu contraseña?
-        </button>
+        <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-1"></i></button>
     </div>
-    <button onclick="entrar()" class="btn-main">Entrar al Sistema</button>
-</div>
 
-<script>
-async function recuperarPassword() {
-    const email = document.getElementById('emailInput').value;
-    if(!email) return alert("⚠️ Escribe tu correo en el campo de arriba para poder enviarte la clave.");
-
-    const res = await fetch('/recuperar-password', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email: email.trim() })
-    });
-
-    if(res.ok) {
-        alert("✅ Te hemos enviado un correo. Revisa tu bandeja de entrada.");
-    } else {
-        alert("❌ No encontramos una cuenta con ese correo.");
-    }
-}
-</script>
-            
-            <label class="form-label">Correo Institucional</label>
-            <div class="input-group mb-3">
-                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border-radius: 12px 0 0 12px; border-color: rgba(255,255,255,0.1);"><i class="fas fa-envelope"></i></span>
-                <input type="email" id="emailInput" class="form-control border-start-0" placeholder="usuario@ues.mx" style="border-radius: 0 12px 12px 0; margin-bottom: 0;">
-            </div>
-
-            <label class="form-label">Contraseña de Acceso</label>
-            <div class="input-group mb-4">
-                <span class="input-group-text bg-transparent border-end-0 text-muted" style="border-radius: 12px 0 0 12px; border-color: rgba(255,255,255,0.1);"><i class="fas fa-lock"></i></span>
-                <input type="password" id="passInput" class="form-control border-start-0" placeholder="••••••••" style="border-radius: 0 12px 12px 0; margin-bottom: 0;">
-            </div>
-
-            <button onclick="entrar()" class="btn-main" style="background: #28a745;">
-                Ingresar al Portal <i class="fas fa-sign-in-alt ms-1"></i>
+    <div id="paso2" style="display:none;">
+        <div class="text-center mb-4">
+            <span id="infoCarreraSeleccionada" class="badge bg-dark text-warning py-2 px-3 rounded-pill border border-warning shadow-sm"></span>
+            <button class="btn btn-link btn-sm text-muted text-decoration-none d-block mt-2 mx-auto" onclick="regresar()">
+                <i class="fas fa-arrow-left me-1"></i> Cambiar carrera
             </button>
         </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Correo Institucional</label>
+            <input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Contraseña de Acceso</label>
+            <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+            <div class="text-end mt-2">
+                <button onclick="recuperarPassword()" class="btn btn-link text-warning p-0 small" style="text-decoration: none; font-size: 0.7rem;">¿Olvidaste tu contraseña?</button>
+            </div>
+        </div>
+
+        <button onclick="entrar()" class="btn-main" style="background: #28a745;">
+            Ingresar al Portal <i class="fas fa-sign-in-alt ms-1"></i>
+        </button>
+    </div>
+</div>
         
         <div class="mt-4 text-center">
             <p class="small text-muted mb-0">© 2026 UES Academic Helper</p>
@@ -196,39 +181,41 @@ async function recuperarPassword() {
     ]
 };
 
-        function actualizarCarreras() {
-            const uni = document.getElementById('uniInput').value;
-            const select = document.getElementById('carreraInput');
-            if(!uni) return;
-            select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
-        }
+       function actualizarCarreras() {
+    const uni = document.getElementById('uniInput').value;
+    const select = document.getElementById('carreraInput');
+    if(!uni) return;
+    select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
+}
 
-        function validarYPasar() {
-            const uni = document.getElementById('uniInput').value;
-            const carrera = document.getElementById('carreraInput').value;
-            if(!uni || !carrera || carrera.includes("Esperando")) return alert("⚠️ Selecciona universidad y carrera");
-            
-            document.getElementById('infoCarreraSeleccionada').innerText = carrera;
-            document.getElementById('paso1').style.display = 'none';
-            document.getElementById('paso2').style.display = 'block';
-            document.getElementById('dot1').classList.remove('active');
-            document.getElementById('dot2').classList.add('active');
-        }
+function validarYPasar() {
+    const uni = document.getElementById('uniInput').value;
+    const carrera = document.getElementById('carreraInput').value;
+    if(!uni || !carrera || carrera.includes("Esperando")) return alert("⚠️ Selecciona universidad y carrera");
+    
+    document.getElementById('infoCarreraSeleccionada').innerText = carrera;
+    document.getElementById('paso1').style.display = 'none';
+    document.getElementById('paso2').style.display = 'block';
+    document.getElementById('dot1').classList.remove('active');
+    document.getElementById('dot2').classList.add('active');
+}
 
-        function regresar() {
-            document.getElementById('paso2').style.display = 'none';
-            document.getElementById('paso1').style.display = 'block';
-            document.getElementById('dot2').classList.remove('active');
-            document.getElementById('dot1').classList.add('active');
-        }
-      async function entrar() {
+function regresar() {
+    document.getElementById('paso2').style.display = 'none';
+    document.getElementById('paso1').style.display = 'block';
+    document.getElementById('dot2').classList.remove('active');
+    document.getElementById('dot1').classList.add('active');
+}
+
+async function entrar() {
     const btn = document.querySelector('#paso2 .btn-main');
     const email = document.getElementById('emailInput').value;
     const codigo = document.getElementById('passInput').value;
+    const carrera = document.getElementById('carreraInput').value;
+    const universidad = document.getElementById('uniInput').value;
 
     if(!email || !codigo) return alert("⚠️ Ingresa tus credenciales");
 
-    // Efecto de carga
     const textoOriginal = btn.innerHTML;
     btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Validando...`;
     btn.disabled = true;
@@ -237,34 +224,25 @@ async function recuperarPassword() {
         const res = await fetch('/verificar-codigo', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                email: email.trim(), 
-                codigo: codigo.trim(),
-                carrera: document.getElementById('carreraInput').value,
-                universidad: document.getElementById('uniInput').value
-            })
+            body: JSON.stringify({ email: email.trim(), codigo: codigo.trim(), carrera, universidad })
         });
         
         const data = await res.json();
         
         if(res.ok) {
-            // USAMOS EL NOMBRE QUE VIENE DE LA BASE DE DATOS
-            const nombreAMostrar = data.nombreUsuario;
-            btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, ${nombreAMostrar}!`;
-            btn.style.background = "#28a745"; 
-
-            localStorage.setItem('userEmail', email.toLowerCase().trim());
+            // MENSAJE DE BIENVENIDA DINÁMICO
+            btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, ${data.nombreUsuario || 'Estudiante'}!`;
+            btn.style.background = "#28a745";
             
-            setTimeout(() => {
-                window.location.href = data.redirect;
-            }, 1500);
+            localStorage.setItem('userEmail', email.toLowerCase().trim());
+            setTimeout(() => { window.location.href = data.redirect; }, 1500);
         } else {
-            alert("❌ Acceso Denegado");
+            alert("❌ Acceso Denegado: Revisa tus datos.");
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
         }
     } catch (e) {
-        alert("❌ Error de servidor");
+        alert("❌ Error de conexión. Revisa el servidor en Render.");
         btn.innerHTML = textoOriginal;
         btn.disabled = false;
     }

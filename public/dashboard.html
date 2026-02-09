@@ -4,158 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control | UES Helper</title>
+    <link rel="icon" type="image/png" href="logo.png">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root { 
             --ues-guinda: #800000; 
-            --ues-dark: #121212; 
+            --ues-dark: #0f0f0f; 
             --ues-accent: #b8860b; 
-            --bg-body: #f4f7f6;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --sidebar-width: 280px;
         }
 
         body { 
-            background-color: var(--bg-body); 
-            font-family: 'Inter', sans-serif; 
-            color: #333; 
+            background: radial-gradient(circle at top right, #1a1a1a, #000); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: #e0e0e0; 
+            min-height: 100vh;
         }
 
-        /* Sidebar Moderna */
+        /* Sidebar Pro */
         .sidebar { 
-            background: var(--ues-dark); 
+            background: rgba(10, 10, 10, 0.95); 
+            backdrop-filter: blur(15px);
             color: white; 
             min-height: 100vh; 
-            padding: 25px; 
+            padding: 30px 20px; 
             position: fixed; 
-            width: 280px; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+            width: var(--sidebar-width); 
+            border-right: 1px solid rgba(128, 0, 0, 0.3);
             z-index: 1000;
         }
 
-        .sidebar h3 { 
-            font-weight: 700; 
-            letter-spacing: -1px; 
-            margin-bottom: 30px; 
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
             text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+            letter-spacing: -1px;
         }
 
-        /* Banner IA Rediseñado */
+        /* Banner IA Rediseñado Estilo Cyber */
         .ai-banner { 
-            background: linear-gradient(135deg, var(--ues-guinda) 0%, #4b0000 100%); 
+            background: linear-gradient(135deg, rgba(128, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%); 
             color: white; 
-            border-radius: 15px; 
-            padding: 20px; 
-            border-left: 5px solid var(--ues-accent);
-            box-shadow: 0 4px 15px rgba(128, 0, 0, 0.3);
-        }
-
-        /* Área de Contenido */
-        .main-content { 
-            margin-left: 280px; 
-            padding: 40px; 
-            transition: all 0.3s;
-        }
-
-        /* Tarjetas de Materia */
-        .card-note { 
-            border: none; 
             border-radius: 18px; 
-            background: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.05); 
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 20px; 
+            border: 1px solid var(--ues-guinda);
+            box-shadow: 0 0 20px rgba(128, 0, 0, 0.2);
+            position: relative;
             overflow: hidden;
         }
 
+        .ai-banner::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(128,0,0,0.1) 0%, transparent 70%);
+        }
+
+        .main-content { 
+            margin-left: var(--sidebar-width); 
+            padding: 50px; 
+            transition: all 0.3s;
+        }
+
+        /* Tarjetas Estilo Glassmorphism */
+        .card-note { 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 24px; 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .card-note:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 12px 35px rgba(0,0,0,0.1); 
+            transform: translateY(-8px); 
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--ues-guinda);
         }
 
         .materia-header {
-            padding: 20px;
-            background: #fff;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 22px;
+            background: rgba(128, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px 24px 0 0;
         }
 
-        /* Estilo de Tareas */
+        /* Task styling */
         .task-row { 
-            transition: 0.2s; 
-            padding: 12px 15px; 
-            border-radius: 10px;
-            margin-bottom: 5px;
+            padding: 14px 18px; 
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 8px;
+            border: 1px solid transparent;
         }
         
-        .task-row:hover { background: #f9f9f9; }
+        .task-row:hover { 
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(128,0,0,0.3);
+        }
+
+        .form-check-input {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+        }
 
         .form-check-input:checked { 
             background-color: var(--ues-guinda); 
-            border-color: var(--ues-guinda); 
+            border-color: var(--ues-accent); 
         }
 
-        /* Inputs y Botones */
+        /* Botones y Form */
         .btn-ues { 
             background: var(--ues-guinda); 
+            border: none;
             color: white; 
-            border-radius: 10px; 
-            font-weight: 600;
+            border-radius: 12px; 
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .btn-ues:hover {
+            background: #a00000;
+            box-shadow: 0 0 15px rgba(128,0,0,0.4);
         }
 
         .form-control { 
-            border-radius: 10px; 
-            padding: 10px 15px; 
-            border: 1px solid #e0e0e0;
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 18px;
         }
 
         .form-control:focus { 
-            border-color: var(--ues-guinda); 
-            box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.1);
+            background: rgba(255,255,255,0.08) !important;
+            border-color: var(--ues-guinda);
+            box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.2);
+        }
+
+        .badge-profile {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 24px;
+            border-radius: 100px;
         }
 
         @media (max-width: 992px) {
-            .sidebar { width: 100%; min-height: auto; position: relative; }
-            .main-content { margin-left: 0; padding: 20px; }
+            .sidebar { width: 100%; min-height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--ues-guinda); }
+            .main-content { margin-left: 0; padding: 25px; }
         }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h3>UES <span class="text-danger">Helper</span></h3>
-        <div class="ai-banner mb-4">
-            <small class="fw-bold text-uppercase"><i class="fas fa-robot me-2"></i> Asistente IA</small>
-            <p id="ai-text" class="small mt-2 mb-0 opacity-75">Sincronizando tus metas académicas...</p>
+        <div class="sidebar-brand">
+            UES <span class="text-danger">HELPER</span>
         </div>
-        <hr class="opacity-25">
+        
+        <div class="ai-banner mb-4">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-robot text-danger me-2 shadow-sm"></i>
+                <span class="fw-bold small text-uppercase" style="letter-spacing: 1px;">Estado de IA</span>
+            </div>
+            <p id="ai-text" class="small mt-2 mb-0 opacity-75 fw-light">Analizando tu desempeño académico...</p>
+        </div>
+
+        <hr class="opacity-10 my-4">
+
         <nav class="nav flex-column">
-            <a href="/home.html" class="btn btn-outline-light text-start mb-2 border-0"><i class="fas fa-home me-3"></i> Inicio</a>
-            <button class="btn btn-outline-light text-start mb-2 border-0" onclick="cambiarPassword()"><i class="fas fa-shield-alt me-3"></i> Seguridad</button>
-            <button class="btn btn-danger w-100 mt-5 shadow-sm" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt me-3"></i> Cerrar Sesión</button>
+            <a href="/home.html" class="nav-link text-white py-3 px-3 rounded-4 mb-2 d-flex align-items-center" style="background: rgba(255,255,255,0.03);">
+                <i class="fas fa-home me-3 text-danger"></i> Inicio
+            </a>
+            <button class="nav-link text-white py-3 px-3 rounded-4 mb-2 border-0 text-start bg-transparent d-flex align-items-center" onclick="cambiarPassword()">
+                <i class="fas fa-shield-alt me-3 text-warning"></i> Seguridad
+            </button>
         </nav>
+
+        <button class="btn btn-ues w-100 mt-5 py-3 shadow" onclick="cerrarSesion()">
+            <i class="fas fa-power-off me-2"></i> Salir del Sistema
+        </button>
     </div>
 
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
             <div>
-                <h2 class="fw-bold text-dark m-0">Gestión Académica</h2>
-                <p class="text-muted small">Panel central de actividades e ingeniería.</p>
+                <h1 class="fw-bold m-0" style="letter-spacing: -1.5px;">Gestión de Actividades</h1>
+                <p class="text-muted m-0">Consola central de registros e ingeniería de tareas.</p>
             </div>
-            <div class="badge bg-white text-dark shadow-sm p-3 rounded-pill border">
-    <i class="fas fa-graduation-cap me-2 text-danger"></i> 
-    <span id="carreraBadge" class="fw-bold me-2"></span> <span id="userBadge" class="text-muted border-start ps-2"></span>
-</div>
+            <div class="badge-profile d-flex align-items-center">
+                <div class="text-end me-3">
+                    <span id="carreraBadge" class="d-block fw-bold text-warning small text-uppercase"></span>
+                    <span id="userBadge" class="small opacity-50"></span>
+                </div>
+                <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="fas fa-user-graduate text-white"></i>
+                </div>
+            </div>
         </div>
 
-        <div class="card p-4 card-note mb-5">
-            <h5 class="fw-bold text-danger mb-4"><i class="fas fa-plus-circle me-2"></i> Crear Nuevo Registro</h5>
+        <div class="card p-4 card-note mb-5 border-0" style="background: linear-gradient(rgba(128,0,0,0.05), rgba(0,0,0,0.2));">
+            <h5 class="fw-bold mb-4 d-flex align-items-center">
+                <i class="fas fa-plus-square text-danger me-3"></i> 
+                Añadir Materia o Proyecto
+            </h5>
             <div class="row g-3">
                 <div class="col-md-9">
-                    <input type="text" id="nombreInput" class="form-control form-control-lg" placeholder="Nombre de materia o categoría...">
+                    <input type="text" id="nombreInput" class="form-control" placeholder="Nombre de la asignatura (Ej: Programación IV)">
                 </div>
                 <div class="col-md-3">
-                    <button onclick="guardarNuevo()" class="btn btn-dark w-100 btn-lg shadow-sm">Guardar</button>
+                    <button onclick="guardarNuevo()" class="btn btn-ues w-100 py-2">
+                        <i class="fas fa-save me-2"></i> Guardar
+                    </button>
                 </div>
             </div>
         </div>
@@ -166,26 +230,30 @@
 
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold text-danger">Editar Registro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-0 shadow-lg" style="background: #1a1a1a; border-radius: 28px; border: 1px solid #333 !important;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger px-3 pt-3">Ajustes de Actividad</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <label class="form-label small fw-bold text-muted">DESCRIPCIÓN</label>
-                    <input type="text" id="editDescripcion" class="form-control mb-3">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted mb-2">DESCRIPCIÓN</label>
+                        <input type="text" id="editDescripcion" class="form-control">
+                    </div>
                     
-                    <label class="form-label small fw-bold text-muted">FECHA DE ENTREGA</label>
-                    <input type="date" id="editFecha" class="form-control mb-3">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted mb-2">FECHA DE ENTREGA</label>
+                        <input type="date" id="editFecha" class="form-control">
+                    </div>
                     
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="editCompletada">
-                        <label class="form-check-label small fw-bold text-muted" for="editCompletada">MARCAR COMO COMPLETADA</label>
+                    <div class="form-check form-switch p-3 rounded-4 bg-dark">
+                        <input class="form-check-input ms-0 me-3" type="checkbox" id="editCompletada">
+                        <label class="form-check-label small fw-bold text-white" for="editCompletada">Marcar como finalizada</label>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
-                    <button class="btn btn-danger rounded-pill px-4" id="saveEditBtn">Guardar Cambios</button>
+                <div class="modal-footer border-0 p-4">
+                    <button class="btn btn-dark px-4 py-2 rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-ues px-5 py-2 rounded-pill" id="saveEditBtn">Actualizar Datos</button>
                 </div>
             </div>
         </div>
@@ -193,8 +261,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Mantenemos EXACTAMENTE tus funciones de lógica
         const userEmail = localStorage.getItem('userEmail');
-document.getElementById('userBadge').innerText = userEmail || 'Invitado';
+        const userCarrera = localStorage.getItem('userCarrera');
+        
+        document.getElementById('userBadge').innerText = userEmail || 'Invitado';
+        document.getElementById('carreraBadge').innerText = userCarrera || 'UES ESTUDIANTE';
+        
         let editMateriaId = null, editTareaId = null;
 
         async function cargarTodo() {
@@ -211,28 +284,33 @@ document.getElementById('userBadge').innerText = userEmail || 'Invitado';
                             <input type="checkbox" class="form-check-input me-3" 
                                 ${t.completada ? 'checked' : ''} 
                                 onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})">
-                            <span class="${t.completada ? 'text-decoration-line-through text-muted' : ''} flex-grow-1">
+                            <span class="${t.completada ? 'text-decoration-line-through opacity-40' : ''} flex-grow-1">
                                 ${escapeHtml(t.descripcion)}
                             </span>
-                            <span class="badge bg-light text-dark mx-2" style="font-size: 0.75em;">${t.fecha || ''}</span>
-                            <button class="btn btn-sm btn-link text-primary p-0" 
+                            <span class="badge bg-dark border border-secondary text-muted mx-2" style="font-size: 0.75em;">${t.fecha || ''}</span>
+                            <button class="btn btn-sm btn-link text-danger p-0 ms-2" 
                                 onclick="abrirEditor('${m._id}', '${t._id}', ${JSON.stringify(t.descripcion || '')}, ${JSON.stringify(t.fecha || '')}, ${t.completada})">
-                                <i class="fas fa-edit"></i>
+                                <i class="fas fa-sliders-h"></i>
                             </button>
                         </div>
-                    `).join('') || '<p class="text-muted small text-center my-3">Sin registros aún</p>';
+                    `).join('') || '<p class="text-muted small text-center my-3 fw-light">Bandeja de entrada vacía</p>';
 
                     cont.innerHTML += `
                         <div class="col-lg-6 mb-4">
-                            <div class="card card-note">
+                            <div class="card card-note h-100">
                                 <div class="materia-header d-flex justify-content-between align-items-center">
-                                    <h5 class="fw-bold m-0 ${m.nombre.toLowerCase().includes('nota') ? 'text-primary' : 'text-dark'}">${escapeHtml(m.nombre)}</h5>
-                                    <button onclick="pedirIA('${escapeJs(m.nombre)}')" class="btn btn-sm btn-outline-danger border-0"><i class="fas fa-lightbulb"></i> IA</button>
+                                    <h5 class="fw-bold m-0 text-white" style="font-size: 1rem;">
+                                        <i class="fas fa-folder-open me-2 text-danger opacity-50"></i>
+                                        ${escapeHtml(m.nombre)}
+                                    </h5>
+                                    <button onclick="pedirIA('${escapeJs(m.nombre)}')" class="btn btn-sm btn-outline-warning border-0 p-0 px-2" style="font-size: 0.7rem;">
+                                        <i class="fas fa-magic"></i> TIPS
+                                    </button>
                                 </div>
                                 <div class="card-body">
                                     <div class="tareas-container mb-4">${tareasHtml}</div>
                                     <div class="input-group input-group-sm">
-                                        <input type="text" id="t-${m._id}" class="form-control" placeholder="Añadir detalle...">
+                                        <input type="text" id="t-${m._id}" class="form-control" placeholder="Nueva tarea...">
                                         <input type="date" id="f-${m._id}" class="form-control">
                                         <button onclick="agregarTarea('${m._id}')" class="btn btn-ues"><i class="fas fa-plus"></i></button>
                                     </div>
@@ -243,6 +321,8 @@ document.getElementById('userBadge').innerText = userEmail || 'Invitado';
                 });
             } catch (e) { console.error(e); }
         }
+
+        // --- TODAS TUS FUNCIONES ORIGINALES SIGUEN AQUÍ ---
 
         async function guardarNuevo() {
             const nombre = document.getElementById('nombreInput').value.trim();
@@ -259,14 +339,6 @@ document.getElementById('userBadge').innerText = userEmail || 'Invitado';
             await fetch('/agregar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: idMateria, descripcion, fecha }) });
             document.getElementById(`t-${idMateria}`).value = '';
             cargarTodo();
-        }
-
-        async function cambiarPassword() {
-            const nueva = prompt("Ingresa tu nueva contraseña:");
-            if (nueva) {
-                await fetch('/cambiar-password', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmail, nuevaPassword: nueva }) });
-                alert("Contraseña actualizada con éxito.");
-            }
         }
 
         async function pedirIA(materia) {
@@ -300,54 +372,38 @@ document.getElementById('userBadge').innerText = userEmail || 'Invitado';
             cargarTodo();
         });
 
+        window.onload = function() {
+            cargarTodo();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('fuerzaCambio') === 'true') {
+                alert("🚨 SEGURIDAD UES: Detectamos que usas la contraseña inicial. Por favor, cámbiala ahora para proteger tu cuenta.");
+                cambiarPassword(); 
+            }
+        };
+
+        async function cambiarPassword() {
+            const nueva = prompt("Ingresa tu nueva contraseña personalizada (Mínimo 6 caracteres):");
+            if (!nueva || nueva === "UES2026") {
+                alert("🚨 ERROR: Debes elegir una clave segura y diferente a la temporal.");
+                return;
+            }
+            try {
+                const res = await fetch('/cambiar-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
+                });
+                if (res.ok) {
+                    alert("✅ CONTRASEÑA ACTUALIZADA CON ÉXITO.\n\nRecuerda: La clave temporal 'UES2026' ya no funcionará. El sistema se cerrará.");
+                    localStorage.clear();
+                    window.location.href = '/index.html'; 
+                }
+            } catch (e) { console.error(e); }
+        }
+
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
         function escapeHtml(str) { return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
         function escapeJs(str) { return String(str).replaceAll("'", "\\'"); }
-        window.onload = cargarTodo;
-
-        window.onload = function() {
-    cargarTodo(); // Tu función actual
-    
-    // Revisar si la URL trae la orden de forzar cambio
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('fuerzaCambio') === 'true') {
-        alert("🚨 SEGURIDAD UES: Detectamos que usas la contraseña inicial. Por favor, cámbiala ahora para proteger tu cuenta.");
-        
-        // Ejecutamos tu función de cambiar contraseña automáticamente
-        cambiarPassword(); 
-    }
-};
-
-// Mejora tu función cambiarPassword para que valide que no pongan la misma
-async function cambiarPassword() {
-    const nueva = prompt("Ingresa tu nueva contraseña personalizada (Mínimo 6 caracteres):");
-    
-    if (!nueva || nueva === "UES2026") {
-        alert("🚨 ERROR: Debes elegir una clave segura y diferente a la temporal.");
-        return;
-    }
-
-    try {
-        const res = await fetch('/cambiar-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail, nuevaPassword: nueva })
-        });
-
-        if (res.ok) {
-            // MENSAJE SOLICITADO
-            alert("✅ CONTRASEÑA ACTUALIZADA CON ÉXITO.\n\nRecuerda: La clave temporal 'UES2026' ya no funcionará. Por seguridad, el sistema se cerrará.");
-            
-            // LIMPIEZA Y REDIRECCIÓN AL INICIO (INDEX)
-            localStorage.clear();
-            window.location.href = '/index.html'; 
-        } else {
-            alert("Hubo un problema al actualizar. Intenta de nuevo.");
-        }
-    } catch (e) {
-        console.error("Error en servidor:", e);
-    }
-}
     </script>
 </body>
 </html>

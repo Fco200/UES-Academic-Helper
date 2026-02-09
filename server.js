@@ -209,19 +209,24 @@ app.post('/completar-tarea', async (req, res) => {
 // --- RUTAS DE EDICIÓN Y ELIMINACIÓN ---
 
 // 1. Editar una tarea específica
+// RUTA PARA EDITAR TAREA
 app.post('/editar-tarea', async (req, res) => {
     const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
     try {
+        // Usamos el operador $set con el filtro posicional $ para actualizar la tarea correcta
         await Materia.updateOne(
             { _id: materiaId, "tareas._id": tareaId },
-            { $set: { 
-                "tareas.$.descripcion": nuevaDescripcion, 
-                "tareas.$.fecha": nuevaFecha 
-            }}
+            { 
+                $set: { 
+                    "tareas.$.descripcion": nuevaDescripcion, 
+                    "tareas.$.fecha": nuevaFecha 
+                } 
+            }
         );
-        res.status(200).send({ message: "Tarea actualizada" });
+        res.status(200).send({ message: "Tarea actualizada con éxito" });
     } catch (e) {
-        res.status(500).send({ message: "Error al editar" });
+        console.error("Error al editar:", e);
+        res.status(500).send({ message: "Error interno al editar la tarea" });
     }
 });
 

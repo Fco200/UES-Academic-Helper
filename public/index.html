@@ -92,47 +92,46 @@
             <button onclick="validarYPasar()" class="btn btn-ues">Siguiente <i class="fas fa-chevron-right ms-2"></i></button>
         </div>
 
-        <div id="paso2" style="display:none;">
-            <label class="text-resaltado d-block">Selecciona tu Carrera</label>
-            <select id="carreraInput" class="form-select mb-3">
-                <option value="" selected disabled>-- Todas las Carreras UES --</option>
-                <optgroup label="Ingenierías">
-                    <option value="Ingeniería en Software">Ingeniería en Software</option>
-                    <option value="Ingeniería Mecatrónica">Ingeniería Mecatrónica</option>
-                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                    <option value="Ingeniería en Sistemas Computacionales">Ingeniería en Sistemas</option>
-                    <option value="Ingeniería Ambiental">Ingeniería Ambiental</option>
-                    <option value="Ingeniería en Geociencias">Ingeniería en Geociencias</option>
-                    <option value="Ingeniería Biomédica">Ingeniería Biomédica</option>
-                    <option value="Ingeniería en Horticultura">Ingeniería en Horticultura</option>
-                </optgroup>
-                <optgroup label="Licenciaturas">
-                    <option value="Lic. en Administración">Lic. en Administración</option>
-                    <option value="Lic. en Contaduría">Lic. en Contaduría</option>
-                    <option value="Lic. en Derecho">Lic. en Derecho</option>
-                    <option value="Lic. en Psicología">Lic. en Psicología</option>
-                    <option value="Lic. en Enfermería">Lic. en Enfermería</option>
-                    <option value="Lic. en Nutrición Humana">Lic. en Nutrición</option>
-                    <option value="Lic. en Fisioterapia">Lic. en Fisioterapia</option>
-                    <option value="Lic. en Entrenamiento Deportivo">Entrenamiento Deportivo</option>
-                    <option value="Lic. en Enseñanza del Inglés">Enseñanza del Inglés</option>
-                    <option value="Lic. en Criminología">Lic. en Criminología</option>
-                </optgroup>
-            </select>
+       <div id="paso2" style="display:none;">
+    <label class="text-resaltado d-block">Selecciona tu Carrera</label>
+    <select id="carreraInput" class="form-select mb-3">
+        <option value="" selected disabled>-- Todas las Carreras UES --</option>
+        <optgroup label="Ingenierías">
+            <option value="Ingeniería en Software">Ingeniería en Software</option>
+            <option value="Ingeniería Mecatrónica">Ingeniería Mecatrónica</option>
+            <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+            <option value="Ingeniería en Sistemas Computacionales">Ingeniería en Sistemas</option>
+            <option value="Ingeniería Ambiental">Ingeniería Ambiental</option>
+            <option value="Ingeniería en Geociencias">Ingeniería en Geociencias</option>
+            <option value="Ingeniería Biomédica">Ingeniería Biomédica</option>
+            <option value="Ingeniería en Horticultura">Ingeniería en Horticultura</option>
+        </optgroup>
+        <optgroup label="Licenciaturas">
+            <option value="Lic. en Administración">Lic. en Administración</option>
+            <option value="Lic. en Contaduría">Lic. en Contaduría</option>
+            <option value="Lic. en Derecho">Lic. en Derecho</option>
+            <option value="Lic. en Psicología">Lic. en Psicología</option>
+            <option value="Lic. en Enfermería">Lic. en Enfermería</option>
+            <option value="Lic. en Nutrición Humana">Lic. en Nutrición</option>
+            <option value="Lic. en Fisioterapia">Lic. en Fisioterapia</option>
+            <option value="Lic. en Entrenamiento Deportivo">Entrenamiento Deportivo</option>
+            <option value="Lic. en Enseñanza del Inglés">Enseñanza del Inglés</option>
+            <option value="Lic. en Criminología">Lic. en Criminología</option>
+        </optgroup>
+    </select>
 
-            <label class="text-resaltado d-block">Contraseña</label>
-            <div class="input-group mb-4">
-                <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-lock"></i></span>
-                <input type="password" id="passInput" class="form-control" placeholder="Escribe aquí...">
-            </div>
-
-            <button onclick="entrar()" class="btn btn-success w-100 py-3 fw-bold rounded-3">ENTRAR AL PORTAL</button>
-
-            <div id="alertaTemporal" class="alerta-box" style="display:none;">
-                <i class="fas fa-key me-2"></i> <b>Nota:</b> Usas la clave <b>UES2026</b>. Cámbiala al entrar.
-            </div>
-        </div>
+    <label class="text-resaltado d-block">Contraseña</label>
+    <div class="input-group mb-4">
+        <span class="input-group-text bg-dark border-0 text-white"><i class="fas fa-lock"></i></span>
+        <input type="password" id="passInput" class="form-control" placeholder="Escribe aquí...">
     </div>
+
+    <button onclick="entrar()" class="btn btn-success w-100 py-3 fw-bold rounded-3">ENTRAR AL PORTAL</button>
+
+    <div id="alertaTemporal" class="alerta-box">
+        <i class="fas fa-key me-2"></i> <b>Nota:</b> La clave inicial es <b>UES2026</b>. Cámbiala obligatoriamente al entrar.
+    </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>

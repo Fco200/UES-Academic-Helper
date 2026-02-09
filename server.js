@@ -72,21 +72,19 @@ app.post('/verificar-codigo', async (req, res) => {
         const idLower = email.toLowerCase().trim();
         let usuario = await Usuario.findOne({ identificador: idLower });
 
-        // --- MEJORA: REGISTRO AUTOMÁTICO SI ES NUEVO ---
-        if (!usuario) {
-            console.log("Creando nuevo usuario para:", idLower);
-            usuario = await Usuario.create({ 
-                identificador: idLower, 
-                password: "UES2026", // Clave inicial
-                carrera: carrera || "Ingeniería en Software",
-                universidad: universidad || "UES",
-                nombreReal: "Estudiante UES"
-            });
-            // Enviar correo de bienvenida opcional
-            enviarCorreoBienvenida(idLower, "Estudiante");
-        }
+      if (!usuario) {
+    usuario = await Usuario.create({ 
+        identificador: idLower, 
+        password: "UES2026", 
+        carrera, 
+        universidad, 
+        nombreReal: "Estudiante UES" 
+    });
+    
+    // LLAMADA NECESARIA PARA QUE FUNCIONE EL CORREO
+    await enviarCorreoBienvenida(idLower, "Estudiante"); 
+}
 
-        // --- VALIDACIÓN DE CREDENCIALES ---
         if (usuario.password === codigo) {
             res.json({ 
                 success: true, 
@@ -94,26 +92,26 @@ app.post('/verificar-codigo', async (req, res) => {
                 nombreUsuario: usuario.nombreReal
             });
         } else {
-            res.status(401).json({ success: false, message: "Contraseña incorrecta" });
+            res.status(401).json({ success: false });
         }
-    } catch (e) { 
-        console.error("Error en login:", e);
-        res.status(500).json({ success: false, message: "Error de servidor" }); 
-    }
+    } catch (e) { res.status(500).json({ success: false }); }
 });
+
 app.get('/obtener-usuario/:email', async (req, res) => {
     try {
-        let usuario = await Usuario.findOne({ identificador: req.params.email.toLowerCase() });
+        // Buscamos al usuario de forma exacta por su correo
+        const usuario = await Usuario.findOne({ identificador: req.params.email.toLowerCase().trim() });
+        
         if (usuario) {
-            // Si el nombre es el de fábrica, lo personalizamos
-            if (usuario.nombreReal === "Estudiante UES") {
-                usuario.nombreReal = "Francisco (Admin)"; 
-            }
+            // Enviamos los datos reales guardados en la base de datos
             res.json(usuario);
         } else {
-            res.status(404).send("No encontrado");
+            res.status(404).json({ message: "Usuario no encontrado" });
         }
-    } catch (e) { res.status(500).send(e); }
+    } catch (e) { 
+        console.error("Error al obtener usuario:", e);
+        res.status(500).send("Error de servidor"); 
+    }
 });
 
 app.post('/cambiar-password', async (req, res) => {
@@ -163,12 +161,18 @@ app.post('/recuperar-password', async (req, res) => {
 // --- RUTAS DE PERFIL Y SOPORTE ---
 
 app.post('/actualizar-perfil-completo', async (req, res) => {
-    const { email, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
+    const { email, nuevoEmail, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
     try {
         await Usuario.findOneAndUpdate(
             { identificador: email.toLowerCase() },
-            { nombreReal, foto, telefono, biografia, cumpleanos },
-            { new: true }
+            { 
+                identificador: nuevoEmail, // Actualizamos el identificador
+                nombreReal, 
+                foto, 
+                telefono, 
+                biografia, 
+                cumpleanos 
+            }
         );
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
@@ -259,16 +263,19 @@ app.post('/ia-asistente', async (req, res) => {
     } catch (e) { res.status(500).json({ respuesta: "IA no disponible." }); }
 });
 
-// --- FUNCIONES AUXILIARES ---
 async function enviarCorreoBienvenida(email, nombre) {
     try {
         await transporter.sendMail({
-            from: '"UES Helper" <' + process.env.EMAIL_USER + '>',
+            // Corrección de las comillas y el formato del remitente
+            from: `"UES Helper" <${process.env.EMAIL_USER}>`, 
             to: email,
             subject: "¡Bienvenido al Portal Académico!",
             text: `Hola ${nombre}, tu cuenta ha sido activada con éxito.`
         });
-    } catch (e) { console.error("Error envío bienvenida:", e); }
+        console.log("✅ Correo de bienvenida enviado a:", email);
+    } catch (e) { 
+        console.error("❌ Error envío bienvenida:", e); 
+    }
 }
 
 // 4. INICIO DEL SERVIDOR

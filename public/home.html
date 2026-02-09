@@ -71,17 +71,17 @@
             <div class="modal-content bg-dark border-secondary text-white rounded-5">
                 <div class="modal-body p-4">
                     <h5 class="fw-bold text-danger mb-4">Actualizar mi Perfil</h5>
-                    <div class="mb-3">
-                        <label class="small text-muted">NOMBRE REAL</label>
-                        <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary">
+                   <div class="mb-3">
+                        <label class="small text-muted fw-bold">NOMBRE COMPLETO</label>
+                         <input type="text" id="editNombre" class="form-control" placeholder="Ej: Francisco Aguayo">
                     </div>
                     <div class="mb-3">
-                        <label class="small text-muted">TELÉFONO</label>
-                        <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary">
+                        <label class="small text-muted fw-bold">CORREO DE CONTACTO / INSTITUCIONAL</label>
+                        <input type="email" id="editEmail" class="form-control" placeholder="ejemplo@ues.mx">
                     </div>
                     <div class="mb-3">
-                        <label class="small text-muted">FECHA DE NACIMIENTO</label>
-                        <input type="date" id="editCumple" class="form-control bg-black text-white border-secondary">
+                         <label class="small text-muted fw-bold">NÚMERO TELEFÓNICO (10 DÍGITOS)</label>
+                        <input type="text" id="editTelefono" class="form-control" placeholder="662XXXXXXX">
                     </div>
                     <div class="mb-3">
                         <label class="small text-muted">BIOGRAFÍA</label>
@@ -236,23 +236,31 @@
             }
         }
 
-        async function guardarTodo() {
-            const datos = {
-                email: userEmail,
-                nombreReal: document.getElementById('editNombre').value,
-                telefono: document.getElementById('editTelefono').value,
-                cumpleanos: document.getElementById('editCumple').value,
-                biografia: document.getElementById('editBio').value,
-                foto: fotoBase64
-            };
-            const res = await fetch('/actualizar-perfil-completo', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(datos)
-            });
-            if(res.ok) { alert("Perfil actualizado"); location.reload(); }
-        }
+       async function guardarTodo() {
+    const nuevoEmail = document.getElementById('editEmail').value;
+    const datos = {
+        email: userEmail, // Email actual (ID en la DB)
+        nuevoEmail: nuevoEmail.toLowerCase().trim(),
+        nombreReal: document.getElementById('editNombre').value,
+        telefono: document.getElementById('editTelefono').value,
+        cumpleanos: document.getElementById('editCumple').value,
+        biografia: document.getElementById('editBio').value,
+        foto: fotoBase64
+    };
 
+    const res = await fetch('/actualizar-perfil-completo', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(datos)
+    });
+
+    if(res.ok) {
+        // Si el usuario cambió su correo, actualizamos el localStorage
+        localStorage.setItem('userEmail', datos.nuevoEmail);
+        alert("✅ Perfil y Correo actualizados correctamente");
+        location.reload();
+    }
+}
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>

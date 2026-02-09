@@ -2,97 +2,169 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Home | UES Academic Helper</title>
+    <title>Mi Perfil UES | Home</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <style>
         :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
-        body { background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; }
+        body { background: #000; color: #eee; font-family: 'Inter', sans-serif; }
+        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px; }
         .main-content { margin-left: 280px; padding: 40px; }
         
-        .profile-header { 
-            background: linear-gradient(135deg, rgba(128,0,0,0.1), #000);
-            border-radius: 25px; border: 1px solid rgba(128,0,0,0.3); padding: 30px; margin-bottom: 30px;
+        /* Foto Circular con Botón de Carga */
+        .profile-wrapper { position: relative; width: 150px; height: 150px; margin-right: 30px; }
+        .user-photo { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--ues-guinda); object-fit: cover; }
+        .upload-btn { 
+            position: absolute; bottom: 5px; right: 5px; background: var(--ues-guinda); 
+            color: white; border-radius: 50%; width: 35px; height: 35px; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #000;
         }
-        .user-photo { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--ues-guinda); object-fit: cover; }
-        
-        /* Sección de Noticias */
-        .news-card { 
-            background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            transition: 0.3s; margin-bottom: 20px; overflow: hidden;
-        }
-        .news-card:hover { border-color: var(--ues-guinda); transform: translateY(-5px); }
-        .news-img { height: 150px; background: var(--ues-guinda); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-        
-        .nav-btn { width: 100%; padding: 14px; border-radius: 12px; display: flex; align-items: center; color: #888; text-decoration: none; margin-bottom: 8px; transition: 0.3s; }
-        .nav-btn.active { background: var(--ues-guinda); color: white; }
-        
-        .stat-box { background: rgba(128,0,0,0.1); border-radius: 15px; padding: 20px; text-align: center; border: 1px solid rgba(128,0,0,0.2); }
+
+        .data-card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 25px; border-left: 5px solid var(--ues-guinda); }
+        .nav-link-custom { color: #888; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; transition: 0.3s; }
+        .nav-link-custom.active { background: var(--ues-guinda); color: white; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="text-center mb-5">
-            <img src="logo.png" style="width: 50px;">
-            <h4 class="fw-bold mt-2 text-white">UES <span class="text-danger">HELPER</span></h4>
-        </div>
+        <h4 class="fw-bold mb-5">UES <span class="text-danger">HELPER</span></h4>
         <nav>
-            <a href="/home.html" class="nav-btn active"><i class="fas fa-th-large me-3"></i> Home / Noticias</a>
-            <a href="/calendario.html" class="nav-btn"><i class="fas fa-calendar-alt me-3"></i> Mi Calendario</a>
-            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Gestión Tareas</a>
-            <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill mt-5">SALIR</button>
+            <a href="/home.html" class="nav-link-custom active"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
+            <a href="/calendario.html" class="nav-link-custom"><i class="fas fa-calendar-alt me-2"></i> Calendario</a>
+            <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tasks me-2"></i> Tareas</a>
         </nav>
+        <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill mt-5">Salir</button>
     </div>
 
     <div class="main-content">
-        <div class="profile-header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-                <img id="fotoPerfil" src="" class="user-photo me-4">
-                <div>
-                    <h2 id="nombreUsuario" class="fw-bold m-0">...</h2>
-                    <p id="carreraUsuario" class="text-warning small mb-0"></p>
-                    <button class="btn btn-link text-danger p-0 small" onclick="abrirEditor()">Editar Datos</button>
-                </div>
+        <div class="d-flex align-items-center mb-5 profile-header p-4 bg-dark rounded-5">
+            <div class="profile-wrapper">
+                <img id="displayFoto" src="default.png" class="user-photo">
+                <label for="inputFoto" class="upload-btn"><i class="fas fa-camera"></i></label>
+                <input type="file" id="inputFoto" hidden accept="image/*" onchange="procesarImagen(this)">
             </div>
-            <div class="text-end">
-                <h5 class="m-0 text-muted small">ESTADO ACADÉMICO</h5>
-                <span class="badge bg-success">Activo 2026</span>
+            <div>
+                <h1 id="displayNombre" class="fw-bold m-0">Nombre de Usuario</h1>
+                <p id="displayCarrera" class="text-warning fw-bold mb-1"></p>
+                <p id="displayCorreo" class="text-muted small"></p>
+                <button class="btn btn-danger btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar Información</button>
             </div>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-4"><div class="stat-box"><h3 class="fw-bold text-danger">85%</h3><small>Progreso Total</small></div></div>
-            <div class="col-md-4"><div class="stat-box"><h3 class="fw-bold text-warning">12</h3><small>Tareas Pendientes</small></div></div>
-            <div class="col-md-4"><div class="stat-box"><h3 class="fw-bold text-success">5</h3><small>Materias Activas</small></div></div>
-        </div>
-
-        <h4 class="fw-bold mb-4"><i class="fas fa-newspaper me-2 text-danger"></i> Noticias de la Unidad</h4>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="news-card">
-                    <div class="news-img"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="p-3">
-                        <span class="badge bg-danger mb-2">EVENTO</span>
-                        <h5>Ceremonia de Graduación 2026</h5>
-                        <p class="small text-muted">Se invita a todos los alumnos de último semestre a registrar su asistencia...</p>
-                    </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="data-card">
+                    <small class="text-muted fw-bold">TELÉFONO</small>
+                    <p id="displayTelefono" class="m-0 fs-5">No registrado</p>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="news-card">
-                    <div class="news-img" style="background: #b8860b;"><i class="fas fa-microchip"></i></div>
-                    <div class="p-3">
-                        <span class="badge bg-warning text-dark mb-2">INGENIERÍA</span>
-                        <h5>Nuevo Laboratorio de Software</h5>
-                        <p class="small text-muted">A partir del lunes se inaugura el área de IA y Ciberseguridad en el edificio C...</p>
-                    </div>
+            <div class="col-md-4">
+                <div class="data-card">
+                    <small class="text-muted fw-bold">CUMPLEAÑOS</small>
+                    <p id="displayCumple" class="m-0 fs-5">-- / -- / --</p>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="data-card">
+                    <small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small>
+                    <p id="displayBio" class="m-0 opacity-75">Cuéntanos algo sobre ti...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    </body>
+    <div class="modal fade" id="modalEditar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary text-white rounded-5">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold text-danger mb-4">Actualizar mi Perfil</h5>
+                    <div class="mb-3">
+                        <label class="small text-muted">NOMBRE REAL</label>
+                        <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted">TELÉFONO</label>
+                        <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted">FECHA DE NACIMIENTO</label>
+                        <input type="date" id="editCumple" class="form-control bg-black text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted">BIOGRAFÍA</label>
+                        <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3"></textarea>
+                    </div>
+                    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const userEmail = localStorage.getItem('userEmail');
+        let fotoBase64 = "";
+
+        // 1. Cargar datos al iniciar
+        window.onload = async () => {
+            if(!userEmail) return window.location.href = '/index.html';
+            const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+            const u = await res.json();
+            
+            document.getElementById('displayNombre').innerText = u.nombreReal || "Ingeniero";
+            document.getElementById('displayCarrera').innerText = u.carrera;
+            document.getElementById('displayCorreo').innerText = u.identificador;
+            document.getElementById('displayFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+            document.getElementById('displayTelefono').innerText = u.telefono || "Sin registrar";
+            document.getElementById('displayCumple').innerText = u.cumpleanos || "No definida";
+            document.getElementById('displayBio').innerText = u.biografia || "Sin biografía";
+            
+            // Llenar inputs del modal
+            document.getElementById('editNombre').value = u.nombreReal || "";
+            document.getElementById('editTelefono').value = u.telefono || "";
+            document.getElementById('editCumple').value = u.cumpleanos || "";
+            document.getElementById('editBio').value = u.biografia || "";
+            fotoBase64 = u.foto || "";
+        };
+
+        // 2. Convertir imagen a Base64 para guardarla en la BD
+        function procesarImagen(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('displayFoto').src = e.target.result;
+                    fotoBase64 = e.target.result; // Guardamos el texto de la imagen
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 3. Guardar todo en MongoDB
+        async function guardarTodo() {
+            const datos = {
+                email: userEmail,
+                nombreReal: document.getElementById('editNombre').value,
+                telefono: document.getElementById('editTelefono').value,
+                cumpleanos: document.getElementById('editCumple').value,
+                biografia: document.getElementById('editBio').value,
+                foto: fotoBase64
+            };
+
+            const res = await fetch('/actualizar-perfil-completo', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(datos)
+            });
+
+            if(res.ok) {
+                alert("✅ Perfil UES actualizado correctamente");
+                location.reload();
+            }
+        }
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
+    </script>
+</body>
 </html>

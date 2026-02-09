@@ -7,6 +7,8 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 const twilio = require("twilio")(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
+// --- CONFIGURACIÓN DE LÍMITE (Pon esto arriba en server.js) ---
+app.use(express.json({ limit: '10mb' })); // Permite subir fotos pesadas
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,21 +35,24 @@ const UsuarioSchema = new mongoose.Schema({
 });
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
 
-// --- RUTA PARA ACTUALIZAR PERFIL ---
-app.post('/actualizar-perfil', async (req, res) => {
-    const { email, nombreReal, foto } = req.body;
+app.post('/actualizar-perfil-completo', async (req, res) => {
+    const { email, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
     try {
         await Usuario.findOneAndUpdate(
             { identificador: email.toLowerCase() },
-            { nombreReal, foto },
-            { new: true }
+            { 
+                nombreReal, 
+                foto, 
+                telefono, 
+                biografia, 
+                cumpleanos 
+            }
         );
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
+        res.status(500).json({ success: false });
     }
 });
-
 
 const Materia = mongoose.model('Materia', new mongoose.Schema({
     user: String,

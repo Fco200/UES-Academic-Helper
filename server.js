@@ -95,8 +95,16 @@ app.post('/verificar-codigo', async (req, res) => {
 
 app.get('/obtener-usuario/:email', async (req, res) => {
     try {
-        const usuario = await Usuario.findOne({ identificador: req.params.email.toLowerCase() });
-        usuario ? res.json(usuario) : res.status(404).send("No encontrado");
+        let usuario = await Usuario.findOne({ identificador: req.params.email.toLowerCase() });
+        if (usuario) {
+            // Si el nombre es el de fábrica, lo personalizamos
+            if (usuario.nombreReal === "Estudiante UES") {
+                usuario.nombreReal = "Francisco (Admin)"; 
+            }
+            res.json(usuario);
+        } else {
+            res.status(404).send("No encontrado");
+        }
     } catch (e) { res.status(500).send(e); }
 });
 

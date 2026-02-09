@@ -201,8 +201,8 @@
             document.getElementById('dot2').classList.remove('active');
             document.getElementById('dot1').classList.add('active');
         }
-        async function entrar() {
-    const btn = document.querySelector('#paso2 .btn-main'); // Seleccionamos el botón
+       async function entrar() {
+    const btn = document.querySelector('#paso2 .btn-main');
     const email = document.getElementById('emailInput').value;
     const codigo = document.getElementById('passInput').value;
     const carrera = document.getElementById('carreraInput').value;
@@ -210,46 +210,41 @@
 
     if(!email || !codigo) return alert("⚠️ Ingresa tus credenciales");
 
-    // --- EFECTO DE CARGA INICIO ---
-    const textoOriginal = btn.innerHTML; // Guardamos el texto "Ingresar al Portal"
-    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Conectando...`;
-    btn.disabled = true; // Evitamos múltiples clics
-    btn.style.opacity = "0.7";
-    // ------------------------------
+    // Efecto de carga
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Validando...`;
+    btn.disabled = true;
 
     try {
         const res = await fetch('/verificar-codigo', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                email: email.trim(), 
-                codigo: codigo.trim(), 
-                carrera, 
-                universidad 
-            })
+            body: JSON.stringify({ email: email.trim(), codigo: codigo.trim(), carrera, universidad })
         });
         
         const data = await res.json();
         
         if(res.ok) {
+            // MOSTRAR MENSAJE DE BIENVENIDA
+            btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, Francisco!`;
+            btn.style.background = "#28a745"; // Cambia a verde éxito
+
+            // Guardamos datos y esperamos 1.5 segundos para que vea el mensaje
             localStorage.setItem('userEmail', email.toLowerCase().trim());
-            window.location.href = data.redirect;
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1500);
         } else {
-            alert("❌ Error: Identificador o contraseña incorrectos.");
-            // Restauramos el botón si falla
+            alert("❌ Acceso Denegado: Revisa tu correo o contraseña.");
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
-            btn.style.opacity = "1";
         }
     } catch (e) {
-        alert("❌ Error de conexión con el servidor.");
-        // Restauramos el botón si hay error de red
+        alert("❌ Error de servidor: Verifica tu conexión en Render.");
         btn.innerHTML = textoOriginal;
         btn.disabled = false;
-        btn.style.opacity = "1";
     }
 }
-
         // Enter para entrar
         document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') entrar(); });
     </script>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | UES Helper</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <style>
+        :root { --ues-guinda: #800000; --ues-dark: #0a0a0a; --sidebar-w: 280px; }
+        body { background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+        
+        .sidebar { width: var(--sidebar-w); background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
+        .main-content { margin-left: var(--sidebar-w); padding: 50px; }
+        
+        .nav-btn { width: 100%; padding: 15px; border-radius: 15px; display: flex; align-items: center; color: #888; text-decoration: none; transition: 0.4s; margin-bottom: 10px; border: 1px solid transparent; background: transparent; }
+        .nav-btn:hover { background: rgba(128,0,0,0.1); color: white; transform: translateX(8px); border-color: var(--ues-guinda); }
+        .nav-btn.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 15px rgba(128,0,0,0.3); }
+
+        .profile-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 40px; text-align: center; max-width: 600px; margin: auto; backdrop-filter: blur(10px); }
+        .avatar-l { width: 120px; height: 120px; background: var(--ues-guinda); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 3rem; color: white; border: 4px solid #1a1a1a; box-shadow: 0 0 20px rgba(128,0,0,0.5); }
+        
+        .data-box { background: rgba(0,0,0,0.4); border-radius: 15px; padding: 20px; margin-top: 20px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
+        .label-custom { color: var(--ues-guinda); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="text-center mb-5">
+            <img src="logo.png" style="width: 60px;">
+            <h4 class="fw-bold mt-2 text-white">UES <span class="text-danger">HELPER</span></h4>
+        </div>
+        <nav>
+            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Gestión CRUD</a>
+            <a href="/perfil.html" class="nav-btn active"><i class="fas fa-user-circle me-3"></i> Mi Perfil</a>
+            <button onclick="cambiarPassword()" class="nav-btn bg-transparent border-0"><i class="fas fa-user-shield me-3 text-warning"></i> Seguridad</button>
+        </nav>
+        <button onclick="cerrarSesion()" class="btn btn-danger w-100 rounded-pill py-3 mt-5 shadow">SALIR</button>
+    </div>
+
+    <div class="main-content">
+        <h1 class="fw-bold mb-5">Perfil de Usuario</h1>
+        
+        <div class="profile-card">
+            <div class="avatar-l"><i class="fas fa-user-graduate"></i></div>
+            <h2 id="dispNombre" class="fw-bold mb-1">Cargando...</h2>
+            <p id="dispCorreo" class="text-muted"></p>
+            
+            <div class="data-box">
+                <span class="label-custom">Carrera Universitaria</span>
+                <h5 id="dispCarrera" class="fw-bold text-white m-0">No especificada</h5>
+            </div>
+
+            <div class="data-box">
+                <span class="label-custom">Institución</span>
+                <h5 class="fw-bold text-white m-0">Universidad Estatal de Sonora</h5>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-outline-danger rounded-pill px-4" onclick="alert('Función de editar perfil próximamente...')">Editar Datos</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userEmail = localStorage.getItem('userEmail');
+
+        async function cargarPerfil() {
+            if (!userEmail) return window.location.href = '/index.html';
+            
+            try {
+                // Llamamos a una ruta que devuelva los datos del usuario (debes tenerla en tu server.js)
+                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+                const usuario = await res.json();
+
+                document.getElementById('dispNombre').innerText = usuario.email.split('@')[0].toUpperCase();
+                document.getElementById('dispCorreo').innerText = usuario.email;
+                document.getElementById('dispCarrera').innerText = usuario.carrera || "Estudiante UES";
+            } catch (e) {
+                console.error("Error cargando perfil", e);
+            }
+        }
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
+        window.onload = cargarPerfil;
+    </script>
+</body>
+</html>

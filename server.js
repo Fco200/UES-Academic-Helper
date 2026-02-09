@@ -89,35 +89,33 @@ const UsuarioSchema = new mongoose.Schema({
 });
 
 
-// --- RUTA DE LOGIN ACTUALIZADA ---
+// Ejemplo de la lógica necesaria en tu server.js
 app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo, carrera } = req.body;
-    const PASS_INICIAL = "UES2026";
+    
+    // 1. Buscamos al usuario
+    let usuario = await db.collection('usuarios').findOne({ email: email.toLowerCase() });
 
-    try {
-        let user = await Usuario.findOne({ identificador: email });
+    if (usuario && usuario.codigo === codigo) {
+        // 2. ACTUALIZAMOS la carrera en la base de datos si se seleccionó una
+        await db.collection('usuarios').updateOne(
+            { email: email.toLowerCase() },
+            { $set: { carrera: carrera } }
+        );
         
-        if (!user) {
-            user = new Usuario({ identificador: email, carrera: carrera, password: PASS_INICIAL });
-            await user.save();
-        }
+        res.json({ success: true, redirect: '/dashboard.html', carrera: carrera });
+    } else {
+        res.status(401).json({ success: false });
+    }
+});
 
-        if (user.password === codigo) {
-            // LÓGICA DE SEGURIDAD BANCARIA:
-            // Si la contraseña sigue siendo la inicial, lo mandamos a seguridad, si no, al home.
-            
-const destino = (codigo === "UES2026") ? '/dashboard.html?fuerzaCambio=true' : '/home.html';
-            
-            res.status(200).send({ 
-                redirect: destino, 
-                carrera: user.carrera,
-                fuerzaCambio: (codigo === PASS_INICIAL)
-            });
-        } else {
-            res.status(401).send({ message: 'Contraseña incorrecta' });
-        }
-    } catch (error) {
-        res.status(500).send({ message: 'Error en el servidor' });
+// NUEVA RUTA: Para obtener los datos del usuario en la página de perfil
+app.get('/obtener-usuario/:email', async (req, res) => {
+    const usuario = await db.collection('usuarios').findOne({ email: req.params.email.toLowerCase() });
+    if (usuario) {
+        res.json(usuario);
+    } else {
+        res.status(404).send("No encontrado");
     }
 });
 

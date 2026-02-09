@@ -123,13 +123,21 @@
             <input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
         </div>
 
-        <div class="mb-4">
-            <label class="form-label">Contraseña de Acceso</label>
-            <input type="password" id="passInput" class="form-control" placeholder="••••••••">
-            <div class="text-end mt-2">
-                <button onclick="recuperarPassword()" class="btn btn-link text-warning p-0 small" style="text-decoration: none; font-size: 0.7rem;">¿Olvidaste tu contraseña?</button>
-            </div>
-        </div>
+    <div class="mb-4">
+    <label class="form-label">Contraseña de Acceso</label>
+    <div class="input-group">
+        <span class="input-group-text bg-transparent border-end-0 text-muted" style="border-radius: 12px 0 0 12px; border-color: rgba(255,255,255,0.1);">
+            <i class="fas fa-lock"></i>
+        </span>
+        <input type="password" id="passInput" class="form-control border-start-0" placeholder="••••••••" style="border-radius: 0 12px 12px 0; margin-bottom: 0;">
+    </div>
+    
+    <div class="text-end mt-2">
+        <a href="recuperar.html" class="text-warning small fw-bold" style="text-decoration: none; font-size: 0.75rem;">
+            ¿Olvidaste tu contraseña?
+        </a>
+    </div>
+</div>
 
         <button onclick="entrar()" class="btn-main" style="background: #28a745;">
             Ingresar al Portal <i class="fas fa-sign-in-alt ms-1"></i>

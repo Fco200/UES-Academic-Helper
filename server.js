@@ -159,18 +159,28 @@ app.post('/actualizar-perfil-completo', async (req, res) => {
 });
 
 app.post('/enviar-sugerencia', async (req, res) => {
-    const { nombre, email, mensaje } = req.body;
+    const { nombre, email, mensaje, tipo } = req.body; // Añadimos 'tipo'
     try {
         await transporter.sendMail({
-            from: `"Buzón UES" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_USER,
-            subject: `Feedback de: ${nombre}`,
-            text: `Usuario: ${email}\n\nMensaje:\n${mensaje}`
+            from: `"Soporte UES Helper" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER, 
+            subject: `[${tipo}] - Mensaje de ${nombre}`,
+            html: `
+                <div style="font-family: sans-serif; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                    <h3 style="color: #800000;">Nueva Solicitud de Soporte</h3>
+                    <p><strong>Usuario:</strong> ${nombre} (${email})</p>
+                    <p><strong>Categoría:</strong> ${tipo}</p>
+                    <hr>
+                    <p><strong>Mensaje:</strong></p>
+                    <p style="background: #f9f9f9; padding: 15px; border-radius: 5px;">${mensaje}</p>
+                </div>`
         });
         res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) {
+        console.error("Error en soporte:", e);
+        res.status(500).json({ success: false });
+    }
 });
-
 // --- RUTAS DE NOTICIAS ---
 
 app.get('/obtener-noticias', async (req, res) => {

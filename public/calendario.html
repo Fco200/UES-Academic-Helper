@@ -2,78 +2,52 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Calendario Interactivo - UES</title>
+    <title>Mi Calendario | UES Helper</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <style>
         :root { --ues-guinda: #800000; }
-        body { background-color: #f4f4f4; }
-        #calendar { max-width: 900px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .fc-toolbar-title { color: var(--ues-guinda); font-weight: bold; }
-        .fc-button-primary { background-color: var(--ues-guinda) !important; border: none !important; }
+        body { background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; }
+        .main-content { margin-left: 280px; padding: 40px; }
+        .calendar-container { background: white; color: black; padding: 20px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .nav-btn { width: 100%; padding: 14px; border-radius: 12px; display: flex; align-items: center; color: #888; text-decoration: none; margin-bottom: 8px; transition: 0.3s; }
+        .nav-btn.active { background: var(--ues-guinda); color: white; }
     </style>
 </head>
 <body>
+    <div class="sidebar">
+        <div class="text-center mb-5"><img src="logo.png" style="width: 50px;"><h4 class="fw-bold mt-2 text-white">UES HELPER</h4></div>
+        <nav>
+            <a href="/home.html" class="nav-btn"><i class="fas fa-th-large me-3"></i> Home / Noticias</a>
+            <a href="/calendario.html" class="nav-btn active"><i class="fas fa-calendar-alt me-3"></i> Mi Calendario</a>
+            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Gestión Tareas</a>
+        </nav>
+    </div>
 
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/home.html">⬅️ Volver al Inicio</a>
-            <span class="navbar-text">Mi Agenda Académica</span>
+    <div class="main-content">
+        <h2 class="fw-bold mb-4"><i class="fas fa-calendar-check text-danger me-2"></i> Agenda Académica</h2>
+        <div class="calendar-container">
+            <div id="calendar"></div>
         </div>
-    </nav>
-    <nav class="navbar navbar-dark bg-dark shadow">
-    <div class="container">
-        <a class="navbar-brand" href="/home.html">
-            <i class="fas fa-arrow-left"></i> Volver al Menú Principal
-        </a>
-        <span class="badge bg-warning text-dark">Calendario Interactivo</span>
-    </div>
-</nav>
-
-    <div class="container">
-        <div id='calendar'></div>
     </div>
 
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js'></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            const userEmail = localStorage.getItem('userEmail');
-            const calendarEl = document.getElementById('calendar');
-
-            // 1. Obtener las tareas del servidor
-            const response = await fetch(`/obtener-materias/${userEmail}`);
-            const materias = await response.json();
-
-            // 2. Transformar los datos de MongoDB al formato de FullCalendar
-            const eventos = [];
-            materias.forEach(materia => {
-                materia.tareas.forEach(tarea => {
-                    eventos.push({
-                        title: `${materia.nombre}: ${tarea.descripcion}`,
-                        start: tarea.fecha, // Formato YYYY-MM-DD
-                        color: materia.nombre.toLowerCase().includes('personal') ? '#2c3e50' : '#800000'
-                    });
+        const userEmail = localStorage.getItem('userEmail');
+        document.addEventListener('DOMContentLoaded', async () => {
+            const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+            const materias = await res.json();
+            const events = [];
+            materias.forEach(m => {
+                m.tareas.forEach(t => {
+                    events.push({ title: `${m.nombre}: ${t.descripcion}`, start: t.fecha, color: t.completada ? '#28a745' : '#800000' });
                 });
             });
-
-            // 3. Inicializar el calendario
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'es',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek'
-                },
-                events: eventos, // Aquí se cargan tus tareas
-                eventClick: function(info) {
-                    alert('Tarea: ' + info.event.title);
-                }
-            });
-
-            calendar.render();
+            const calendarEl = document.getElementById('calendar');
+            new FullCalendar.Calendar(calendarEl, { initialView: 'dayGridMonth', locale: 'es', events: events }).render();
         });
     </script>
 </body>

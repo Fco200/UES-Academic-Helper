@@ -22,12 +22,32 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
 
 // --- MODELOS DE DATOS ---
+// Busca el UsuarioSchema en tu server.js y déjalo así:
+// --- MODELO DE USUARIO ACTUALIZADO ---
 const UsuarioSchema = new mongoose.Schema({
     identificador: { type: String, unique: true },
     password: { type: String, default: "UES2026" },
-    carrera: { type: String, default: "Ingeniería en Software" }
+    carrera: { type: String, default: "Ingeniería en Software" },
+    foto: { type: String, default: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+    nombreReal: { type: String, default: "Estudiante UES" }
 });
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
+
+// --- RUTA PARA ACTUALIZAR PERFIL ---
+app.post('/actualizar-perfil', async (req, res) => {
+    const { email, nombreReal, foto } = req.body;
+    try {
+        await Usuario.findOneAndUpdate(
+            { identificador: email.toLowerCase() },
+            { nombreReal, foto },
+            { new: true }
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 
 const Materia = mongoose.model('Materia', new mongoose.Schema({
     user: String,

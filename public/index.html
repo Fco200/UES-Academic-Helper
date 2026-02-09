@@ -94,23 +94,15 @@
             <div id="dot2" class="step"></div>
         </div>
 
-        <div id="paso1">
-            <div class="input-group-custom">
-                <label class="form-label">Institución</label>
-                <select id="uniInput" class="form-select" onchange="actualizarCarreras()">
-                    <option value="UES">Universidad Estatal de Sonora</option>
-                    <option value="UNISON">Universidad de Sonora</option>
-                    <option value="ITH">Tecnológico de Hermosillo</option>
-                </select>
-            </div>
-            <div class="input-group-custom">
-                <label class="form-label">Programa Académico</label>
-                <select id="carreraInput" class="form-select"></select>
-            </div>
-            <button onclick="validarYPasar()" class="btn-main">
-                Siguiente Paso <i class="fas fa-arrow-right ms-2"></i>
-            </button>
-        </div>
+       <div id="paso1">
+    <select id="uniInput" class="form-select" onchange="actualizarCarreras()">...</select>
+    
+    <label>CARRERA</label>
+    <select id="carreraInput" class="form-select">
+        </select>
+    <button onclick="validarYPasar()" class="btn-main">Siguiente</button>
+</div>
+            
 
         <div id="paso2" style="display:none;">
             <div class="text-center mb-4">
@@ -147,60 +139,90 @@
         </div>
     </div>
 
-    <script>
-        const oferta = {
-            "UES": ["Ingeniería en Software", "Ingeniería Mecatrónica"],
-            "UNISON": ["Lic. en Medicina", "Lic. en Derecho"],
-            "ITH": ["Ingeniería Industrial", "Sistemas"]
-        };
+   <script>
+    // Configuración de partículas (se mantiene igual)
+    particlesJS("particles-js", {"particles":{"number":{"value":60},"color":{"value":"#800000"},"shape":{"type":"circle"},"opacity":{"value":0.5},"size":{"value":3},"line_linked":{"enable":true,"distance":150,"color":"#800000"},"move":{"enable":true,"speed":2}}});
 
-        function actualizarCarreras() {
-            const uni = document.getElementById('uniInput').value;
-            const select = document.getElementById('carreraInput');
-            select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
+    const oferta = {
+        "UES": ["Ingeniería en Software", "Ingeniería Mecatrónica"],
+        "UNISON": ["Lic. en Medicina", "Lic. en Derecho"],
+        "ITH": ["Ingeniería Industrial", "Sistemas"]
+    };
+
+    function actualizarCarreras() {
+        const uni = document.getElementById('uniInput').value;
+        const select = document.getElementById('carreraInput');
+        select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+    
+    window.onload = actualizarCarreras;
+
+    function validarYPasar() {
+        const carrera = document.getElementById('carreraInput').value;
+        if(!carrera) return alert("Por favor, selecciona una carrera");
+        
+        // Actualizamos el badge visual en el paso 2
+        document.getElementById('infoCarreraSeleccionada').innerText = "Carrera: " + carrera;
+        
+        // Cambio de vista
+        document.getElementById('paso1').style.display = 'none';
+        document.getElementById('paso2').style.display = 'block';
+        document.getElementById('dot1').classList.remove('active');
+        document.getElementById('dot2').classList.add('active');
+    }
+
+    function regresar() {
+        document.getElementById('paso2').style.display = 'none';
+        document.getElementById('paso1').style.display = 'block';
+        document.getElementById('dot2').classList.remove('active');
+        document.getElementById('dot1').classList.add('active');
+    }
+
+    async function entrar() {
+        // CORRECCIÓN CLAVE: Obtenemos los valores de ambos contenedores
+        const email = document.getElementById('emailInput').value;
+        const codigo = document.getElementById('passInput').value;
+        const carrera = document.getElementById('carreraInput').value;
+        const universidad = document.getElementById('uniInput').value;
+
+        // Validación básica antes de enviar al servidor
+        if(!email || !codigo) {
+            return alert("⚠️ Ingresa tu correo y contraseña para continuar.");
         }
-        window.onload = actualizarCarreras;
 
-        function validarYPasar() {
-            const carrera = document.getElementById('carreraInput').value;
-            if(!carrera) return alert("Selecciona una carrera");
-            
-            document.getElementById('infoCarreraSeleccionada').innerText = carrera;
-            document.getElementById('paso1').style.display = 'none';
-            document.getElementById('paso2').style.display = 'block';
-            document.getElementById('dot1').classList.remove('active');
-            document.getElementById('dot2').classList.add('active');
-        }
-
-        function regresar() {
-            document.getElementById('paso2').style.display = 'none';
-            document.getElementById('paso1').style.display = 'block';
-            document.getElementById('dot2').classList.remove('active');
-            document.getElementById('dot1').classList.add('active');
-        }
-
-        async function entrar() {
-            const email = document.getElementById('emailInput').value;
-            const codigo = document.getElementById('passInput').value;
-            const carrera = document.getElementById('carreraInput').value;
-            const universidad = document.getElementById('uniInput').value;
-
-            if(!email || !codigo) return alert("Ingresa tus credenciales");
-
+        try {
             const res = await fetch('/verificar-codigo', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, codigo, carrera, universidad })
+                body: JSON.stringify({ 
+                    email: email.trim(), 
+                    codigo: codigo.trim(), 
+                    carrera: carrera, 
+                    universidad: universidad 
+                })
             });
             
             const data = await res.json();
+            
             if(res.ok) {
-                localStorage.setItem('userEmail', email);
-                window.location.href = data.redirect;
+                // Guardamos el email para identificar al usuario en las demás páginas
+                localStorage.setItem('userEmail', email.toLowerCase().trim());
+                window.location.href = data.redirect; // Nos lleva a /home.html
             } else {
-                alert("Identificador o clave incorrecta");
+                alert("❌ Identificador o contraseña incorrectos. Inténtalo de nuevo.");
             }
+        } catch (error) {
+            console.error("Error en la petición:", error);
+            alert("❌ Error de conexión con el servidor. Verifica que el servidor en Render esté activo.");
         }
-    </script>
+    }
+
+    // Permitir entrar al presionar 'Enter' en el campo de contraseña
+    document.getElementById('passInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            entrar();
+        }
+    });
+</script>
 </body>
 </html>

@@ -151,6 +151,10 @@
                 btn.disabled = false;
             }
         }
+        // Seguridad: Si no hay un correo en el localStorage, regresa al inicio
+if (!localStorage.getItem('userEmail')) {
+    window.location.href = '/bienvenida.html';
+}
     </script>
 </body>
 </html>

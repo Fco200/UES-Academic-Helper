@@ -152,6 +152,10 @@
         function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
         function escapeJs(s){ return String(s).replaceAll("'","\\'"); }
         window.onload = function(){ cargarTodo(); if(new URLSearchParams(window.location.search).get('fuerzaCambio')==='true'){ alert("🚨 Seguridad UES: Cambia tu clave ahora."); cambiarPassword(); }};
+        // Seguridad: Si no hay un correo en el localStorage, regresa al inicio
+if (!localStorage.getItem('userEmail')) {
+    window.location.href = '/bienvenida.html';
+}
     </script>
 </body>
 </html>

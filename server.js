@@ -7,12 +7,13 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
 
 // 1. INICIALIZACIÓN DE LA APP
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 // Ruta raíz: Lo primero que verá el usuario al abrir la web
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'bienvenida.html'));
 });
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 // 2. MIDDLEWARES 
 app.use(cors());

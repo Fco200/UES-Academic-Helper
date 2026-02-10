@@ -7,6 +7,10 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
 
 // 1. INICIALIZACIÓN DE LA APP
+// Ruta raíz: Lo primero que verá el usuario al abrir la web
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'bienvenida.html'));
+});
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -285,6 +289,35 @@ async function enviarCorreoBienvenida(email, nombre) {
         console.error("❌ Error envío bienvenida:", e); 
     }
 }
+app.post('/nuevo-registro', async (req, res) => {
+    const { nombre, identificador, password, universidad, carrera, telefono } = req.body;
+    try {
+        const idLower = identificador.toLowerCase().trim();
+        const existe = await Usuario.findOne({ identificador: idLower });
+        
+        if (existe) {
+            return res.status(400).json({ success: false, message: "Este usuario ya existe." });
+        }
+
+        // Creamos el perfil completo desde el primer momento
+        const nuevoUsuario = await Usuario.create({
+            identificador: idLower,
+            password: password, // Contraseña personalizada del usuario
+            nombreReal: nombre,
+            universidad: universidad || "UES",
+            carrera: carrera || "Ingeniería",
+            telefono: telefono || ""
+        });
+
+        // Enviamos correo de bienvenida (sin bloquear la respuesta)
+        enviarCorreoBienvenida(idLower, nombre);
+
+        res.json({ success: true, message: "Cuenta creada con éxito" });
+    } catch (e) {
+        console.error("Error en registro:", e);
+        res.status(500).json({ success: false });
+    }
+});
 
 // 4. INICIO DEL SERVIDOR
 app.listen(PORT, '0.0.0.0', () => {

@@ -1,0 +1,40 @@
+<div class="mb-3">
+    <label class="form-label">Nombre Completo</label>
+    <input type="text" id="regNombre" class="form-control" placeholder="Juan Pérez">
+</div>
+<div class="mb-3">
+    <label class="form-label">Correo o Teléfono</label>
+    <input type="text" id="regIdentificador" class="form-control" placeholder="usuario@ues.mx o 662...">
+</div>
+<div class="mb-3">
+    <label class="form-label">Crea tu Contraseña</label>
+    <input type="password" id="regPass" class="form-control" placeholder="Mínimo 6 caracteres">
+</div>
+<button onclick="ejecutarRegistro()" class="btn-ues">CREAR MI CUENTA</button>
+
+<script>
+async function ejecutarRegistro() {
+    const datos = {
+        nombre: document.getElementById('regNombre').value,
+        identificador: document.getElementById('regIdentificador').value.toLowerCase().trim(),
+        password: document.getElementById('regPass').value,
+        universidad: "UES", // Puedes añadir un select aquí
+        carrera: "Ingeniería en Software"
+    };
+
+    if(datos.password.length < 5) return alert("Contraseña muy corta");
+
+    const res = await fetch('/nuevo-registro', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(datos)
+    });
+
+    if(res.ok) {
+        alert("¡Cuenta creada! Ahora inicia sesión.");
+        window.location.href = "/index.html";
+    } else {
+        alert("Ese correo/teléfono ya está registrado.");
+    }
+}
+</script>

@@ -47,6 +47,7 @@
             <a href="/home.html" class="nav-link-custom"><i class="fas fa-home me-2"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tasks me-2"></i> Tareas</a>
             <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
+            <a href="/seguridad.html" class="nav-link-custom"><i class="fas fa-shield-alt me-2 text-danger"></i> Seguridad</a>
             <a href="/soporte.html" class="nav-link-custom active"><i class="fas fa-headset me-2"></i> Soporte / Opinión</a>
         </nav>
     </div>
@@ -154,6 +155,27 @@
         // Seguridad: Si no hay un correo en el localStorage, regresa al inicio
 if (!localStorage.getItem('userEmail')) {
     window.location.href = '/bienvenida.html';
+}
+async function contactarSoporte() {
+    // 1. Recuperamos el nombre del usuario desde la base de datos o localStorage
+    const email = localStorage.getItem('userEmail');
+    let nombreUsuario = "Usuario";
+
+    try {
+        const res = await fetch(`/obtener-usuario/${encodeURIComponent(email)}`);
+        const u = await res.json();
+        nombreUsuario = u.nombreReal || "Usuario UES";
+    } catch (e) { console.error("Error al obtener nombre"); }
+
+    // 2. Configuramos el mensaje profesional
+    const telefonoSoporte = "526625374491"; // Reemplaza con tu número
+    const mensaje = `Hola, mi nombre es *${nombreUsuario}*. Mi problema es el siguiente: `;
+    
+    // 3. Codificamos el mensaje para la URL
+    const url = `https://wa.me/${telefonoSoporte}?text=${encodeURIComponent(mensaje)}`;
+    
+    // 4. Abrimos WhatsApp
+    window.open(url, '_blank');
 }
     </script>
 </body>

@@ -5,6 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
+const ultimoAcceso = { type: String, default: "Nunca" }; // Campo para guardar el último acceso del usuario
 
 // 1. INICIALIZACIÓN DE LA APP
 
@@ -48,7 +49,11 @@ const UsuarioSchema = new mongoose.Schema({
     nombreReal: { type: String, default: "Estudiante UES" },
     telefono: { type: String, default: "" },
     biografia: { type: String, default: "" },
-    cumpleanos: { type: String, default: "" }
+    cumpleanos: { type: String, default: "" },
+    // NUEVOS CAMPOS ROBUSTOS
+    semestre: { type: String, default: "1" },
+    linkedin: { type: String, default: "" },
+    genero: { type: String, default: "No especificado" }
 });
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
 
@@ -319,7 +324,39 @@ app.post('/nuevo-registro', async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+app.post('/actualizar-seguridad', async (req, res) => {
+    const { email, passActual, nuevaPass } = req.body;
+    try {
+        const usuario = await Usuario.findOne({ identificador: email.toLowerCase() });
+        
+        // Verificamos que conozca su clave actual
+        if (usuario.password !== passActual) {
+            return res.status(401).json({ success: false, message: "La contraseña actual es incorrecta." });
+        }
 
+        usuario.password = nuevaPass;
+        await usuario.save();
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+  
+
+app.post('/login', async (req, res) => {
+    const { identificador, password } = req.body;
+    try {
+        const u = await Usuario.findOne({ identificador: identificador.toLowerCase().trim() });
+        if (u && u.password === password) {
+            // Guardamos la fecha y hora actual en formato legible
+            const ahora = new Date().toLocaleString('es-MX', { timeZone: 'America/Hermosillo' });
+            u.ultimoAcceso = ahora;
+            await u.save();
+
+            res.json({ success: true, usuario: u });
+        } else {
+            res.status(401).json({ message: "Datos incorrectos" });
+        }
+    } catch (e) { res.status(500).send(e); }
+});
 // 4. INICIO DEL SERVIDOR
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`);

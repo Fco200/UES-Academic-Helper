@@ -1,40 +1,123 @@
-<div class="mb-3">
-    <label class="form-label">Nombre Completo</label>
-    <input type="text" id="regNombre" class="form-control" placeholder="Juan Pérez">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | UES Helper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <style>
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
+        body { 
+            background: radial-gradient(circle at 50% 50%, #1a0000 0%, #000 100%);
+            color: #eee; font-family: 'Inter', sans-serif; height: 100vh;
+            display: flex; align-items: center; justify-content: center; margin: 0;
+        }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(128, 0, 0, 0.3);
+            border-radius: 30px; padding: 40px; width: 100%; max-width: 450px;
+            backdrop-filter: blur(15px); box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .form-label { font-weight: 700; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .input-group-text { background: rgba(0,0,0,0.3); border: 1px solid #444; color: var(--ues-guinda); border-radius: 15px 0 0 15px; }
+        .form-control { 
+            background: rgba(0,0,0,0.5) !important; border: 1px solid #444 !important; 
+            color: white !important; border-radius: 0 15px 15px 0; padding: 12px; transition: 0.3s;
+        }
+        .form-control:focus { border-color: var(--ues-guinda) !important; box-shadow: 0 0 15px rgba(128,0,0,0.2) !important; }
+        .btn-ues { 
+            background: var(--ues-guinda); color: white; border: none; padding: 15px; 
+            border-radius: 15px; font-weight: 800; text-transform: uppercase; width: 100%;
+            transition: 0.4s; margin-top: 20px;
+        }
+        .btn-ues:hover { background: #a00000; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(128,0,0,0.3); }
+        .login-link { color: #888; text-decoration: none; font-size: 0.85rem; transition: 0.3s; }
+        .login-link:hover { color: var(--ues-guinda); }
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Únete a <span class="text-danger">Helper</span></h2>
+        <p class="text-muted small">Crea tu cuenta institucional hoy mismo</p>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre Completo</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+            <input type="text" id="regNombre" class="form-control" placeholder="Juan Pérez">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Correo o Teléfono</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+            <input type="text" id="regIdentificador" class="form-control" placeholder="usuario@ues.mx">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Crea tu Contraseña</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            <input type="password" id="regPass" class="form-control" placeholder="Mínimo 6 caracteres">
+        </div>
+    </div>
+
+    <button onclick="ejecutarRegistro()" class="btn-ues" id="btnRegistro">
+        CREAR MI CUENTA <i class="fas fa-arrow-right ms-2"></i>
+    </button>
+
+    <div class="text-center mt-4">
+        <a href="/index.html" class="login-link">¿Ya tienes cuenta? Inicia sesión aquí</a>
+    </div>
 </div>
-<div class="mb-3">
-    <label class="form-label">Correo o Teléfono</label>
-    <input type="text" id="regIdentificador" class="form-control" placeholder="usuario@ues.mx o 662...">
-</div>
-<div class="mb-3">
-    <label class="form-label">Crea tu Contraseña</label>
-    <input type="password" id="regPass" class="form-control" placeholder="Mínimo 6 caracteres">
-</div>
-<button onclick="ejecutarRegistro()" class="btn-ues">CREAR MI CUENTA</button>
 
 <script>
 async function ejecutarRegistro() {
+    const btn = document.getElementById('btnRegistro');
     const datos = {
         nombre: document.getElementById('regNombre').value,
         identificador: document.getElementById('regIdentificador').value.toLowerCase().trim(),
         password: document.getElementById('regPass').value,
-        universidad: "UES", // Puedes añadir un select aquí
+        universidad: "UES",
         carrera: "Ingeniería en Software"
     };
 
-    if(datos.password.length < 5) return alert("Contraseña muy corta");
+    if(!datos.nombre || !datos.identificador || !datos.password) {
+        return alert("⚠️ Por favor completa todos los campos.");
+    }
+    if(datos.password.length < 5) return alert("❌ Contraseña muy corta (mínimo 5 caracteres).");
 
-    const res = await fetch('/nuevo-registro', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(datos)
-    });
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CREANDO CUENTA...';
+    btn.disabled = true;
 
-    if(res.ok) {
-        alert("¡Cuenta creada! Ahora inicia sesión.");
-        window.location.href = "/index.html";
-    } else {
-        alert("Ese correo/teléfono ya está registrado.");
+    try {
+        const res = await fetch('/nuevo-registro', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(datos)
+        });
+
+        if(res.ok) {
+            btn.innerHTML = '¡EXITO! <i class="fas fa-check"></i>';
+            alert("✅ ¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
+            window.location.href = "/index.html";
+        } else {
+            alert("❌ Ese correo o teléfono ya está registrado.");
+            btn.innerHTML = 'CREAR MI CUENTA <i class="fas fa-arrow-right ms-2"></i>';
+            btn.disabled = false;
+        }
+    } catch (e) {
+        console.error(e);
+        alert("❌ Error de conexión con el servidor.");
+        btn.disabled = false;
     }
 }
 </script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #FFD700; --bg-dark: #050505; }
+        :root { --ues-guinda: #800000; --bg-dark: #050505; }
         
         body { 
             background: radial-gradient(circle at top right, #1a0000, var(--bg-dark));
@@ -25,14 +25,12 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 35px;
-            width: 100%; max-width: 450px;
+            width: 100%; max-width: 420px;
             padding: 40px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.6);
             position: relative; z-index: 10;
         }
 
-        .brand-header { text-align: center; margin-bottom: 35px; }
-        .brand-logo { width: 65px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(128,0,0,0.5)); }
         .brand-title { font-weight: 800; font-size: 2rem; letter-spacing: -1px; margin: 0; }
         .brand-title span { color: var(--ues-guinda); }
 
@@ -46,260 +44,169 @@
             transition: 0.3s; margin-bottom: 20px;
         }
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--ues-guinda) !important;
-            box-shadow: 0 0 15px rgba(128, 0, 0, 0.2);
-        }
-
+        /* DISEÑO DE BOTÓN CORREGIDO */
         .btn-main {
             background: var(--ues-guinda);
             border: none; border-radius: 12px;
-            padding: 14px; width: 100%;
+            padding: 16px; width: 100%;
             font-weight: 700; color: white;
-            transition: 0.4s; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.4s; text-transform: uppercase;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .btn-main:hover {
-            background: #a00000;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(128, 0, 0, 0.3);
+        .btn-main:hover { background: #a00000; transform: translateY(-2px); }
+
+        /* NOTIFICACIÓN FLOTANTE (Sustituye al botón verde feo) */
+        .floating-toast {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(128, 0, 0, 0.9);
+            color: white; padding: 15px 25px;
+            border-radius: 15px; border-left: 5px solid #ff4d4d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; display: none;
+            animation: slideIn 0.5s forwards;
         }
 
-        .step-indicator { display: flex; gap: 8px; justify-content: center; margin-bottom: 25px; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
         .step { width: 35px; height: 5px; border-radius: 10px; background: rgba(255,255,255,0.1); transition: 0.4s; }
         .step.active { background: var(--ues-guinda); width: 50px; }
-
-        #paso1, #paso2 { animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="particles-js"></div>
+    <div id="errorToast" class="floating-toast"></div>
 
-<div class="login-container">
-    <div class="brand-header text-center mb-4">
-        <h1 class="brand-title fw-bold">UES <span class="text-danger">HELPER</span></h1>
-        <p class="text-muted small fw-bold">Portal Académico Multiversidad</p>
-    </div>
-
-    <div class="step-indicator d-flex justify-content-center mb-4">
-        <div id="dot1" class="step active mx-1" style="width: 12px; height: 12px; border-radius: 50%; background: #800000;"></div>
-        <div id="dot2" class="step mx-1" style="width: 12px; height: 12px; border-radius: 50%; background: #333;"></div>
-    </div>
-
-    <div id="paso1">
-        <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">INSTITUCIÓN UNIVERSITARIA</label>
-            <select id="uniInput" class="form-select bg-dark text-white border-secondary" onchange="actualizarCarreras()" style="border-radius: 12px; padding: 12px;">
-                <option value="" disabled selected>Selecciona Universidad</option>
-                <option value="UES">Universidad Estatal de Sonora</option>
-                <option value="UNISON">Universidad de Sonora</option>
-                <option value="ITH">Tecnológico de Hermosillo</option>
-            </select>
-        </div>
-        
-        <div class="mb-4">
-            <label class="form-label small fw-bold text-muted">CARRERA / PROGRAMA</label>
-            <select id="carreraInput" class="form-select bg-dark text-white border-secondary" style="border-radius: 12px; padding: 12px;">
-                <option value="">Esperando universidad...</option>
-            </select>
+    <div class="login-container">
+        <div class="brand-header text-center mb-4">
+            <h1 class="brand-title">UES <span>HELPER</span></h1>
+            <p class="text-muted small fw-bold">Portal Académico Multiversidad</p>
         </div>
 
-        <button onclick="validarYPasar()" class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow">
-            SIGUIENTE <i class="fas fa-chevron-right ms-2"></i>
-        </button>
-    </div>
-
-    <div id="paso2" style="display:none;">
-        <div class="text-center mb-4">
-            <span id="infoCarreraSeleccionada" class="badge bg-dark text-warning py-2 px-3 rounded-pill border border-warning shadow-sm"></span>
-            <button class="btn btn-link btn-sm text-muted text-decoration-none d-block mt-2 mx-auto" onclick="regresar()">
-                <i class="fas fa-arrow-left me-1"></i> Cambiar carrera
-            </button>
+        <div class="step-indicator d-flex justify-content-center mb-4">
+            <div id="dot1" class="step active mx-1"></div>
+            <div id="dot2" class="step mx-1"></div>
         </div>
-        
-        <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">CORREO INSTITUCIONAL</label>
-            <div class="input-group">
-                <span class="input-group-text bg-dark border-secondary text-muted" style="border-radius: 12px 0 0 12px;">
-                    <i class="fas fa-envelope"></i>
-                </span>
-                <input type="email" id="emailInput" class="form-control bg-dark text-white border-secondary border-start-0" placeholder="usuario@ues.mx" style="border-radius: 0 12px 12px 0; padding: 12px;">
+
+        <div id="paso1">
+            <div class="mb-3">
+                <label class="form-label">Institución Universitaria</label>
+                <select id="uniInput" class="form-select" onchange="actualizarCarreras()">
+                    <option value="" disabled selected>Selecciona Universidad</option>
+                    <option value="UES">Universidad Estatal de Sonora</option>
+                    <option value="UNISON">Universidad de Sonora</option>
+                    <option value="ITH">Tecnológico de Hermosillo</option>
+                </select>
             </div>
-        </div>
-
-        <div class="mb-4">
-            <label class="form-label small fw-bold text-muted">CONTRASEÑA DE ACCESO</label>
-            <div class="input-group">
-                <span class="input-group-text bg-dark border-secondary text-muted" style="border-radius: 12px 0 0 12px;">
-                    <i class="fas fa-lock"></i>
-                </span>
-                <input type="password" id="passInput" class="form-control bg-dark text-white border-secondary border-start-0" placeholder="••••••••" style="border-radius: 0 12px 12px 0; padding: 12px;">
+            <div class="mb-4">
+                <label class="form-label">Carrera / Programa</label>
+                <select id="carreraInput" class="form-select">
+                    <option value="">Esperando universidad...</option>
+                </select>
             </div>
-            
-            <div class="text-end mt-2">
-                <a href="recuperar.html" class="text-warning small fw-bold" style="text-decoration: none; font-size: 0.75rem;">
-                    ¿Olvidaste tu contraseña?
-                </a>
+            <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-2"></i></button>
+        </div>
+
+        <div id="paso2" style="display:none;">
+            <div class="text-center mb-4">
+                <span id="infoCarreraSeleccionada" class="badge bg-dark text-warning py-2 px-3 rounded-pill border border-warning shadow-sm"></span>
+                <button class="btn btn-link btn-sm text-muted text-decoration-none d-block mt-2 mx-auto" onclick="regresar()">
+                    <i class="fas fa-arrow-left me-1"></i> Cambiar carrera
+                </button>
             </div>
+            <div class="mb-3">
+                <label class="form-label">Correo Institucional</label>
+                <input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Contraseña de Acceso</label>
+                <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+                <div class="text-end mt-2">
+                    <a href="recuperar.html" class="text-warning small fw-bold text-decoration-none">¿Olvidaste tu contraseña?</a>
+                </div>
+            </div>
+            <button onclick="entrar()" class="btn-main">Ingresar al Portal <i class="fas fa-sign-in-alt ms-2"></i></button>
         </div>
 
-        <button onclick="entrar()" class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow">
-            INGRESAR AL PORTAL
-        </button>
-    </div>
-
-    <div class="version-tag text-center mt-5">
-        <p class="text-muted small m-0" style="font-size: 0.7rem;">UES Helper Academic System</p>
-        <span class="badge bg-danger rounded-pill px-3" style="font-size: 0.6rem;">Versión 1.2.4 - Build 2026.02.10</span>
-        <div class="mt-2" style="font-size: 0.6rem; color: #555;">
-            <span>Status: <i class="fas fa-circle text-success small"></i> Online</span>
-            <span class="ms-3">Developer: Francisco Aguayo</span>
-        </div>
-    </div>
-</div>
-
-        <button onclick="entrar()" class="btn-main" style="background: #28a745;">
-            Ingresar al Portal <i class="fas fa-sign-in-alt ms-1"></i>
-        </button>
-    </div>
-</div>
-        
-        <div class="mt-4 text-center">
+        <div class="version-tag text-center mt-5">
+            <p class="text-muted small m-0" style="font-size: 0.6rem;">Versión 1.2.4 - Francisco Aguayo</p>
             <p class="small text-muted mb-0">© 2026 UES Academic Helper</p>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        // Partículas
         particlesJS("particles-js", {"particles":{"number":{"value":50},"color":{"value":"#800000"},"shape":{"type":"circle"},"opacity":{"value":0.3},"size":{"value":2},"line_linked":{"enable":true,"distance":150,"color":"#800000","opacity":0.2,"width":1},"move":{"enable":true,"speed":1.5}}});
 
-       const oferta = {
-    "UES": [
-        "Ingeniería en Software", 
-        "Ingeniería Mecatrónica", 
-        "Ingeniería Industrial en Manufactura",
-        "Lic. en Administración de Empresas", 
-        "Lic. en Derecho",
-        "Lic. en Criminalística",
-        "Lic. en Enfermería",
-        "Lic. en Nutrición Humana",
-        "Ingeniería en Horticultura"
-    ],
-    "UNISON": [
-        "Lic. en Medicina", 
-        "Lic. en Derecho", 
-        "Ingeniería Civil",
-        "Ingeniería Industrial",
-        "Lic. en Psicología",
-        "Lic. en Comunicación",
-        "Lic. en Contaduría Pública",
-        "Lic. en Arquitectura",
-        "Ingeniería en Sistemas de Información"
-    ],
-    "ITH": [
-        "Ingeniería Sistemas Computacionales", 
-        "Ingeniería Mecatrónica", 
-        "Ingeniería Industrial",
-        "Ingeniería Electrónica",
-        "Ingeniería Eléctrica",
-        "Ingeniería en Gestión Empresarial",
-        "Ingeniería Biomédica"
-    ]
-};
+        const oferta = {
+            "UES": ["Ingeniería en Software", "Ingeniería Mecatrónica", "Lic. en Derecho", "Lic. en Enfermería"],
+            "UNISON": ["Lic. en Medicina", "Ingeniería Civil", "Lic. en Psicología", "Ingeniería Industrial"],
+            "ITH": ["Ingeniería Sistemas Computacionales", "Ingeniería Industrial", "Ingeniería Electrónica"]
+        };
 
-       function actualizarCarreras() {
-    const uni = document.getElementById('uniInput').value;
-    const select = document.getElementById('carreraInput');
-    if(!uni) return;
-    select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
-}
-
-function validarYPasar() {
-    const uni = document.getElementById('uniInput').value;
-    const carrera = document.getElementById('carreraInput').value;
-    if(!uni || !carrera || carrera.includes("Esperando")) return alert("⚠️ Selecciona universidad y carrera");
-    
-    document.getElementById('infoCarreraSeleccionada').innerText = carrera;
-    document.getElementById('paso1').style.display = 'none';
-    document.getElementById('paso2').style.display = 'block';
-    document.getElementById('dot1').classList.remove('active');
-    document.getElementById('dot2').classList.add('active');
-}
-
-function regresar() {
-    document.getElementById('paso2').style.display = 'none';
-    document.getElementById('paso1').style.display = 'block';
-    document.getElementById('dot2').classList.remove('active');
-    document.getElementById('dot1').classList.add('active');
-}
-
-async function entrar() {
-    const btn = document.querySelector('#paso2 .btn-main');
-    const email = document.getElementById('emailInput').value;
-    const codigo = document.getElementById('passInput').value;
-    const carrera = document.getElementById('carreraInput').value;
-    const universidad = document.getElementById('uniInput').value;
-
-    if(!email || !codigo) return alert("⚠️ Ingresa tus credenciales");
-
-    const textoOriginal = btn.innerHTML;
-    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Validando...`;
-    btn.disabled = true;
-
-    // --- SEGURO DE TIEMPO (TIMEOUT) ---
-    // Si el servidor no responde en 10 segundos, liberamos el botón
-    const timeout = setTimeout(() => {
-        if (btn.disabled) {
-            btn.disabled = false;
-            btn.innerHTML = textoOriginal;
-            alert("⚠️ El servidor en Render está tardando demasiado. Reintenta el ingreso.");
+        function showToast(msg) {
+            const t = document.getElementById('errorToast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 4000);
         }
-    }, 10000);
 
-    try {
-        const res = await fetch('/verificar-codigo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                email: email.trim(), 
-                codigo: codigo.trim(), 
-                carrera, 
-                universidad 
-            })
-        });
-        
-        // Limpiamos el timeout porque el servidor ya respondió
-        clearTimeout(timeout);
-        
-        const data = await res.json();
-        
-        if(res.ok) {
-            // MENSAJE DE BIENVENIDA DINÁMICO
-            // Usamos el nombre real que viene desde la base de datos
-            btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido, ${data.nombreUsuario || 'Estudiante'}!`;
-            btn.style.background = "#28a745";
+        function actualizarCarreras() {
+            const uni = document.getElementById('uniInput').value;
+            const select = document.getElementById('carreraInput');
+            if(!uni) return;
+            select.innerHTML = oferta[uni].map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function validarYPasar() {
+            const uni = document.getElementById('uniInput').value;
+            const carrera = document.getElementById('carreraInput').value;
+            if(!uni || !carrera || carrera.includes("Esperando")) return showToast("⚠️ Selecciona universidad y carrera");
             
-            localStorage.setItem('userEmail', email.toLowerCase().trim());
-            setTimeout(() => { window.location.href = data.redirect; }, 1500);
-        } else {
-            alert("❌ Acceso Denegado: Revisa tus datos.");
-            btn.innerHTML = textoOriginal;
-            btn.disabled = false;
+            document.getElementById('infoCarreraSeleccionada').innerText = carrera;
+            document.getElementById('paso1').style.display = 'none';
+            document.getElementById('paso2').style.display = 'block';
+            document.getElementById('dot1').classList.remove('active');
+            document.getElementById('dot2').classList.add('active');
         }
-    } catch (e) {
-        clearTimeout(timeout);
-        console.error("Error de conexión:", e);
-        alert("❌ Error de conexión. Revisa el servidor en Render.");
-        btn.innerHTML = textoOriginal;
-        btn.disabled = false;
-    }
-}
-        // Enter para entrar
-        document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') entrar(); });
+
+        async function entrar() {
+            const btn = document.querySelector('#paso2 .btn-main');
+            const email = document.getElementById('emailInput').value;
+            const codigo = document.getElementById('passInput').value;
+            
+            if(!email || !codigo) return showToast("⚠️ Ingresa tus credenciales");
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Validando...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/verificar-codigo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: email.trim(), codigo: codigo.trim() })
+                });
+                
+                const data = await res.json();
+                if(res.ok) {
+                    btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido!`;
+                    btn.style.background = "#28a745";
+                    localStorage.setItem('userEmail', email.toLowerCase().trim());
+                    setTimeout(() => { window.location.href = data.redirect; }, 1500);
+                } else {
+                    showToast("❌ Acceso Denegado: Revisa tus datos.");
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                showToast("❌ Error de conexión con Render.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>

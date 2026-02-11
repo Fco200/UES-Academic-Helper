@@ -50,10 +50,36 @@
         </div>
 
         <div class="row g-4 mb-5">
-            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">TELÉFONO</small><p id="displayTelefono" class="m-0 fs-5 text-white">No registrado</p></div></div>
-            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">CUMPLEAÑOS</small><p id="displayCumple" class="m-0 fs-5 text-white">-- / -- / --</p></div></div>
-            <div class="col-md-12"><div class="data-card"><small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small><p id="displayBio" class="m-0 opacity-75 text-white">Cuéntanos algo sobre ti...</p></div></div>
+    <div class="col-md-4">
+        <div class="data-card">
+            <small class="text-muted fw-bold">TELÉFONO</small>
+            <p id="displayTelefono" class="m-0 fs-5 text-white">No registrado</p>
         </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="data-card" style="border-left-color: var(--ues-oro);">
+            <small class="text-muted fw-bold">SEMESTRE ACTUAL</small>
+            <p id="displaySemestre" class="m-0 fs-5 text-white">--</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div id="cardLinkedin" class="data-card" style="cursor: pointer; transition: 0.3s;" onclick="irALinkedin()">
+            <small class="text-muted fw-bold">RED PROFESIONAL</small>
+            <p id="displayLinkedin" class="m-0 fs-5 text-info">
+                <i class="fab fa-linkedin me-2"></i>Ver Perfil
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="data-card">
+            <small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small>
+            <p id="displayBio" class="m-0 opacity-75 text-white">Cuéntanos algo sobre ti...</p>
+        </div>
+    </div>
+</div>
 
         <div class="row mt-5">
             <div class="col-lg-8">
@@ -71,29 +97,45 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark border-secondary text-white rounded-5">
                 <div class="modal-body p-4">
-                    <h5 class="fw-bold text-danger mb-4">Actualizar mi Perfil</h5>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold">NOMBRE COMPLETO</label>
-                        <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary" placeholder="Ej: Francisco Aguayo">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold">CORREO DE CONTACTO</label>
-                        <input type="email" id="editEmail" class="form-control bg-black text-white border-secondary" placeholder="ejemplo@ues.mx">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold">NÚMERO TELEFÓNICO (10 DÍGITOS)</label>
-                        <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary" placeholder="662XXXXXXX">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold">FECHA DE NACIMIENTO</label>
-                        <input type="date" id="editCumple" class="form-control bg-black text-white border-secondary">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-muted fw-bold">BIOGRAFÍA</label>
-                        <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3"></textarea>
-                    </div>
-                    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
-                </div>
+    <h5 class="fw-bold text-danger mb-4">Actualizar mi Perfil</h5>
+    
+    <div class="mb-3">
+        <label class="small text-muted fw-bold">NOMBRE COMPLETO</label>
+        <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary">
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="small text-muted fw-bold">GÉNERO</label>
+            <select id="editGenero" class="form-select bg-black text-white border-secondary">
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Otro">Otro</option>
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="small text-muted fw-bold">SEMESTRE</label>
+            <input type="number" id="editSemestre" class="form-control bg-black text-white border-secondary" min="1" max="12">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="small text-muted fw-bold">TELÉFONO (10 DÍGITOS)</label>
+        <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary">
+    </div>
+
+    <div class="mb-3">
+        <label class="small text-muted fw-bold">LINKEDIN (URL)</label>
+        <input type="text" id="editLinkedin" class="form-control bg-black text-white border-secondary" placeholder="https://linkedin.com/in/tu-perfil">
+    </div>
+
+    <div class="mb-3">
+        <label class="small text-muted fw-bold">BIOGRAFÍA</label>
+        <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3"></textarea>
+    </div>
+
+    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
+</div>
             </div>
         </div>
     </div>
@@ -125,8 +167,8 @@
 
         async function cargarDatosPerfil() {
             try {
-                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
-                const u = await res.json();
+              const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+        const u = await res.json();
                 
                 if (u.password === "UES2026") {
                     const alertaSeguridad = `
@@ -142,18 +184,44 @@
                 document.getElementById('displayCarrera').innerText = u.carrera || "Ingeniería";
                 document.getElementById('displayCorreo').innerText = u.identificador;
                 document.getElementById('displayFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-                document.getElementById('displayTelefono').innerText = u.telefono || "No registrado";
                 document.getElementById('displayCumple').innerText = u.cumpleanos || "-- / -- / --";
-                document.getElementById('displayBio').innerText = u.biografia || "Sin biografía...";
+                // NUEVOS CAMPOS:
+        document.getElementById('displayTelefono').innerText = u.telefono || "No registrado";
+        document.getElementById('displaySemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "No asignado";
+        document.getElementById('displayBio').innerText = u.biografia || "Sin biografía...";
                 
-                document.getElementById('editNombre').value = u.nombreReal || "";
-                document.getElementById('editEmail').value = u.identificador || "";
-                document.getElementById('editTelefono').value = u.telefono || "";
-                document.getElementById('editCumple').value = u.cumpleanos || "";
-                document.getElementById('editBio').value = u.biografia || "";
-                fotoBase64 = u.foto || "";
-            } catch (e) { console.error("Error perfil", e); }
+              // Lógica de LinkedIn
+        const link = u.linkedin || "";
+        if(link === "") {
+            document.getElementById('displayLinkedin').innerText = "No registrado";
+            document.getElementById('displayLinkedin').className = "m-0 fs-5 text-muted";
+        } else {
+            document.getElementById('displayLinkedin').innerHTML = `<i class="fab fa-linkedin me-2"></i>Ver LinkedIn`;
+            document.getElementById('displayLinkedin').className = "m-0 fs-5 text-info";
         }
+
+        // --- LLENAR TAMBIÉN EL MODAL DE EDICIÓN ---
+        document.getElementById('editNombre').value = u.nombreReal || "";
+        document.getElementById('editTelefono').value = u.telefono || "";
+        document.getElementById('editSemestre').value = u.semestre || "";
+        document.getElementById('editLinkedin').value = u.linkedin || "";
+        document.getElementById('editBio').value = u.biografia || "";
+        document.getElementById('editGenero').value = u.genero || "Masculino";
+
+    } catch (e) { console.error("Error al cargar perfil", e); }
+    // Función para abrir LinkedIn en otra pestaña
+function irALinkedin() {
+    const url = document.getElementById('editLinkedin').value;
+    if(url && url.startsWith('http')) {
+        window.open(url, '_blank');
+    } else if (url) {
+        window.open('https://' + url, '_blank');
+    } else {
+        alert("Primero registra tu enlace de LinkedIn en 'Editar Información'");
+    }
+}
+        }
+        
 
         function abrirEditorSeguridad() {
             const modal = new bootstrap.Modal(document.getElementById('modalSeguridad'));
@@ -178,41 +246,37 @@
             } catch (e) { alert("❌ Error al conectar con el servidor."); }
         }
 
-        async function guardarTodo() {
-            const inputNombre = document.getElementById('editNombre');
-            const inputEmail = document.getElementById('editEmail');
-            const inputTel = document.getElementById('editTelefono');
-            const inputBio = document.getElementById('editBio');
-            const inputCumple = document.getElementById('editCumple');
+     async function guardarTodo() {
+    // Referencias a los nuevos campos
+    const datos = {
+        email: userEmail, // Tu identificador (no cambia)
+        nombreReal: document.getElementById('editNombre').value,
+        genero: document.getElementById('editGenero').value,
+        semestre: document.getElementById('editSemestre').value,
+        telefono: document.getElementById('editTelefono').value,
+        linkedin: document.getElementById('editLinkedin').value,
+        biografia: document.getElementById('editBio').value,
+        foto: fotoBase64 // Si tienes la función de foto
+    };
 
-            if (!inputNombre || !inputEmail) {
-                alert("❌ Error: No se encontraron los campos del formulario.");
-                return;
-            }
+    try {
+        const res = await fetch('/actualizar-perfil-completo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(datos)
+        });
 
-            const datos = {
-                email: userEmail,
-                nuevoEmail: inputEmail.value.toLowerCase().trim(),
-                nombreReal: inputNombre.value,
-                telefono: inputTel.value,
-                cumpleanos: inputCumple.value,
-                biografia: inputBio.value,
-                foto: fotoBase64
-            };
-
-            try {
-                const res = await fetch('/actualizar-perfil-completo', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(datos)
-                });
-                if(res.ok) {
-                    localStorage.setItem('userEmail', datos.nuevoEmail);
-                    alert("✅ Perfil actualizado correctamente.");
-                    location.reload();
-                }
-            } catch (e) { alert("❌ Error al conectar con el servidor."); }
+        if(res.ok) {
+            alert("✅ Perfil actualizado con éxito.");
+            location.reload(); // Recarga para ver los cambios
+        } else {
+            alert("❌ No se pudo actualizar el perfil.");
         }
+    } catch (e) {
+        console.error("Error al guardar:", e);
+        alert("❌ Error de conexión con el servidor.");
+    }
+}
 
         async function cargarNoticiasHome() {
             try {

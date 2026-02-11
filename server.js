@@ -179,21 +179,32 @@ app.post('/recuperar-password', async (req, res) => {
 // --- RUTAS DE PERFIL Y SOPORTE ---
 
 app.post('/actualizar-perfil-completo', async (req, res) => {
-    const { email, nuevoEmail, nombreReal, foto, telefono, biografia, cumpleanos } = req.body;
+    const { email, nombreReal, genero, semestre, telefono, linkedin, biografia, foto } = req.body;
+    
     try {
-        await Usuario.findOneAndUpdate(
-            { identificador: email.toLowerCase() },
+        const usuario = await Usuario.findOneAndUpdate(
+            { identificador: email.toLowerCase().trim() },
             { 
-                identificador: nuevoEmail, // Actualizamos el identificador
                 nombreReal, 
-                foto, 
+                genero, 
+                semestre, 
                 telefono, 
+                linkedin, 
                 biografia, 
-                cumpleanos 
-            }
+                foto 
+            },
+            { new: true } // Para que devuelva el usuario actualizado
         );
-        res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false }); }
+
+        if (usuario) {
+            res.json({ success: true, message: "Perfil actualizado en MongoDB" });
+        } else {
+            res.status(404).json({ success: false, message: "Usuario no encontrado" });
+        }
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false });
+    }
 });
 
 app.post('/enviar-sugerencia', async (req, res) => {

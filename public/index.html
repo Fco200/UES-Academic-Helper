@@ -78,26 +78,21 @@
 
     <div id="particles-js"></div>
 
-    <div class="login-container">
-    <div class="brand-header">
-    <p class="text-muted small m-0">UES Helper Academic System</p>
-    <p class="badge bg-danger rounded-pill px-3" style="font-size: 0.65rem;">Versión 1.2.4 - Build 2026.02.10</p>
-    <div class="mt-2" style="font-size: 0.6rem; color: #444;">
-        <span>Status: <i class="fas fa-circle text-success small"></i> Online</span>
-        <span class="ms-3">Developer: Francisco Aguayo</span>
-    </div>
-</div>
+<div class="login-container">
+    <div class="brand-header text-center mb-4">
+        <h1 class="brand-title fw-bold">UES <span class="text-danger">HELPER</span></h1>
+        <p class="text-muted small fw-bold">Portal Académico Multiversidad</p>
     </div>
 
-    <div class="step-indicator">
-        <div id="dot1" class="step active"></div>
-        <div id="dot2" class="step"></div>
+    <div class="step-indicator d-flex justify-content-center mb-4">
+        <div id="dot1" class="step active mx-1" style="width: 12px; height: 12px; border-radius: 50%; background: #800000;"></div>
+        <div id="dot2" class="step mx-1" style="width: 12px; height: 12px; border-radius: 50%; background: #333;"></div>
     </div>
 
     <div id="paso1">
         <div class="mb-3">
-            <label class="form-label">Institución Universitaria</label>
-            <select id="uniInput" class="form-select" onchange="actualizarCarreras()">
+            <label class="form-label small fw-bold text-muted">INSTITUCIÓN UNIVERSITARIA</label>
+            <select id="uniInput" class="form-select bg-dark text-white border-secondary" onchange="actualizarCarreras()" style="border-radius: 12px; padding: 12px;">
                 <option value="" disabled selected>Selecciona Universidad</option>
                 <option value="UES">Universidad Estatal de Sonora</option>
                 <option value="UNISON">Universidad de Sonora</option>
@@ -106,13 +101,15 @@
         </div>
         
         <div class="mb-4">
-            <label class="form-label">Carrera / Programa</label>
-            <select id="carreraInput" class="form-select">
+            <label class="form-label small fw-bold text-muted">CARRERA / PROGRAMA</label>
+            <select id="carreraInput" class="form-select bg-dark text-white border-secondary" style="border-radius: 12px; padding: 12px;">
                 <option value="">Esperando universidad...</option>
             </select>
         </div>
 
-        <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-1"></i></button>
+        <button onclick="validarYPasar()" class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow">
+            SIGUIENTE <i class="fas fa-chevron-right ms-2"></i>
+        </button>
     </div>
 
     <div id="paso2" style="display:none;">
@@ -124,23 +121,43 @@
         </div>
         
         <div class="mb-3">
-            <label class="form-label">Correo Institucional</label>
-            <input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
+            <label class="form-label small fw-bold text-muted">CORREO INSTITUCIONAL</label>
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-muted" style="border-radius: 12px 0 0 12px;">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                <input type="email" id="emailInput" class="form-control bg-dark text-white border-secondary border-start-0" placeholder="usuario@ues.mx" style="border-radius: 0 12px 12px 0; padding: 12px;">
+            </div>
         </div>
 
-    <div class="mb-4">
-    <label class="form-label">Contraseña de Acceso</label>
-    <div class="input-group">
-        <span class="input-group-text bg-transparent border-end-0 text-muted" style="border-radius: 12px 0 0 12px; border-color: rgba(255,255,255,0.1);">
-            <i class="fas fa-lock"></i>
-        </span>
-        <input type="password" id="passInput" class="form-control border-start-0" placeholder="••••••••" style="border-radius: 0 12px 12px 0; margin-bottom: 0;">
+        <div class="mb-4">
+            <label class="form-label small fw-bold text-muted">CONTRASEÑA DE ACCESO</label>
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-muted" style="border-radius: 12px 0 0 12px;">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" id="passInput" class="form-control bg-dark text-white border-secondary border-start-0" placeholder="••••••••" style="border-radius: 0 12px 12px 0; padding: 12px;">
+            </div>
+            
+            <div class="text-end mt-2">
+                <a href="recuperar.html" class="text-warning small fw-bold" style="text-decoration: none; font-size: 0.75rem;">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+        </div>
+
+        <button onclick="entrar()" class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow">
+            INGRESAR AL PORTAL
+        </button>
     </div>
-    
-    <div class="text-end mt-2">
-        <a href="recuperar.html" class="text-warning small fw-bold" style="text-decoration: none; font-size: 0.75rem;">
-            ¿Olvidaste tu contraseña?
-        </a>
+
+    <div class="version-tag text-center mt-5">
+        <p class="text-muted small m-0" style="font-size: 0.7rem;">UES Helper Academic System</p>
+        <span class="badge bg-danger rounded-pill px-3" style="font-size: 0.6rem;">Versión 1.2.4 - Build 2026.02.10</span>
+        <div class="mt-2" style="font-size: 0.6rem; color: #555;">
+            <span>Status: <i class="fas fa-circle text-success small"></i> Online</span>
+            <span class="ms-3">Developer: Francisco Aguayo</span>
+        </div>
     </div>
 </div>
 

@@ -94,24 +94,24 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalEditar" tabindex="-1">
+   <div class="modal fade" id="modalEditar" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark border-secondary text-white rounded-5 shadow-lg">
             <div class="modal-body p-4">
                 <div class="text-center mb-4">
                     <i class="fas fa-user-edit text-danger fa-2x mb-2"></i>
                     <h5 class="fw-bold text-danger">Actualizar mi Perfil</h5>
-                    <p class="text-muted small">La información se sincronizará con tu cuenta académica</p>
+                    <p class="text-muted small">Escribe tu información para sincronizarla con el sistema.</p>
                 </div>
                 
                 <div class="mb-3">
-                    <label class="small text-muted fw-bold uppercase-label"><i class="fas fa-id-badge me-2"></i>NOMBRE COMPLETO</label>
+                    <label class="small text-muted fw-bold"><i class="fas fa-id-card me-2"></i>NOMBRE COMPLETO</label>
                     <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary py-2" placeholder="Ej: Francisco Aguayo">
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="small text-muted fw-bold uppercase-label"><i class="fas fa-venus-mars me-2"></i>GÉNERO</label>
+                        <label class="small text-muted fw-bold"><i class="fas fa-venus-mars me-2"></i>GÉNERO</label>
                         <select id="editGenero" class="form-select bg-black text-white border-secondary py-2">
                             <option value="Masculino">Masculino</option>
                             <option value="Femenino">Femenino</option>
@@ -119,25 +119,24 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="small text-muted fw-bold uppercase-label"><i class="fas fa-graduation-cap me-2"></i>SEMESTRE</label>
-                        <input type="number" id="editSemestre" class="form-control bg-black text-white border-secondary py-2" min="1" max="12" placeholder="1-12">
+                        <label class="small text-muted fw-bold"><i class="fas fa-graduation-cap me-2"></i>SEMESTRE</label>
+                        <input type="number" id="editSemestre" class="form-control bg-black text-white border-secondary py-2" min="1" max="12" placeholder="Ej: 6">
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="small text-muted fw-bold uppercase-label"><i class="fab fa-whatsapp me-2"></i>TELÉFONO (10 DÍGITOS)</label>
-                    <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary py-2" placeholder="6625374491" maxlength="10">
+                    <label class="small text-muted fw-bold"><i class="fab fa-whatsapp me-2"></i>TELÉFONO (10 DÍGITOS)</label>
+                    <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary py-2" placeholder="662XXXXXXX">
                 </div>
 
                 <div class="mb-3">
-                    <label class="small text-muted fw-bold uppercase-label"><i class="fab fa-linkedin me-2"></i>LINKEDIN (PERFIL)</label>
-                    <input type="text" id="editLinkedin" class="form-control bg-black text-white border-secondary py-2" placeholder="linkedin.com/in/tu-usuario">
-                    <div class="form-text text-muted" style="font-size: 0.65rem;">Copia el link directo de tu perfil profesional.</div>
+                    <label class="small text-muted fw-bold"><i class="fab fa-linkedin me-2"></i>LINKEDIN (URL)</label>
+                    <input type="text" id="editLinkedin" class="form-control bg-black text-white border-secondary py-2" placeholder="https://linkedin.com/in/tu-perfil">
                 </div>
 
                 <div class="mb-4">
-                    <label class="small text-muted fw-bold uppercase-label"><i class="fas fa-pen me-2"></i>BIOGRAFÍA</label>
-                    <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3" placeholder="Cuéntanos sobre tus habilidades, proyectos o intereses académicos..."></textarea>
+                    <label class="small text-muted fw-bold"><i class="fas fa-pen me-2"></i>BIOGRAFÍA</label>
+                    <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3" placeholder="Cuéntanos un poco sobre tus intereses o habilidades..."></textarea>
                 </div>
 
                 <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="guardarTodo()">

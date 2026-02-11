@@ -247,16 +247,18 @@ function irALinkedin() {
         }
 
      async function guardarTodo() {
-    // Referencias a los nuevos campos
+    const btn = document.querySelector('#modalEditar .btn-danger');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Guardando...';
+
     const datos = {
-        email: userEmail, // Tu identificador (no cambia)
+        email: userEmail, // Identificador clave
         nombreReal: document.getElementById('editNombre').value,
         genero: document.getElementById('editGenero').value,
         semestre: document.getElementById('editSemestre').value,
         telefono: document.getElementById('editTelefono').value,
         linkedin: document.getElementById('editLinkedin').value,
         biografia: document.getElementById('editBio').value,
-        foto: fotoBase64 // Si tienes la función de foto
+        foto: fotoBase64
     };
 
     try {
@@ -267,14 +269,12 @@ function irALinkedin() {
         });
 
         if(res.ok) {
-            alert("✅ Perfil actualizado con éxito.");
-            location.reload(); // Recarga para ver los cambios
-        } else {
-            alert("❌ No se pudo actualizar el perfil.");
+            alert("✅ ¡Información sincronizada con éxito!");
+            location.reload(); // Obligamos a recargar para pintar los nuevos datos
         }
     } catch (e) {
-        console.error("Error al guardar:", e);
-        alert("❌ Error de conexión con el servidor.");
+        alert("❌ Error al guardar.");
+        btn.innerHTML = 'GUARDAR CAMBIOS';
     }
 }
 

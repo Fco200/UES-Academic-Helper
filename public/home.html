@@ -273,6 +273,39 @@
 if (!localStorage.getItem('userEmail')) {
     window.location.href = '/bienvenida.html';
 }
+window.addEventListener('load', () => {
+    // Solo mostrar el manual una vez por sesión para no molestar
+    if (!sessionStorage.getItem('manualVisto')) {
+        const modal = new bootstrap.Modal(document.getElementById('modalManual'));
+        modal.show();
+        sessionStorage.setItem('manualVisto', 'true');
+    }
+});
     </script>
+    <div class="modal fade" id="modalManual" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-danger rounded-5">
+            <div class="modal-header border-0">
+                <h4 class="fw-bold text-danger"><i class="fas fa-book me-2"></i> Manual de Usuario - UES Helper</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <h5 class="text-warning">🚀 Guía Rápida</h5>
+                <p>Bienvenido al asistente académico. Puedes gestionar tus tareas en el Dashboard y personalizar tu perfil con redes sociales.</p>
+                <hr class="border-secondary">
+                <h5 class="text-danger">⚠️ Detalles en Desarrollo</h5>
+                <ul>
+                    <li><strong>Recuperar Contraseña:</strong> El servicio de envío de correos está en fase de pruebas por protocolos de Gmail.</li>
+                    <li><strong>Soporte por Correo:</strong> Si el formulario falla, usa el botón directo de WhatsApp para atención inmediata.</li>
+                </ul>
+                <h5 class="text-info">✨ Próximas Actualizaciones</h5>
+                <p>Integración de calendario UES, historial de accesos y modo oscuro automático.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-danger w-100 rounded-pill py-2" data-bs-dismiss="modal">ENTENDIDO</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

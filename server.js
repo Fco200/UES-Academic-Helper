@@ -357,6 +357,25 @@ app.post('/login', async (req, res) => {
         }
     } catch (e) { res.status(500).send(e); }
 });
+// --- RUTA PARA ELIMINAR NOTICIA ---
+app.post('/eliminar-noticia', async (req, res) => {
+    const { id, passwordAdmin } = req.body;
+    if (passwordAdmin !== "UES_ADMIN_2026") return res.status(403).json({ message: "No autorizado" });
+    try {
+        await Noticia.findByIdAndDelete(id);
+        res.json({ success: true });
+    } catch (e) { res.status(500).send(e); }
+});
+
+// --- RUTA PARA EDITAR NOTICIA ---
+app.post('/editar-noticia', async (req, res) => {
+    const { id, passwordAdmin, titulo, contenido, imagen } = req.body;
+    if (passwordAdmin !== "UES_ADMIN_2026") return res.status(403).json({ message: "No autorizado" });
+    try {
+        await Noticia.findByIdAndUpdate(id, { titulo, contenido, imagen });
+        res.json({ success: true });
+    } catch (e) { res.status(500).send(e); }
+});
 // 4. INICIO DEL SERVIDOR
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`);

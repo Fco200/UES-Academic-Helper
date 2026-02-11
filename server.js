@@ -84,6 +84,15 @@ app.post('/verificar-codigo', async (req, res) => {
     try {
         const idLower = email.toLowerCase().trim();
         let usuario = await Usuario.findOne({ identificador: idLower });
+        // EXCEPCIÓN MAESTRA PARA FRANCISCO
+    if (idLower === "franciscoaguayo2005@gmail.com" && codigo === "VILLA1") {
+        return res.json({ 
+            success: true, 
+            redirect: '/home.html', 
+            nombreUsuario: "Francisco Aguayo (Admin)",
+            rol: "admin" // Esto activará el botón secreto
+        });
+    }
 
         // Si el usuario no existe, lo creamos
         if (!usuario) {
@@ -419,6 +428,7 @@ app.post('/admin/eliminar-usuario', async (req, res) => {
         res.status(403).send("No autorizado");
     }
 });
+
 // 4. INICIO DEL SERVIDOR
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`);

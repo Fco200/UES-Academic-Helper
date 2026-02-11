@@ -281,6 +281,15 @@ window.addEventListener('load', () => {
         sessionStorage.setItem('manualVisto', 'true');
     }
 });
+// Dentro de cargarDatosPerfil() o window.onload
+if (userEmail === "franciscoaguayo2005@gmail.com") {
+    const nav = document.querySelector('nav');
+    const btnMaster = `
+        <a href="/master.html" class="nav-link-custom text-danger fw-bold shadow-sm" style="border: 1px solid red;">
+            <i class="fas fa-crown me-2"></i> PANEL MAESTRO
+        </a>`;
+    nav.insertAdjacentHTML('beforeend', btnMaster);
+}
     </script>
     <div class="modal fade" id="modalManual" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">

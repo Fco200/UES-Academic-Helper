@@ -376,6 +376,38 @@ app.post('/editar-noticia', async (req, res) => {
         res.json({ success: true });
     } catch (e) { res.status(500).send(e); }
 });
+// RUTA SECRETA PARA OBTENER TODOS LOS USUARIOS (Solo para Francisco)
+app.post('/admin/obtener-usuarios', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Validación de tus credenciales maestras
+    if (email === "franciscoaguayo2005@gmail.com" && password === "VILLA1") {
+        try {
+            const usuarios = await Usuario.find({}, '-password'); // Trae todo menos las contraseñas
+            res.json({ success: true, usuarios });
+        } catch (e) {
+            res.status(500).json({ message: "Error al obtener base de datos" });
+        }
+    } else {
+        res.status(403).json({ message: "Acceso denegado: Credenciales de administrador inválidas" });
+    }
+});
+
+// RUTA PARA DAR DE BAJA (ELIMINAR) USUARIOS
+app.post('/admin/eliminar-usuario', async (req, res) => {
+    const { email, password, idAEliminar } = req.body;
+
+    if (email === "franciscoaguayo2005@gmail.com" && password === "VILLA1") {
+        try {
+            await Usuario.findByIdAndDelete(idAEliminar);
+            res.json({ success: true, message: "Usuario eliminado del sistema" });
+        } catch (e) {
+            res.status(500).json({ message: "Error al eliminar" });
+        }
+    } else {
+        res.status(403).send("No autorizado");
+    }
+});
 // 4. INICIO DEL SERVIDOR
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`);

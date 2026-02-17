@@ -9,236 +9,65 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --sidebar-w: 280px; }
-        body { background: #000; color: #e0e0e0; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
-        
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-w); background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
-        .sidebar-brand { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 30px; color: #fff; }
-        
-        .main-content { margin-left: var(--sidebar-w); padding: 50px; }
-        
-        /* Nav Buttons */
-        .nav-link-custom { width: 100%; padding: 15px; border-radius: 15px; display: flex; align-items: center; color: #888; text-decoration: none; transition: 0.3s; margin-bottom: 10px; }
-        .nav-link-custom:hover { background: rgba(128,0,0,0.1); color: white; transform: translateX(5px); }
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --bg-main: #f4f7f6; }
+        body { background: var(--bg-main); color: #333; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+        .sidebar { width: 280px; background: white; border-right: 1px solid #ddd; height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
+        .main-content { margin-left: 280px; padding: 50px; }
+        .nav-link-custom { color: #666; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; font-weight: 600; }
+        .nav-link-custom:hover { background: #f0f0f0; color: var(--ues-guinda); }
         .nav-link-custom.active { background: var(--ues-guinda); color: white; }
-
-        /* Banner IA y Status */
-        .status-header { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 20px; border: 1px solid rgba(128,0,0,0.2); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-        .status-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #28a745; }
-
-        /* Cards */
-        .card-note { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 25px; transition: 0.3s; }
-        .card-note:hover { border-color: var(--ues-guinda); transform: translateY(-5px); }
-        .materia-header { padding: 15px 20px; background: rgba(128, 0, 0, 0.15); border-radius: 25px 25px 0 0; }
-
-        .btn-ues { background: var(--ues-guinda); color: white; border: none; border-radius: 12px; font-weight: 700; padding: 10px 20px; transition: 0.3s; }
-        .form-control { background: rgba(0,0,0,0.5) !important; border: 1px solid #333 !important; color: white !important; border-radius: 12px; }
         
-        .task-row { padding: 12px; border-radius: 15px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border: 1px solid transparent; transition: 0.2s; }
-        .task-row:hover { background: rgba(255,255,255,0.05); border-color: rgba(128,0,0,0.3); }
+        .status-header { background: white; border-radius: 20px; padding: 20px; border: 1px solid #eee; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .card-note { background: white; border: 1px solid #eee; border-radius: 25px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .card-note:hover { transform: translateY(-5px); border-color: var(--ues-guinda); }
+        .materia-header { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; border-radius: 25px 25px 0 0; }
+        .btn-ues { background: var(--ues-guinda); color: white; border: none; border-radius: 10px; font-weight: 700; padding: 8px 15px; }
+        .form-control { background: #f9f9f9 !important; border: 1px solid #ddd !important; color: #111 !important; border-radius: 10px; }
+        .task-row { padding: 12px; border-radius: 15px; background: #fff; margin-bottom: 10px; border: 1px solid #f0f0f0; transition: 0.2s; color: #111; font-weight: 500; }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
-        <div class="sidebar-brand">UES <span class="text-danger">HELPER</span></div>
-        <nav id="sidebarNav">
+        <div class="text-center mb-5"><h4 class="fw-bold text-dark">UES <span class="text-danger">HELPER</span></h4></div>
+        <nav>
             <a href="/home.html" class="nav-link-custom"><i class="fas fa-home me-2"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-link-custom active"><i class="fas fa-tasks me-2"></i> Tareas CRUD</a>
             <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
             <a href="/seguridad.html" class="nav-link-custom"><i class="fas fa-shield-alt me-2"></i> Seguridad</a>
             <a href="/soporte.html" class="nav-link-custom"><i class="fas fa-headset me-2"></i> Soporte</a>
         </nav>
-        <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 mt-5">SALIR</button>
+        <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 mt-5 fw-bold">SALIR</button>
     </div>
-
     <div class="main-content">
         <div class="status-header">
-            <div>
-                <span class="d-block small text-muted fw-bold uppercase">ESTADO ACADÉMICO</span>
-                <h5 class="m-0 fw-bold"><span class="status-dot"></span> Sincronizado con MongoDB</h5>
-            </div>
-            <div class="text-end">
-                <span id="carreraBadge" class="badge bg-danger rounded-pill px-3">Cargando...</span>
-                <p id="userBadge" class="small text-muted m-0 mt-1"></p>
-            </div>
+            <div><span class="d-block small text-muted fw-bold">ESTADO ACADÉMICO</span><h5 class="m-0 fw-bold text-dark"><i class="fas fa-circle text-success me-2" style="font-size: 0.6rem;"></i> Sincronizado</h5></div>
+            <div class="text-end"><span id="carreraBadge" class="badge bg-danger rounded-pill px-3">Cargando...</span><p id="userBadge" class="small text-muted m-0 mt-1"></p></div>
         </div>
-
-        <div class="d-flex justify-content-between align-items-end mb-4">
-            <h1 class="fw-bold m-0">Gestión de Actividades</h1>
-            <p class="text-muted m-0">Ingeniería de Tareas v1.2</p>
-        </div>
-
         <div class="card p-4 card-note mb-5">
-            <label class="form-label small text-muted fw-bold">AÑADIR NUEVA ASIGNATURA</label>
-            <div class="row g-3">
-                <div class="col-md-9">
-                    <input type="text" id="nombreInput" class="form-control" placeholder="Ej: Estructura de Datos">
-                </div>
-                <div class="col-md-3">
-                    <button onclick="guardarNuevo()" class="btn btn-ues w-100 py-2 shadow-sm">GUARDAR</button>
-                </div>
-            </div>
+            <label class="form-label small text-muted fw-bold mb-3">AÑADIR NUEVA ASIGNATURA</label>
+            <div class="row g-3"><div class="col-md-9"><input type="text" id="nombreInput" class="form-control" placeholder="Ej: Bases de Datos"></div><div class="col-md-3"><button onclick="guardarNuevo()" class="btn btn-ues w-100 h-100">GUARDAR</button></div></div>
         </div>
-
-        <div id="contenedorPrincipal" class="row">
-            </div>
+        <div id="contenedorPrincipal" class="row"></div>
     </div>
 
-    <div class="modal fade" id="editModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg bg-dark p-3" style="border-radius: 28px;">
-                <h5 class="modal-title fw-bold text-danger mb-3 px-3 pt-3">Ajustar Actividad</h5>
-                <div class="modal-body p-4">
-                    <label class="form-label small fw-bold text-muted">DESCRIPCIÓN</label>
-                    <input type="text" id="editDescripcion" class="form-control mb-4">
-                    <label class="form-label small fw-bold text-muted">FECHA ENTREGA</label>
-                    <input type="date" id="editFecha" class="form-control mb-4">
-                    <div class="form-check form-switch bg-black p-3 rounded-3">
-                        <input class="form-check-input ms-0 me-3" type="checkbox" id="editCompletada">
-                        <label class="form-check-label small fw-bold text-white" for="editCompletada">¿Completada?</label>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button class="btn btn-dark rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
-                    <button class="btn btn-ues rounded-pill px-4" id="saveEditBtn">ACTUALIZAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="editModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg" style="border-radius: 28px; background: white;"><div class="modal-body p-4"><h5 class="fw-bold text-dark mb-4">Ajustar Tarea</h5><label class="small fw-bold text-muted mb-2">DESCRIPCIÓN</label><input type="text" id="editDescripcion" class="form-control mb-4"><label class="small fw-bold text-muted mb-2">FECHA</label><input type="date" id="editFecha" class="form-control mb-4"><div class="form-check form-switch bg-light p-3 rounded-3"><input class="form-check-input ms-0 me-3" type="checkbox" id="editCompletada"><label class="form-check-label fw-bold text-dark" for="editCompletada">¿Completada?</label></div><button class="btn btn-danger w-100 py-3 mt-4 rounded-4 fw-bold" id="saveEditBtn">ACTUALIZAR</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const userEmail = localStorage.getItem('userEmail');
-        let editMateriaId = null, editTareaId = null;
-
-        window.onload = async () => {
-            if (!userEmail) return window.location.href = '/index.html';
-            document.getElementById('userBadge').innerText = userEmail;
-            
-            // Si es Admin, mostrar acceso maestro
-            if (userEmail === "franciscoaguayo2005@gmail.com") {
-                document.getElementById('sidebarNav').innerHTML += `
-                    <a href="/master.html" class="nav-link-custom text-danger fw-bold"><i class="fas fa-crown me-2"></i> PANEL MAESTRO</a>`;
-            }
-            
-            await cargarTodo();
-        };
-
+        window.onload = async () => { if (!userEmail) return window.location.href = '/index.html'; document.getElementById('userBadge').innerText = userEmail; await cargarTodo(); };
         async function cargarTodo() {
-            try {
-                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-                const materias = await res.json();
-                
-                // Actualizar badge de carrera desde el primer registro
-                if(materias.length > 0) document.getElementById('carreraBadge').innerText = materias[0].carrera || "ESTUDIANTE";
-
-                const cont = document.getElementById('contenedorPrincipal');
-                cont.innerHTML = '';
-                materias.forEach(m => {
-                    const tareasHtml = (m.tareas || []).map(t => `
-                        <div class="task-row d-flex align-items-center">
-                            <input type="checkbox" class="form-check-input me-3" ${t.completada ? 'checked' : ''} onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})">
-                            <span class="${t.completada ? 'text-decoration-line-through opacity-50' : ''} flex-grow-1 small">${t.descripcion}</span>
-                            <span class="badge bg-dark border border-secondary text-muted mx-2">${t.fecha || ''}</span>
-                            <button class="btn btn-sm text-danger p-0 ms-2" onclick="abrirEditor('${m._id}', '${t._id}', ${JSON.stringify(t.descripcion)}, ${JSON.stringify(t.fecha)}, ${t.completada})"><i class="fas fa-edit"></i></button>
-                        </div>
-                    `).join('') || '<p class="text-muted small text-center my-3">Sin tareas pendientes</p>';
-
-                    cont.innerHTML += `
-                        <div class="col-lg-6 mb-4">
-                            <div class="card card-note h-100">
-                                <div class="materia-header d-flex justify-content-between align-items-center">
-                                    <h6 class="fw-bold m-0 text-white"><i class="fas fa-folder me-2 text-danger"></i>${m.nombre}</h6>
-                                    <button onclick="borrarMateria('${m._id}')" class="btn btn-sm text-muted p-0"><i class="fas fa-trash"></i></button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="tareas-container mb-4">${tareasHtml}</div>
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" id="t-${m._id}" class="form-control" placeholder="Nueva tarea...">
-                                        <input type="date" id="f-${m._id}" class="form-control">
-                                        <button onclick="agregarTarea('${m._id}')" class="btn btn-ues"><i class="fas fa-plus"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-            } catch (e) { console.error("Error cargando dashboard", e); }
-        }
-
-        async function guardarNuevo() {
-            const n = document.getElementById('nombreInput').value.trim();
-            if(!n) return alert("Escribe el nombre de la materia");
-            await fetch('/agregar-materia', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email: userEmail, nombre: n })
+            const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+            const materias = await res.json();
+            if(materias.length > 0) document.getElementById('carreraBadge').innerText = materias[0].carrera || "ESTUDIANTE";
+            const cont = document.getElementById('contenedorPrincipal'); cont.innerHTML = '';
+            materias.forEach(m => {
+                const tareasHtml = (m.tareas || []).map(t => `<div class="task-row d-flex align-items-center"><input type="checkbox" class="form-check-input me-3" ${t.completada ? 'checked' : ''} onclick="toggleTarea('${m._id}', '${t._id}', ${t.completada})"><span class="${t.completada ? 'text-decoration-line-through opacity-50' : ''} flex-grow-1 small text-dark">${t.descripcion}</span><span class="badge bg-light text-muted border mx-2">${t.fecha || ''}</span><button class="btn btn-sm text-primary p-0 ms-2" onclick="abrirEditor('${m._id}', '${t._id}', ${JSON.stringify(t.descripcion)}, ${JSON.stringify(t.fecha)}, ${t.completada})"><i class="fas fa-edit"></i></button></div>`).join('') || '<p class="text-muted small text-center my-3">Sin tareas</p>';
+                cont.innerHTML += `<div class="col-lg-6 mb-4"><div class="card card-note h-100"><div class="materia-header d-flex justify-content-between align-items-center"><h6 class="fw-bold m-0 text-dark">${m.nombre}</h6><button onclick="borrarMateria('${m._id}')" class="btn btn-sm text-muted"><i class="fas fa-trash-alt"></i></button></div><div class="card-body"><div class="tareas-container mb-4">${tareasHtml}</div><div class="input-group input-group-sm"><input type="text" id="t-${m._id}" class="form-control" placeholder="Nueva..."><input type="date" id="f-${m._id}" class="form-control"><button onclick="agregarTarea('${m._id}')" class="btn btn-ues"><i class="fas fa-plus"></i></button></div></div></div></div>`;
             });
-            document.getElementById('nombreInput').value = '';
-            cargarTodo();
         }
-
-        async function agregarTarea(id) {
-            const d = document.getElementById(`t-${id}`).value.trim();
-            const f = document.getElementById(`f-${id}`).value;
-            if(!d) return;
-            await fetch('/agregar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: id, descripcion: d, fecha: f })
-            });
-            cargarTodo();
-        }
-
-        async function toggleTarea(m, t, e) {
-            await fetch('/completar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: m, tareaId: t, completada: !e })
-            });
-            cargarTodo();
-        }
-
-        function abrirEditor(m, t, d, f, c) {
-            editMateriaId = m; editTareaId = t;
-            document.getElementById('editDescripcion').value = d;
-            document.getElementById('editFecha').value = f;
-            document.getElementById('editCompletada').checked = c;
-            new bootstrap.Modal(document.getElementById('editModal')).show();
-        }
-
-        document.getElementById('saveEditBtn').addEventListener('click', async () => {
-            const d = document.getElementById('editDescripcion').value.trim();
-            const f = document.getElementById('editFecha').value;
-            const c = document.getElementById('editCompletada').checked;
-            
-            await fetch('/editar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, nuevaDescripcion: d, nuevaFecha: f })
-            });
-            
-            await fetch('/completar-tarea', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: editMateriaId, tareaId: editTareaId, completada: c })
-            });
-            
-            bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-            cargarTodo();
-        });
-
-        async function borrarMateria(id) {
-            if(!confirm("¿Borrar materia y todas sus tareas?")) return;
-            await fetch('/eliminar-materia', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ materiaId: id })
-            });
-            cargarTodo();
-        }
-
+        async function guardarNuevo() { const n = document.getElementById('nombreInput').value.trim(); if(n){ await fetch('/agregar-materia', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:userEmail, nombre:n})}); document.getElementById('nombreInput').value=''; cargarTodo();}}
+        async function agregarTarea(id) { const d=document.getElementById(`t-${id}`).value, f=document.getElementById(`f-${id}`).value; if(d){ await fetch('/agregar-tarea', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({materiaId:id, descripcion:d, fecha:f})}); cargarTodo();}}
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>

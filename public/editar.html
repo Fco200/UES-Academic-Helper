@@ -2,104 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión Total | UES Helper</title>
-    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --bg-dark: #050505; }
+        :root { --ues: #800000; --bg: #f4f7f6; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #333; padding: 40px; }
         
-        body { 
-            background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;
-            background-image: radial-gradient(circle at top right, #1a0000, #000);
-            min-height: 100vh; padding: 40px;
-        }
-
-        /* Encabezado */
-        .header-section {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px; padding: 30px;
-            backdrop-filter: blur(10px); margin-bottom: 40px;
-        }
-
-        /* Tarjetas de Materia */
-        .edit-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); 
-            transition: 0.3s; height: 100%;
-        }
-        .edit-card:hover { border-color: var(--ues-guinda); transform: translateY(-5px); background: rgba(128,0,0,0.02); }
-
-        /* Ítems de Tarea */
-        .task-item { 
-            background: rgba(0, 0, 0, 0.3); border-radius: 15px;
-            padding: 15px; margin-bottom: 12px;
-            border-left: 5px solid #333; transition: 0.3s;
-        }
-        .task-item:hover { border-left-color: var(--ues-guinda); background: rgba(255,255,255,0.05); }
-
-        .btn-ues { background: var(--ues-guinda); color: white; border: none; border-radius: 12px; font-weight: 700; transition: 0.3s; }
-        .btn-ues:hover { background: #a00000; transform: scale(1.02); }
-
-        .btn-action { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: none; transition: 0.2s; }
-        .btn-edit { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
-        .btn-delete { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
-        .btn-edit:hover { background: #ffc107; color: #000; }
-        .btn-delete:hover { background: #dc3545; color: #fff; }
-
-        /* Estilo del Modal */
-        .modal-content { background: #0f0f0f; border: 1px solid #333; border-radius: 30px; color: #fff; }
-        .form-control { background: #1a1a1a !important; border: 1px solid #444 !important; color: white !important; border-radius: 12px; padding: 12px; }
+        .header-section { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 40px; border-bottom: 4px solid var(--ues); }
         
-        /* Status Badge */
-        .status-pill { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid #28a745; padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .edit-card { background: white; border-radius: 20px; border: 1px solid #eee; padding: 25px; height: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.02); transition: 0.3s; }
+        .edit-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+        
+        .task-item { background: #fdfdfd; border-radius: 12px; padding: 15px; margin-bottom: 10px; border: 1px solid #efefef; border-left: 4px solid #ddd; }
+        .task-item:hover { border-left-color: var(--ues); background: white; }
+        
+        .btn-ues { background: var(--ues); color: white; border-radius: 10px; font-weight: 700; }
+        .text-danger-custom { color: var(--ues); font-weight: 800; }
+        .materia-title { color: #111; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <div class="header-section d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="header-section d-flex justify-content-between align-items-center">
             <div>
-                <span class="status-pill mb-2 d-inline-block"><i class="fas fa-check-circle me-1"></i> MODO EDICIÓN ACTIVO</span>
-                <h2 class="fw-bold m-0 text-white"><i class="fas fa-layer-group text-danger me-2"></i> Ingeniería de Registros</h2>
-                <p class="text-muted m-0 small">Administra materias y entregas de forma centralizada.</p>
+                <h2 class="fw-bold m-0 text-dark"><i class="fas fa-tools text-danger me-2"></i> Ingeniería de Registros</h2>
+                <p class="text-muted m-0">Administra tus materias y entregas con claridad total.</p>
             </div>
-            <a href="/home.html" class="btn btn-ues rounded-pill px-4 py-2 shadow">
-                <i class="fas fa-arrow-left me-2"></i> VOLVER AL INICIO
-            </a>
+            <a href="/home.html" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm">VOLVER AL INICIO</a>
         </div>
 
-        <div id="listaEditor" class="row">
-            </div>
+        <div id="listaEditor" class="row"></div>
     </div>
 
-    <div class="modal fade" id="modalEdicion" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalEdicion" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg">
+            <div class="modal-content border-0" style="border-radius: 20px;">
                 <div class="modal-header border-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-edit me-2"></i> Editar Actividad</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title fw-bold">Actualizar Tarea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <input type="hidden" id="editMateriaId">
-                    <input type="hidden" id="editTareaId">
-                    
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Descripción de la Tarea</label>
-                        <input type="text" id="descEdit" class="form-control" placeholder="Ej: Reporte de Prácticas">
+                    <input type="hidden" id="editMateriaId"><input type="hidden" id="editTareaId">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">¿Qué hay que hacer?</label>
+                        <input type="text" id="descEdit" class="form-control form-control-lg" style="background:#f9f9f9;">
                     </div>
-                    
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Fecha Límite</label>
-                        <input type="date" id="fechaEdit" class="form-control">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Entrega</label>
+                        <input type="date" id="fechaEdit" class="form-control form-control-lg" style="background:#f9f9f9;">
                     </div>
-                    
-                    <button onclick="guardarCambios()" class="btn btn-ues w-100 py-3 fw-bold shadow-sm">
-                        <i class="fas fa-save me-2"></i> ACTUALIZAR REGISTRO
-                    </button>
+                    <button onclick="guardarCambios()" class="btn btn-ues w-100 py-3 fw-bold">GUARDAR CAMBIOS</button>
                 </div>
             </div>
         </div>
@@ -108,104 +62,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const userEmail = localStorage.getItem('userEmail');
-
         async function cargarEditor() {
-            if (!userEmail) return window.location.href = '/index.html';
-            
-            try {
-                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-                const materias = await res.json();
-                const cont = document.getElementById('listaEditor');
-                cont.innerHTML = '';
-
-                materias.forEach(m => {
-                    const tareasHtml = m.tareas.map(t => `
-                        <div class="task-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="d-block fw-bold text-white small">${t.descripcion}</span>
-                                <small class="text-muted"><i class="far fa-calendar-alt me-1"></i>${t.fecha || 'Sin fecha'}</small>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button onclick="abrirModal('${m._id}', '${t._id}', '${t.descripcion}', '${t.fecha}')" class="btn-action btn-edit">
-                                    <i class="fas fa-pen fa-xs"></i>
-                                </button>
-                                <button onclick="eliminarTarea('${m._id}', '${t._id}')" class="btn-action btn-delete">
-                                    <i class="fas fa-trash fa-xs"></i>
-                                </button>
-                            </div>
+            const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+            const materias = await res.json();
+            const cont = document.getElementById('listaEditor');
+            cont.innerHTML = materias.map(m => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="edit-card">
+                        <div class="d-flex justify-content-between align-items-center materia-title">
+                            <h5 class="fw-bold m-0 text-dark">${m.nombre}</h5>
+                            <button onclick="eliminarMateria('${m._id}')" class="btn btn-sm text-muted"><i class="fas fa-trash-alt"></i></button>
                         </div>
-                    `).join('') || '<p class="text-muted small text-center py-3">No hay tareas en esta materia</p>';
-
-                    cont.innerHTML += `
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="edit-card p-4 shadow-sm">
-                                <div class="d-flex justify-content-between align-items-start mb-4">
-                                    <h5 class="fw-bold m-0 text-danger">${m.nombre}</h5>
-                                    <button onclick="eliminarMateria('${m._id}')" class="btn btn-sm btn-outline-danger border-0 opacity-50">
-                                        <i class="fas fa-folder-minus"></i>
-                                    </button>
-                                </div>
-                                <div class="tareas-list">
-                                    ${tareasHtml}
-                                </div>
-                            </div>
-                        </div>`;
-                });
-            } catch (e) { console.error("Error cargando editor", e); }
+                        <div class="tareas-list">
+                            ${m.tareas.map(t => `
+                                <div class="task-item d-flex justify-content-between align-items-center">
+                                    <div><strong class="text-dark d-block">${t.descripcion}</strong><small class="text-muted">${t.fecha}</small></div>
+                                    <div class="btn-group">
+                                        <button onclick="abrirModal('${m._id}', '${t._id}', '${t.descripcion}', '${t.fecha}')" class="btn btn-sm btn-outline-primary border-0"><i class="fas fa-edit"></i></button>
+                                        <button onclick="eliminarTarea('${m._id}', '${t._id}')" class="btn btn-sm btn-outline-danger border-0"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>`).join('')}
+                        </div>
+                    </div>
+                </div>`).join('');
         }
 
         function abrirModal(mId, tId, desc, fecha) {
-            document.getElementById('editMateriaId').value = mId;
-            document.getElementById('editTareaId').value = tId;
-            document.getElementById('descEdit').value = desc;
-            document.getElementById('fechaEdit').value = fecha;
+            document.getElementById('editMateriaId').value = mId; document.getElementById('editTareaId').value = tId;
+            document.getElementById('descEdit').value = desc; document.getElementById('fechaEdit').value = fecha;
             new bootstrap.Modal(document.getElementById('modalEdicion')).show();
         }
 
         async function guardarCambios() {
-            const materiaId = document.getElementById('editMateriaId').value;
-            const tareaId = document.getElementById('editTareaId').value;
-            const nuevaDescripcion = document.getElementById('descEdit').value;
-            const nuevaFecha = document.getElementById('fechaEdit').value;
-
-            if(!nuevaDescripcion || !nuevaFecha) return alert("⚠️ Completa los campos");
-
-            try {
-                const res = await fetch('/editar-tarea', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ materiaId, tareaId, nuevaDescripcion, nuevaFecha })
-                });
-
-                if (res.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalEdicion')).hide();
-                    cargarEditor();
-                }
-            } catch (error) { alert("Error de conexión"); }
+            const mId = document.getElementById('editMateriaId').value, tId = document.getElementById('editTareaId').value;
+            const desc = document.getElementById('descEdit').value, fecha = document.getElementById('fechaEdit').value;
+            const res = await fetch('/editar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: mId, tareaId: tId, nuevaDescripcion: desc, nuevaFecha: fecha }) });
+            if (res.ok) { alert("Actualizado"); location.reload(); }
         }
 
-        async function eliminarTarea(materiaId, tareaId) {
-            if(confirm('¿Eliminar esta tarea permanentemente?')) {
-                await fetch('/eliminar-tarea', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ materiaId, tareaId })
-                });
-                cargarEditor();
-            }
-        }
-
-        async function eliminarMateria(materiaId) {
-            if(confirm('¿Eliminar la asignatura completa y sus tareas?')) {
-                await fetch('/eliminar-materia', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ materiaId })
-                });
-                cargarEditor();
-            }
-        }
-
+        async function eliminarTarea(m, t) { if(confirm('¿Eliminar tarea?')) { await fetch('/eliminar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: m, tareaId: t }) }); cargarEditor(); } }
+        async function eliminarMateria(m) { if(confirm('¿Eliminar asignatura?')) { await fetch('/eliminar-materia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: m }) }); cargarEditor(); } }
         window.onload = cargarEditor;
     </script>
 </body>

@@ -7,36 +7,54 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #FFD700; }
+        :root { --ues-guinda: #800000; --ues-oro: #FFD700; --sidebar-w: 280px; }
         body { 
-            background: #000; color: #eee; font-family: 'Inter', sans-serif; margin: 0;
-            background-image: radial-gradient(circle at 50% 50%, #1a0000 0%, #000 100%);
+            background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;
+            background-image: radial-gradient(circle at top right, #1a0000, #000);
+            min-height: 100vh;
         }
-        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px; }
-        .main-content { margin-left: 280px; padding: 60px 40px; display: flex; justify-content: center; }
+
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-w); background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
+        .main-content { margin-left: var(--sidebar-w); padding: 50px; }
         
+        /* Nav */
+        .nav-link-custom { color: #888; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; transition: 0.3s; }
+        .nav-link-custom:hover { background: rgba(128,0,0,0.1); color: white; transform: translateX(5px); }
+        .nav-link-custom.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 15px rgba(128,0,0,0.3); }
+
+        /* Glass Cards */
         .glass-card { 
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(128, 0, 0, 0.3);
-            border-radius: 30px; padding: 45px; width: 100%; max-width: 650px;
-            backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px; padding: 40px; backdrop-filter: blur(15px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
         
         .form-control { 
-            background: rgba(0,0,0,0.5) !important; border: 1px solid #444 !important; 
+            background: rgba(0,0,0,0.4) !important; border: 1px solid #333 !important; 
             color: white !important; border-radius: 15px; padding: 15px; transition: 0.3s;
         }
-        .form-control:focus { border-color: var(--ues-guinda) !important; box-shadow: 0 0 15px rgba(128,0,0,0.2) !important; }
+        .form-control:focus { border-color: var(--ues-guinda) !important; box-shadow: 0 0 15px rgba(128,0,0,0.1) !important; }
         
         .btn-send { 
             background: var(--ues-guinda); color: white; border: none; padding: 18px; 
-            border-radius: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-            transition: 0.4s; width: 100%;
+            border-radius: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.4s; width: 100%; box-shadow: 0 10px 20px rgba(128,0,0,0.2);
         }
-        .btn-send:hover { background: #a00000; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(128,0,0,0.3); }
-        
-        .nav-link-custom { color: #888; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; transition: 0.3s; }
-        .nav-link-custom:hover, .nav-link-custom.active { background: var(--ues-guinda); color: white; }
+        .btn-send:hover { background: #a00000; transform: translateY(-3px); }
+
+        /* Status Widget (Lo que sustituye lo verde) */
+        .support-status {
+            background: rgba(255,255,255,0.03); border-radius: 20px; padding: 20px;
+            border-top: 3px solid var(--ues-guinda); margin-bottom: 30px;
+        }
+        .pulse-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 10px #28a745; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .btn-whatsapp { background: #25d366; color: white; border-radius: 15px; padding: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: 0.3s; }
+        .btn-whatsapp:hover { background: #128c7e; transform: scale(1.02); color: white; }
     </style>
 </head>
 <body>
@@ -53,70 +71,82 @@
     </div>
 
     <div class="main-content">
-        <div class="glass-card">
-            <div class="text-center mb-5">
-                <i class="fas fa-paper-plane text-danger fa-3x mb-3"></i>
-                <h2 class="fw-bold text-white">Mejoras y Opiniones</h2>
-                <p class="text-muted">Ayúdanos a que el portal UES sea el mejor sistema académico.</p>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="small fw-bold text-muted mb-2">TU NOMBRE</label>
-                    <input type="text" id="sugNombre" class="form-control" placeholder="Ej. Francisco">
+        <div class="container-fluid" style="max-width: 1000px;">
+            
+            <div class="support-status d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="d-block small text-muted fw-bold">ESTADO DEL SERVICIO</span>
+                    <h5 class="m-0 fw-bold"><span class="pulse-dot"></span> Soporte Técnico en Línea</h5>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="small fw-bold text-muted mb-2">TU CORREO</label>
-                    <input type="email" id="sugEmail" class="form-control" placeholder="estudiante@ues.mx">
+                <div class="text-end">
+                    <span class="badge bg-dark border border-secondary text-muted">Respuesta prom: 15 min</span>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="small fw-bold text-muted mb-2">TIPO DE MENSAJE</label>
-                <select id="sugTipo" class="form-control">
-                    <option value="Sugerencia">💡 Sugerencia de mejora</option>
-                    <option value="Error">⚠️ Reportar un error (Bug)</option>
-                    <option value="Opinion">💬 Opinión general</option>
-                </select>
-            </div>
+            <div class="row g-5">
+                <div class="col-lg-7">
+                    <div class="glass-card">
+                        <h3 class="fw-bold text-white mb-4"><i class="fas fa-comment-alt text-danger me-2"></i> Enviar Sugerencia</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="small fw-bold text-muted mb-2">NOMBRE</label>
+                                <input type="text" id="sugNombre" class="form-control" placeholder="Tu nombre">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="small fw-bold text-muted mb-2">CORREO</label>
+                                <input type="email" id="sugEmail" class="form-control" placeholder="estudiante@ues.mx">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted mb-2">CATEGORÍA</label>
+                            <select id="sugTipo" class="form-control">
+                                <option value="Sugerencia">💡 Sugerencia de mejora</option>
+                                <option value="Error">⚠️ Reportar un error (Bug)</option>
+                                <option value="Opinion">💬 Opinión general</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">DESCRIPCIÓN</label>
+                            <textarea id="sugMensaje" class="form-control" rows="4" placeholder="¿En qué podemos mejorar?"></textarea>
+                        </div>
+                        <button onclick="enviarSugerencia()" class="btn btn-send shadow">ENVIAR COMENTARIO</button>
+                    </div>
+                </div>
 
-            <div class="mb-5">
-                <label class="small fw-bold text-muted mb-2">MENSAJE DETALLADO</label>
-                <textarea id="sugMensaje" class="form-control" rows="5" placeholder="Escribe aquí tu mensaje..."></textarea>
-            </div>
+                <div class="col-lg-5">
+                    <div class="glass-card border-start border-4 border-danger mb-4">
+                        <i class="fas fa-envelope-open-text text-danger fa-2x mb-3"></i>
+                        <h5 class="fw-bold text-white">Correo Oficial</h5>
+                        <p class="text-muted small">Para colaboraciones o dudas académicas oficiales:</p>
+                        <a href="mailto:FranciscoAguayo2005@gmail.com" class="text-danger fw-bold text-decoration-none">FranciscoAguayo2005@gmail.com</a>
+                    </div>
 
-            <button onclick="enviarSugerencia()" class="btn btn-send">
-                Enviar Comentario <i class="fas fa-chevron-right ms-2"></i>
-            </button>
-
-            <div id="statusMsg" class="mt-4 text-center d-none">
-                <span class="badge bg-success p-2 px-3 rounded-pill">¡Mensaje enviado con éxito!</span>
+                    <div class="glass-card border-start border-4 border-success">
+                        <i class="fab fa-whatsapp text-success fa-2x mb-3"></i>
+                        <h5 class="fw-bold text-white">WhatsApp Directo</h5>
+                        <p class="text-muted small">Atención rápida. Al hacer clic, el sistema sabrá quién eres.</p>
+                        <button onclick="contactarSoporte()" class="btn-whatsapp w-100 border-0">
+                            <i class="fab fa-whatsapp me-2"></i> CONTACTAR AHORA
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="small text-muted">UES Helper V1.2.4 - Francisco Aguayo</p>
+                    </div>
+                </div>
             </div>
         </div>
-        
     </div>
-    <div class="row g-4 mt-5">
-    <div class="col-md-6">
-        <div class="glass-card p-4 text-center h-100 border-start border-4 border-danger">
-            <i class="fas fa-envelope-open-text text-danger fa-2x mb-3"></i>
-            <h5 class="fw-bold text-white">Correo Directo Admin</h5>
-            <p class="text-muted small">Para asuntos técnicos urgentes o colaboración, contacta a Francisco:</p>
-            <a href="mailto:FranciscoAguayo2005@gmail.com" class="text-danger fw-bold text-decoration-none">FranciscoAguayo2005@gmail.com</a>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="glass-card p-4 text-center h-100 border-start border-4 border-warning">
-            <i class="fab fa-whatsapp text-success fa-2x mb-3"></i>
-            <h5 class="fw-bold text-white">WhatsApp de Soporte</h5>
-            <p class="text-muted small">Atención inmediata para errores de acceso o sugerencias rápidas:</p>
-            <a href="https://wa.me/526625374491" target="_blank" class="text-success fw-bold text-decoration-none">+52 662 537 4491</a>
-        </div>
-    </div>
-</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const userEmail = localStorage.getItem('userEmail');
+
+        window.onload = () => {
+            if (!userEmail) window.location.href = '/index.html';
+            document.getElementById('sugEmail').value = userEmail;
+        };
+
         async function enviarSugerencia() {
             const btn = document.querySelector('.btn-send');
             const datos = {
@@ -125,9 +155,9 @@
                 mensaje: `[${document.getElementById('sugTipo').value}] - ${document.getElementById('sugMensaje').value}`
             };
 
-            if (!datos.nombre || !datos.mensaje) return alert("Por favor completa los campos principales.");
+            if (!datos.nombre || !datos.mensaje) return alert("⚠️ Completa los campos requeridos.");
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ENVIANDO...';
             btn.disabled = true;
 
             try {
@@ -138,45 +168,34 @@
                 });
 
                 if (res.ok) {
-                    document.getElementById('statusMsg').classList.remove('d-none');
-                    btn.innerHTML = 'Enviado <i class="fas fa-check"></i>';
+                    btn.innerHTML = '¡LISTO! <i class="fas fa-check"></i>';
+                    btn.style.background = "#28a745";
                     setTimeout(() => location.reload(), 2000);
                 } else {
-                    alert("Error al enviar. Verifica tu conexión.");
-                    btn.innerHTML = 'Enviar Comentario';
+                    alert("Error en el servidor.");
                     btn.disabled = false;
+                    btn.innerHTML = 'ENVIAR COMENTARIO';
                 }
-            } catch (e) {
-                console.error(e);
-                alert("Error de red.");
-                btn.disabled = false;
-            }
+            } catch (e) { alert("Error de conexión."); btn.disabled = false; }
         }
-        // Seguridad: Si no hay un correo en el localStorage, regresa al inicio
-if (!localStorage.getItem('userEmail')) {
-    window.location.href = '/bienvenida.html';
-}
-async function contactarSoporte() {
-    // 1. Recuperamos el nombre del usuario desde la base de datos o localStorage
-    const email = localStorage.getItem('userEmail');
-    let nombreUsuario = "Usuario";
 
-    try {
-        const res = await fetch(`/obtener-usuario/${encodeURIComponent(email)}`);
-        const u = await res.json();
-        nombreUsuario = u.nombreReal || "Usuario UES";
-    } catch (e) { console.error("Error al obtener nombre"); }
+        async function contactarSoporte() {
+            let nombreUsuario = "Usuario UES";
 
-    // 2. Configuramos el mensaje profesional
-    const telefonoSoporte = "526625374491"; // Reemplaza con tu número
-    const mensaje = `Hola, mi nombre es *${nombreUsuario}*. Mi problema es el siguiente: `;
-    
-    // 3. Codificamos el mensaje para la URL
-    const url = `https://wa.me/${telefonoSoporte}?text=${encodeURIComponent(mensaje)}`;
-    
-    // 4. Abrimos WhatsApp
-    window.open(url, '_blank');
-}
+            try {
+                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+                const u = await res.json();
+                nombreUsuario = u.nombreReal || userEmail.split('@')[0];
+            } catch (e) { console.error("No se pudo obtener el nombre"); }
+
+            const telefono = "526625374491";
+            const mensaje = `Hola, mi nombre es *${nombreUsuario}*. Escribo desde UES Helper. Mi problema es el siguiente: `;
+            const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+            
+            window.open(url, '_blank');
+        }
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>
 </html>

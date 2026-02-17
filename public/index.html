@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; --bg-dark: #050505; }
+        :root { --ues-guinda: #800000; --ues-oro: #FFD700; --bg-dark: #050505; }
         
         body { 
             background: radial-gradient(circle at top right, #1a0000, var(--bg-dark));
@@ -44,7 +44,6 @@
             transition: 0.3s; margin-bottom: 20px;
         }
 
-        /* DISEÑO DE BOTÓN CORREGIDO */
         .btn-main {
             background: var(--ues-guinda);
             border: none; border-radius: 12px;
@@ -57,21 +56,31 @@
 
         .btn-main:hover { background: #a00000; transform: translateY(-2px); }
 
-        /* NOTIFICACIÓN FLOTANTE (Sustituye al botón verde feo) */
+        /* NOTIFICACIÓN FLOTANTE MEJORADA */
         .floating-toast {
             position: fixed; top: 20px; right: 20px;
-            background: rgba(128, 0, 0, 0.9);
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(10px);
             color: white; padding: 15px 25px;
-            border-radius: 15px; border-left: 5px solid #ff4d4d;
+            border-radius: 15px; border-left: 5px solid var(--ues-guinda);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 1000; display: none;
             animation: slideIn 0.5s forwards;
+            font-size: 0.85rem; font-weight: 600;
         }
 
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .step { width: 35px; height: 5px; border-radius: 10px; background: rgba(255,255,255,0.1); transition: 0.4s; }
-        .step.active { background: var(--ues-guinda); width: 50px; }
+        .step { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: 0.4s; }
+        .step.active { background: var(--ues-guinda); transform: scale(1.2); }
+
+        .version-tag { 
+    opacity: 0.6; 
+    font-size: 0.7rem; 
+    margin-top: 30px; 
+    border-top: 1px solid rgba(255,255,255,0.05); 
+    padding-top: 15px; /* Reemplazo correcto de pt-3 */
+}
     </style>
 </head>
 <body>
@@ -130,9 +139,10 @@
             <button onclick="entrar()" class="btn-main">Ingresar al Portal <i class="fas fa-sign-in-alt ms-2"></i></button>
         </div>
 
-        <div class="version-tag text-center mt-5">
-            <p class="text-muted small m-0" style="font-size: 0.6rem;">Versión 1.2.4 - Francisco Aguayo</p>
-            <p class="small text-muted mb-0">© 2026 UES Academic Helper</p>
+        <div class="version-tag text-center pt-3">
+            <p class="m-0">Versión 1.2.4 - Build 2026</p>
+            <p class="m-0 text-danger fw-bold">Developer: Francisco Aguayo</p>
+            <p class="small mb-0 mt-2">© 2026 UES Academic Helper</p>
         </div>
     </div>
 
@@ -141,14 +151,29 @@
         particlesJS("particles-js", {"particles":{"number":{"value":50},"color":{"value":"#800000"},"shape":{"type":"circle"},"opacity":{"value":0.3},"size":{"value":2},"line_linked":{"enable":true,"distance":150,"color":"#800000","opacity":0.2,"width":1},"move":{"enable":true,"speed":1.5}}});
 
         const oferta = {
-            "UES": ["Ingeniería en Software", "Ingeniería Mecatrónica", "Lic. en Derecho", "Lic. en Enfermería"],
-            "UNISON": ["Lic. en Medicina", "Ingeniería Civil", "Lic. en Psicología", "Ingeniería Industrial"],
-            "ITH": ["Ingeniería Sistemas Computacionales", "Ingeniería Industrial", "Ingeniería Electrónica"]
+            "UES": [
+                "Ingeniería en Software", "Ingeniería Mecatrónica", "Ingeniería Industrial en Manufactura",
+                "Ingeniería en Horticultura", "Ingeniería en Geociencias", "Ingeniería Ambiental",
+                "Lic. en Administración de Empresas", "Lic. en Derecho", "Lic. en Criminalística",
+                "Lic. en Enfermería", "Lic. en Nutrición Humana", "Lic. en Fisioterapia",
+                "Lic. en Agronegocios", "Lic. en Comercio Internacional", "Lic. en Contaduría"
+            ],
+            "UNISON": [
+                "Lic. en Medicina", "Lic. en Derecho", "Lic. en Psicología", "Lic. en Comunicación",
+                "Ingeniería Civil", "Ingeniería Industrial", "Ingeniería de Minas", "Ingeniería Química",
+                "Lic. en Arquitectura", "Lic. en Contaduría Pública", "Lic. en Informática",
+                "Lic. en Enfermería", "Lic. en Biología", "Lic. en Física"
+            ],
+            "ITH": [
+                "Ingeniería Sistemas Computacionales", "Ingeniería Mecatrónica", "Ingeniería Industrial",
+                "Ingeniería Electrónica", "Ingeniería Eléctrica", "Ingeniería Mecánica",
+                "Ingeniería en Gestión Empresarial", "Ingeniería Biomédica", "Ingeniería Aeronáutica"
+            ]
         };
 
         function showToast(msg) {
             const t = document.getElementById('errorToast');
-            t.innerText = msg;
+            t.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> ${msg}`;
             t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 4000);
         }
@@ -172,29 +197,45 @@
             document.getElementById('dot2').classList.add('active');
         }
 
+        function regresar() {
+            document.getElementById('paso2').style.display = 'none';
+            document.getElementById('paso1').style.display = 'block';
+            document.getElementById('dot2').classList.remove('active');
+            document.getElementById('dot1').classList.add('active');
+        }
+
         async function entrar() {
             const btn = document.querySelector('#paso2 .btn-main');
-            const email = document.getElementById('emailInput').value;
-            const codigo = document.getElementById('passInput').value;
+            const email = document.getElementById('emailInput').value.trim();
+            const pass = document.getElementById('passInput').value.trim();
             
-            if(!email || !codigo) return showToast("⚠️ Ingresa tus credenciales");
+            if(!email || !pass) return showToast("⚠️ Ingresa tus credenciales");
 
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin me-2"></i> Validando...`;
             btn.disabled = true;
 
+            // ACCESO MAESTRO (FRANCISCO)
+            if (email === "franciscoaguayo2005@gmail.com" && pass === "VILLA1") {
+                btn.innerHTML = `<i class="fas fa-crown me-2"></i> Bienvenido, Francisco`;
+                btn.style.background = "#b8860b";
+                localStorage.setItem('userEmail', email);
+                setTimeout(() => { window.location.href = "/home.html"; }, 1500);
+                return;
+            }
+
             try {
                 const res = await fetch('/verificar-codigo', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email: email.trim(), codigo: codigo.trim() })
+                    body: JSON.stringify({ email, codigo: pass })
                 });
                 
                 const data = await res.json();
                 if(res.ok) {
-                    btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Bienvenido!`;
+                    btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ¡Acceso Correcto!`;
                     btn.style.background = "#28a745";
-                    localStorage.setItem('userEmail', email.toLowerCase().trim());
+                    localStorage.setItem('userEmail', email);
                     setTimeout(() => { window.location.href = data.redirect; }, 1500);
                 } else {
                     showToast("❌ Acceso Denegado: Revisa tus datos.");
@@ -202,11 +243,13 @@
                     btn.disabled = false;
                 }
             } catch (e) {
-                showToast("❌ Error de conexión con Render.");
+                showToast("❌ Error de servidor. Intenta de nuevo.");
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
+
+        document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') entrar(); });
     </script>
 </body>
 </html>

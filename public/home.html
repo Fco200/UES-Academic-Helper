@@ -2,87 +2,99 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil UES | Home</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <style>
         :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
-        body { background: #000; color: #eee; font-family: 'Inter', sans-serif; }
-        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px; }
+        body { background: #000; color: #eee; font-family: 'Inter', sans-serif; margin: 0; }
+        
+        /* Sidebar */
+        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px; z-index: 1000; }
         .main-content { margin-left: 280px; padding: 40px; }
-        .profile-wrapper { position: relative; width: 150px; height: 150px; margin-right: 30px; }
-        .user-photo { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--ues-guinda); object-fit: cover; }
-        .upload-btn { position: absolute; bottom: 5px; right: 5px; background: var(--ues-guinda); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #000; }
-        .data-card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 25px; border-left: 5px solid var(--ues-guinda); }
+        
+        /* Navegación */
         .nav-link-custom { color: #888; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; transition: 0.3s; }
+        .nav-link-custom:hover { background: rgba(128,0,0,0.1); color: white; }
         .nav-link-custom.active { background: var(--ues-guinda); color: white; }
+
+        /* Profile Header */
+        .profile-wrapper { position: relative; width: 150px; height: 150px; margin-right: 30px; }
+        .user-photo { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--ues-guinda); object-fit: cover; box-shadow: 0 0 20px rgba(128,0,0,0.3); }
+        .upload-btn { position: absolute; bottom: 5px; right: 5px; background: var(--ues-guinda); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #000; }
+
+        /* Tarjetas de Datos */
+        .data-card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 25px; border-left: 5px solid var(--ues-guinda); transition: 0.3s; }
+        .data-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-5px); }
+        
+        /* Notificaciones Flotantes (Beneficio para el usuario) */
+        .sys-notification { background: linear-gradient(90deg, rgba(128,0,0,0.2), transparent); border-radius: 15px; padding: 15px; border: 1px solid rgba(128,0,0,0.3); margin-bottom: 25px; display: flex; align-items: center; }
+        
         .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        .form-control, .form-select { background: #111 !important; border: 1px solid #333 !important; color: white !important; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h4 class="fw-bold mb-5">UES <span class="text-danger">HELPER</span></h4>
-        <nav>
-            <a href="/home.html" class="nav-link-custom active"><i class="fas fa-user-circle me-2"></i> inicio</a>
+        <nav id="sidebarNav">
+            <a href="/home.html" class="nav-link-custom active"><i class="fas fa-home me-2"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tasks me-2"></i> Tareas</a>
             <a href="/seguridad.html" class="nav-link-custom"><i class="fas fa-shield-alt me-2 text-danger"></i> Seguridad</a>
             <a href="/soporte.html" class="nav-link-custom"><i class="fas fa-headset me-2"></i> Soporte</a>
-            <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-headset me-2"></i> Mi Perfil</a>
+            <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
         </nav>
         <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill mt-5">Salir</button>
     </div>
 
-    <div class="main-content" id="mainContent">
-        <div class="d-flex align-items-center mb-5 profile-header p-4 bg-dark rounded-5 shadow-lg">
+    <div class="main-content">
+        <div class="sys-notification animate__animated animate__fadeInDown">
+            <i class="fas fa-info-circle text-danger me-3 fa-lg"></i>
+            <div>
+                <span class="d-block fw-bold small text-danger">ACTUALIZACIÓN V1.2.4</span>
+                <span class="small text-muted">Bienvenido de nuevo. Revisa tus pendientes y las últimas noticias de la UES.</span>
+            </div>
+        </div>
+
+        <div id="mainContent" class="d-flex align-items-center mb-5 profile-header p-4 bg-dark rounded-5 shadow-lg">
             <div class="profile-wrapper">
                 <img id="displayFoto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo">
                 <label for="inputFoto" class="upload-btn"><i class="fas fa-camera"></i></label>
                 <input type="file" id="inputFoto" hidden accept="image/*" onchange="procesarImagen(this)">
             </div>
             <div>
-                <h1 id="displayNombre" class="fw-bold m-0 text-white">Nombre de Usuario</h1>
+                <h1 id="displayNombre" class="fw-bold m-0 text-white">...</h1>
                 <p id="displayCarrera" class="text-warning fw-bold mb-1"></p>
                 <p id="displayCorreo" class="text-muted small"></p>
                 <button class="btn btn-danger btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar Información</button>
-                <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="abrirEditorSeguridad()">Seguridad</button>
             </div>
         </div>
 
         <div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="data-card">
-            <small class="text-muted fw-bold">TELÉFONO</small>
-            <p id="displayTelefono" class="m-0 fs-5 text-white">No registrado</p>
+            <div class="col-md-4">
+                <div class="data-card">
+                    <small class="text-muted fw-bold">TELÉFONO</small>
+                    <p id="displayTelefono" class="m-0 fs-5 text-white">No registrado</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="data-card" style="border-left-color: var(--ues-oro);">
+                    <small class="text-muted fw-bold">SEMESTRE</small>
+                    <p id="displaySemestre" class="m-0 fs-5 text-white">--</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="data-card" style="cursor: pointer;" onclick="irALinkedin()">
+                    <small class="text-muted fw-bold">LINKEDIN</small>
+                    <p id="displayLinkedin" class="m-0 fs-5 text-info"><i class="fab fa-linkedin me-2"></i>Ver Perfil</p>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="data-card" style="border-left-color: var(--ues-oro);">
-            <small class="text-muted fw-bold">SEMESTRE ACTUAL</small>
-            <p id="displaySemestre" class="m-0 fs-5 text-white">--</p>
-        </div>
-    </div>
 
-    <div class="col-md-4">
-        <div id="cardLinkedin" class="data-card" style="cursor: pointer; transition: 0.3s;" onclick="irALinkedin()">
-            <small class="text-muted fw-bold">RED PROFESIONAL</small>
-            <p id="displayLinkedin" class="m-0 fs-5 text-info">
-                <i class="fab fa-linkedin me-2"></i>Ver Perfil
-            </p>
-        </div>
-    </div>
-
-    <div class="col-md-12">
-        <div class="data-card">
-            <small class="text-muted fw-bold">SOBRE MÍ (BIOGRAFÍA)</small>
-            <p id="displayBio" class="m-0 opacity-75 text-white">Cuéntanos algo sobre ti...</p>
-        </div>
-    </div>
-</div>
-
-        <div class="row mt-5">
+        <div class="row">
             <div class="col-lg-8">
                 <h3 class="fw-bold mb-4 text-white"><i class="fas fa-newspaper text-danger me-2"></i> Noticias UES</h3>
                 <div id="contenedorNoticias" class="row g-4"></div>
@@ -94,75 +106,78 @@
         </div>
     </div>
 
-   <div class="modal fade" id="modalEditar" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark border-secondary text-white rounded-5 shadow-lg">
-            <div class="modal-body p-4">
-                <div class="text-center mb-4">
-                    <i class="fas fa-user-edit text-danger fa-2x mb-2"></i>
-                    <h5 class="fw-bold text-danger">Actualizar mi Perfil</h5>
-                    <p class="text-muted small">Escribe tu información para sincronizarla con el sistema.</p>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="small text-muted fw-bold"><i class="fas fa-id-card me-2"></i>NOMBRE COMPLETO</label>
-                    <input type="text" id="editNombre" class="form-control bg-black text-white border-secondary py-2" placeholder="Ej: Francisco Aguayo">
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="small text-muted fw-bold"><i class="fas fa-venus-mars me-2"></i>GÉNERO</label>
-                        <select id="editGenero" class="form-select bg-black text-white border-secondary py-2">
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="small text-muted fw-bold"><i class="fas fa-graduation-cap me-2"></i>SEMESTRE</label>
-                        <input type="number" id="editSemestre" class="form-control bg-black text-white border-secondary py-2" min="1" max="12" placeholder="Ej: 6">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="small text-muted fw-bold"><i class="fab fa-whatsapp me-2"></i>TELÉFONO (10 DÍGITOS)</label>
-                    <input type="text" id="editTelefono" class="form-control bg-black text-white border-secondary py-2" placeholder="662XXXXXXX">
-                </div>
-
-                <div class="mb-3">
-                    <label class="small text-muted fw-bold"><i class="fab fa-linkedin me-2"></i>LINKEDIN (URL)</label>
-                    <input type="text" id="editLinkedin" class="form-control bg-black text-white border-secondary py-2" placeholder="https://linkedin.com/in/tu-perfil">
-                </div>
-
-                <div class="mb-4">
-                    <label class="small text-muted fw-bold"><i class="fas fa-pen me-2"></i>BIOGRAFÍA</label>
-                    <textarea id="editBio" class="form-control bg-black text-white border-secondary" rows="3" placeholder="Cuéntanos un poco sobre tus intereses o habilidades..."></textarea>
-                </div>
-
-                <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="guardarTodo()">
-                    <i class="fas fa-save me-2"></i> GUARDAR CAMBIOS
-                </button>
-                
-                <button class="btn btn-link w-100 text-muted btn-sm mt-2 text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
-</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalSeguridad" tabindex="-1">
+    <div class="modal fade" id="modalEditar" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark border-warning text-white rounded-5">
-                <div class="modal-body p-4 text-center">
-                    <i class="fas fa-shield-alt text-warning fa-3x mb-3"></i>
-                    <h5 class="fw-bold mb-4">Actualizar Contraseña</h5>
-                    <input type="password" id="nuevaPass" class="form-control bg-black text-white border-secondary mb-3 text-center" placeholder="Nueva Clave">
-                    <button class="btn btn-warning w-100 py-3 fw-bold rounded-4 shadow" onclick="ejecutarCambioPass()">ACTUALIZAR CLAVE</button>
+            <div class="modal-content bg-dark border-secondary text-white rounded-5 shadow-lg">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold text-danger mb-4"><i class="fas fa-user-edit me-2"></i> Actualizar Perfil</h5>
+                    
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">NOMBRE COMPLETO</label>
+                        <input type="text" id="editNombre" class="form-control" placeholder="Francisco Aguayo">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="small text-muted fw-bold">GÉNERO</label>
+                            <select id="editGenero" class="form-select">
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="small text-muted fw-bold">SEMESTRE</label>
+                            <input type="number" id="editSemestre" class="form-control" min="1" max="12" placeholder="Ej: 6">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">WHATSAPP (10 DÍGITOS)</label>
+                        <input type="text" id="editTelefono" class="form-control" placeholder="662XXXXXXX">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">LINKEDIN (URL)</label>
+                        <input type="text" id="editLinkedin" class="form-control" placeholder="linkedin.com/in/tu-perfil">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">BIOGRAFÍA</label>
+                        <textarea id="editBio" class="form-control" rows="3" placeholder="Sobre ti..."></textarea>
+                    </div>
+
+                    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="guardarTodo()">
+                        <i class="fas fa-save me-2"></i> GUARDAR CAMBIOS
+                    </button>
+                    <button class="btn btn-link w-100 text-muted btn-sm mt-2 text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalManual" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark border-danger text-white rounded-5 shadow-lg">
+                <div class="modal-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-danger mb-3"><i class="fas fa-rocket"></i></div>
+                        <h2 class="fw-bold">¡Bienvenido a UES Helper!</h2>
+                        <p class="text-muted">Tu nuevo asistente académico centralizado.</p>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="text-danger fw-bold"><i class="fas fa-tasks me-2"></i> Gestión de Tareas</h6>
+                            <p class="small text-muted">Organiza tus entregas con el sistema CRUD en el Dashboard.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-warning fw-bold"><i class="fas fa-user-circle me-2"></i> Perfil Pro</h6>
+                            <p class="small text-muted">Añade tu LinkedIn y teléfono para conectar con otros alumnos.</p>
+                        </div>
+                    </div>
+                    <hr class="border-secondary my-4">
+                    <p class="small text-muted text-center italic">Nota: Las funciones de recuperar contraseña están en desarrollo.</p>
+                    <button class="btn btn-danger w-100 py-3 rounded-pill fw-bold" data-bs-dismiss="modal">¡EMPEZAR AHORA!</button>
                 </div>
             </div>
         </div>
@@ -178,214 +193,92 @@
             await cargarDatosPerfil();
             await cargarNoticiasHome();
             await cargarPendientesHome();
+            
+            // Mostrar manual solo una vez
+            if (!sessionStorage.getItem('manualVisto')) {
+                new bootstrap.Modal(document.getElementById('modalManual')).show();
+                sessionStorage.setItem('manualVisto', 'true');
+            }
+
+            // Si es Francisco, mostrar Panel Maestro
+            if (userEmail === "franciscoaguayo2005@gmail.com") {
+                document.getElementById('sidebarNav').innerHTML += `
+                    <a href="/master.html" class="nav-link-custom text-danger fw-bold"><i class="fas fa-crown me-2"></i> PANEL MAESTRO</a>`;
+            }
         };
 
         async function cargarDatosPerfil() {
-    try {
-        const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
-        const u = await res.json();
-        
-        // 1. Datos Principales (Cabecera)
-        document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante UES";
-        document.getElementById('displayCarrera').innerText = u.carrera || "Ingeniería";
-        document.getElementById('displayCorreo').innerText = u.identificador;
-        document.getElementById('displayFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-
-        // 2. Datos de las Tarjetas (Lo que te sale vacío)
-        // Asegúrate de que los IDs coincidan con los del HTML
-        document.getElementById('displayTelefono').innerText = u.telefono || "Sin registrar";
-        
-        // IMPORTANTE: En tu base de datos el campo se llama 'semestre'
-        document.getElementById('displaySemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "No asignado";
-        
-        document.getElementById('displayBio').innerText = u.biografia || "Sin biografía aún...";
-        
-        // 3. Lógica de LinkedIn
-        const link = u.linkedin || "";
-        const dispLink = document.getElementById('displayLinkedin');
-        if(link === "") {
-            dispLink.innerText = "No registrado";
-            dispLink.className = "m-0 fs-5 text-muted";
-        } else {
-            dispLink.innerHTML = `<i class="fab fa-linkedin me-2"></i>Ver LinkedIn`;
-            dispLink.className = "m-0 fs-5 text-info";
-        }
-
-        // 4. PRE-CARGAR EL MODAL DE EDICIÓN (Para que el usuario sepa qué hay)
-        // Esto responde a tu petición de que el usuario sepa qué poner
-        document.getElementById('editNombre').value = u.nombreReal || "";
-        document.getElementById('editTelefono').value = u.telefono || "";
-        document.getElementById('editSemestre').value = u.semestre || "";
-        document.getElementById('editLinkedin').value = u.linkedin || "";
-        document.getElementById('editBio').value = u.biografia || "";
-        document.getElementById('editGenero').value = u.genero || "Masculino";
-
-    } catch (e) { 
-        console.error("Error al cargar perfil en Home", e); 
-    }
-}
-        
-
-        function abrirEditorSeguridad() {
-            const modal = new bootstrap.Modal(document.getElementById('modalSeguridad'));
-            modal.show();
-        }
-
-        async function ejecutarCambioPass() {
-            const nuevaPassword = document.getElementById('nuevaPass').value;
-            if(nuevaPassword === "UES2026") return alert("❌ No puedes usar la contraseña inicial.");
-            if(nuevaPassword.length < 5) return alert("❌ La contraseña debe tener al menos 5 caracteres.");
-
             try {
-                const res = await fetch('/cambiar-password', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email: userEmail, nuevaPassword })
-                });
-                if(res.ok) {
-                    alert("✅ ¡Contraseña actualizada! Por seguridad, inicia sesión de nuevo.");
-                    cerrarSesion();
-                }
-            } catch (e) { alert("❌ Error al conectar con el servidor."); }
+                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+                const u = await res.json();
+                
+                document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante UES";
+                document.getElementById('displayCarrera').innerText = u.carrera || "Ingeniería";
+                document.getElementById('displayCorreo').innerText = u.identificador;
+                document.getElementById('displayFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+                document.getElementById('displayTelefono').innerText = u.telefono || "No registrado";
+                document.getElementById('displaySemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "Sin asignar";
+                
+                // Pre-llenar modal
+                document.getElementById('editNombre').value = u.nombreReal || "";
+                document.getElementById('editTelefono').value = u.telefono || "";
+                document.getElementById('editSemestre').value = u.semestre || "";
+                document.getElementById('editLinkedin').value = u.linkedin || "";
+                document.getElementById('editBio').value = u.biografia || "";
+            } catch (e) { console.error("Error", e); }
         }
 
-     async function guardarTodo() {
-    const btn = document.querySelector('#modalEditar .btn-danger');
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Guardando...';
-
-    const datos = {
-        email: userEmail, // Identificador clave
-        nombreReal: document.getElementById('editNombre').value,
-        genero: document.getElementById('editGenero').value,
-        semestre: document.getElementById('editSemestre').value,
-        telefono: document.getElementById('editTelefono').value,
-        linkedin: document.getElementById('editLinkedin').value,
-        biografia: document.getElementById('editBio').value,
-        foto: fotoBase64
-    };
-
-    try {
-        const res = await fetch('/actualizar-perfil-completo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(datos)
-        });
-
-        if(res.ok) {
-            alert("✅ ¡Información sincronizada con éxito!");
-            location.reload(); // Obligamos a recargar para pintar los nuevos datos
+        async function guardarTodo() {
+            const datos = {
+                email: userEmail,
+                nombreReal: document.getElementById('editNombre').value,
+                genero: document.getElementById('editGenero').value,
+                semestre: document.getElementById('editSemestre').value,
+                telefono: document.getElementById('editTelefono').value,
+                linkedin: document.getElementById('editLinkedin').value,
+                biografia: document.getElementById('editBio').value,
+                foto: fotoBase64
+            };
+            const res = await fetch('/actualizar-perfil-completo', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(datos)
+            });
+            if(res.ok) { alert("✅ ¡Información actualizada!"); location.reload(); }
         }
-    } catch (e) {
-        alert("❌ Error al guardar.");
-        btn.innerHTML = 'GUARDAR CAMBIOS';
-    }
-}
 
         async function cargarNoticiasHome() {
-            try {
-                const res = await fetch('/obtener-noticias');
-                const noticias = await res.json();
-                const contenedor = document.getElementById('contenedorNoticias');
-                if (noticias.length === 0) {
-                    contenedor.innerHTML = '<p class="text-muted small">No hay noticias.</p>';
-                    return;
-                }
-                contenedor.innerHTML = noticias.map(n => `
-                    <div class="col-md-6 mb-3">
-                        <div class="card bg-dark border-secondary rounded-4 h-100 shadow">
-                            ${n.imagen ? `<img src="${n.imagen}" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;">` : ''}
-                            <div class="card-body p-3">
-                                <h6 class="fw-bold text-white mb-1">${n.titulo}</h6>
-                                <p class="card-text text-muted small">${n.contenido}</p>
-                            </div>
+            const res = await fetch('/obtener-noticias');
+            const noticias = await res.json();
+            document.getElementById('contenedorNoticias').innerHTML = noticias.map(n => `
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-dark border-secondary rounded-4 h-100 shadow">
+                        ${n.imagen ? `<img src="${n.imagen}" class="card-img-top rounded-top-4" style="height: 150px; object-fit: cover;">` : ''}
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-white mb-1">${n.titulo}</h6>
+                            <p class="card-text text-muted small">${n.contenido.substring(0,80)}...</p>
                         </div>
                     </div>
-                `).join('');
-            } catch (e) { console.error("Error noticias", e); }
+                </div>`).join('');
         }
 
         async function cargarPendientesHome() {
-            try {
-                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-                const materias = await res.json();
-                const contenedor = document.getElementById('listaPendientesHome');
-                let html = "";
-                materias.forEach(m => {
-                    m.tareas.forEach(t => {
-                        if (!t.completada) {
-                            html += `<div class="p-2 mb-2 rounded-3 border-start border-warning border-4" style="background: rgba(255,255,255,0.05);">
-                                        <span class="small fw-bold text-white d-block">${t.descripcion}</span>
-                                        <small class="text-muted">${m.nombre}</small>
-                                     </div>`;
-                        }
-                    });
-                });
-                contenedor.innerHTML = html || '<p class="text-muted small">¡Todo libre!</p>';
-            } catch (e) { console.error("Error tareas", e); }
+            const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+            const materias = await res.json();
+            let html = "";
+            materias.forEach(m => m.tareas.forEach(t => {
+                if (!t.completada) html += `<div class="p-2 mb-2 rounded-3 border-start border-warning border-4 bg-dark shadow-sm"><span class="small fw-bold text-white d-block">${t.descripcion}</span><small class="text-muted">${m.nombre}</small></div>`;
+            }));
+            document.getElementById('listaPendientesHome').innerHTML = html || '<p class="text-muted small">¡Sin pendientes!</p>';
         }
 
-        function procesarImagen(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('displayFoto').src = e.target.result;
-                    fotoBase64 = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+        function irALinkedin() {
+            const url = document.getElementById('editLinkedin').value;
+            if(url) window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
+            else alert("Registra tu LinkedIn primero.");
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
-        // Seguridad: Si no hay un correo en el localStorage, regresa al inicio
-if (!localStorage.getItem('userEmail')) {
-    window.location.href = '/bienvenida.html';
-}
-window.addEventListener('load', () => {
-    // Solo mostrar el manual una vez por sesión para no molestar
-    if (!sessionStorage.getItem('manualVisto')) {
-        const modal = new bootstrap.Modal(document.getElementById('modalManual'));
-        modal.show();
-        sessionStorage.setItem('manualVisto', 'true');
-    }
-});
-// Dentro de cargarDatosPerfil() o window.onload
-if (userEmail === "franciscoaguayo2005@gmail.com") {
-    const nav = document.querySelector('nav');
-    const btnMaster = `
-        <a href="/master.html" class="nav-link-custom text-danger fw-bold shadow-sm" style="border: 1px solid red;">
-            <i class="fas fa-crown me-2"></i> PANEL MAESTRO
-        </a>`;
-    nav.insertAdjacentHTML('beforeend', btnMaster);
-}
     </script>
-    <div class="modal fade" id="modalManual" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-danger rounded-5">
-            <div class="modal-header border-0">
-                <h4 class="fw-bold text-danger"><i class="fas fa-book me-2"></i> Manual de Usuario - UES Helper</h4>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <h5 class="text-warning">🚀 Guía Rápida</h5>
-                <p>Bienvenido al asistente académico. Puedes gestionar tus tareas en el Dashboard y personalizar tu perfil con redes sociales.</p>
-                <hr class="border-secondary">
-                <h5 class="text-danger">⚠️ Detalles en Desarrollo</h5>
-                <ul>
-                    <li><strong>Recuperar Contraseña:</strong> El servicio de envío de correos está en fase de pruebas por protocolos de Gmail.</li>
-                    <li><strong>Soporte por Correo:</strong> Si el formulario falla, usa el botón directo de WhatsApp para atención inmediata.</li>
-                </ul>
-                <h5 class="text-info">✨ Próximas Actualizaciones</h5>
-                <p>Integración de calendario UES, historial de accesos y modo oscuro automático.</p>
-                <p>Recordatorios por mediante de correo, y Recuperacion de contraseña por codigo sms</p>
-
-                <p>¡Mantente atento a las novedades!</p>
-
-            </div>
-            <div class="modal-footer border-0">
-                <button class="btn btn-danger w-100 rounded-pill py-2" data-bs-dismiss="modal">ENTENDIDO</button>
-            </div>
-        </div>
-    </div>
-</div>
 </body>
 </html>

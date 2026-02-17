@@ -7,87 +7,98 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --ues-guinda: #800000; --ues-oro: #b8860b; --sidebar-w: 280px; }
-        body { background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow-x: hidden; }
+        body { 
+            background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;
+            background-image: radial-gradient(circle at top right, #1a0000, #000);
+            min-height: 100vh;
+        }
         
         /* Sidebar */
         .sidebar { width: var(--sidebar-w); background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
         .main-content { margin-left: var(--sidebar-w); padding: 50px; }
+        
         .nav-btn { width: 100%; padding: 15px; border-radius: 15px; display: flex; align-items: center; color: #888; text-decoration: none; transition: 0.4s; margin-bottom: 10px; border: 1px solid transparent; background: transparent; }
         .nav-btn:hover { background: rgba(128,0,0,0.1); color: white; transform: translateX(8px); border-color: var(--ues-guinda); }
         .nav-btn.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 15px rgba(128,0,0,0.3); }
 
         /* Profile Visuals */
-        .profile-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 35px; padding: 40px; text-align: center; max-width: 850px; margin: auto; backdrop-filter: blur(15px); }
-        .avatar-container { position: relative; width: 150px; height: 150px; margin: 0 auto 20px; }
-        .avatar-l { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--ues-guinda); }
+        .profile-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 35px; padding: 45px; text-align: center; max-width: 900px; margin: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .avatar-container { position: relative; width: 160px; height: 160px; margin: 0 auto 25px; }
+        .avatar-l { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--ues-guinda); box-shadow: 0 0 25px rgba(128,0,0,0.3); }
         
         /* Data Grid */
-        .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
-        .data-box { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 15px; text-align: left; border-left: 4px solid var(--ues-guinda); transition: 0.3s; }
-        .data-box:hover { background: rgba(128,0,0,0.05); transform: translateY(-3px); }
-        .label-custom { color: var(--ues-oro); font-weight: 800; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
-        .val-custom { font-size: 1rem; font-weight: 600; color: #fff; margin: 0; }
+        .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 35px; }
+        .data-box { background: rgba(255,255,255,0.03); border-radius: 22px; padding: 22px; text-align: left; border: 1px solid rgba(255,255,255,0.05); border-left: 5px solid var(--ues-guinda); transition: 0.3s; }
+        .data-box:hover { background: rgba(255,255,255,0.06); transform: translateY(-5px); border-color: var(--ues-guinda); }
+        .label-custom { color: var(--ues-oro); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px; display: block; margin-bottom: 8px; }
+        .val-custom { font-size: 1.1rem; font-weight: 600; color: #fff; margin: 0; }
         .bio-box { grid-column: span 3; }
 
-        /* Status Badge Flotante */
-        .status-badge { position: fixed; top: 20px; right: 20px; background: rgba(40,167,69,0.1); border: 1px solid #28a745; color: #28a745; padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; z-index: 2000; display: flex; align-items: center; gap: 8px; }
-        .dot { width: 7px; height: 7px; background: #28a745; border-radius: 50%; box-shadow: 0 0 10px #28a745; animation: blink 2s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        /* Status Badge */
+        .status-badge { position: fixed; top: 20px; right: 20px; background: rgba(15,15,15,0.8); border: 1px solid rgba(255,255,255,0.1); color: #28a745; padding: 8px 18px; border-radius: 30px; font-size: 0.7rem; font-weight: 800; z-index: 2000; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); }
+        .dot { width: 8px; height: 8px; background: #28a745; border-radius: 50%; box-shadow: 0 0 10px #28a745; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         /* Modals */
-        .modal-content { background: #111; border-radius: 25px; border: 1px solid #333; color: #fff; }
-        .form-control, .form-select { background: #1a1a1a !important; border: 1px solid #333 !important; color: #fff !important; border-radius: 10px; padding: 10px; }
+        .modal-content { background: #0f0f0f; border-radius: 30px; border: 1px solid #333; color: #fff; box-shadow: 0 25px 50px rgba(0,0,0,1); }
+        .form-control, .form-select { background: #1a1a1a !important; border: 1px solid #333 !important; color: #fff !important; border-radius: 12px; padding: 14px; }
+        .form-control:focus { border-color: var(--ues-guinda); box-shadow: 0 0 10px rgba(128,0,0,0.2); }
     </style>
 </head>
 <body>
 
     <div class="status-badge">
         <div class="dot"></div>
-        <span>SERVIDOR ONLINE V1.2.4</span>
+        <span>SISTEMA CONECTADO V1.2.4</span>
     </div>
 
     <div class="sidebar">
         <div class="text-center mb-5">
-            <img src="logo.png" style="width: 50px;">
-            <h5 class="fw-bold mt-2 text-white">UES HELPER</h5>
+            <img src="logo.png" style="width: 60px;">
+            <h4 class="fw-bold mt-2 text-white">UES <span class="text-danger">HELPER</span></h4>
         </div>
-        <nav>
-            <a href="/home.html" class="btn btn-dark rounded-pill px-4 shadow"><i class="fas fa-home me-2"></i> Regresar</a>
+        <nav id="sidebarNav">
+            <a href="/home.html" class="nav-btn"><i class="fas fa-home me-3"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Tareas CRUD</a>
             <a href="/perfil.html" class="nav-btn active"><i class="fas fa-user-circle me-3"></i> Mi Perfil</a>
             <a href="/seguridad.html" class="nav-btn"><i class="fas fa-shield-alt me-3"></i> Seguridad</a>
+            <a href="/soporte.html" class="nav-btn"><i class="fas fa-headset me-3"></i> Soporte</a>
         </nav>
         <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 mt-5">SALIR</button>
     </div>
 
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-5">
-            <h2 class="fw-bold m-0 text-white">Configuración de Perfil</h2>
-            <button class="btn btn-danger rounded-pill px-4 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#modalEditar">
-                <i class="fas fa-user-edit me-2"></i> EDITAR DATOS
+            <div>
+                <h1 class="fw-bold m-0 text-white">Perfil Académico</h1>
+                <p class="text-muted small">Gestiona tu identidad digital en el portal.</p>
+            </div>
+            <button class="btn btn-danger rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#modalEditar">
+                <i class="fas fa-edit me-2"></i> EDITAR MI INFORMACIÓN
             </button>
         </div>
         
         <div class="profile-card">
             <div class="avatar-container">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="dispFoto" class="avatar-l">
-                <label for="inputFoto" class="btn-upload" style="position: absolute; bottom: 0; right: 0; background: var(--ues-guinda); padding: 8px; border-radius: 50%; cursor: pointer;"><i class="fas fa-camera text-white"></i></label>
+                <label for="inputFoto" class="btn-upload" style="position: absolute; bottom: 5px; right: 5px; background: var(--ues-guinda); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid #000;"><i class="fas fa-camera text-white"></i></label>
                 <input type="file" id="inputFoto" hidden accept="image/*" onchange="previsualizarYGuardar(this)">
             </div>
             
-            <h3 id="dispNombre" class="fw-bold mb-1">Cargando...</h3>
-            <p id="dispCorreo" class="text-muted small mb-4"></p>
+            <h2 id="dispNombre" class="fw-bold mb-1" style="font-size: 2.2rem;">Cargando...</h2>
+            <p id="dispCorreo" class="text-muted mb-4 font-monospace"></p>
             
             <div class="data-grid">
                 <div class="data-box"><span class="label-custom">Carrera</span><p id="dispCarrera" class="val-custom">--</p></div>
                 <div class="data-box"><span class="label-custom">Semestre</span><p id="dispSemestre" class="val-custom">--</p></div>
                 <div class="data-box"><span class="label-custom">Género</span><p id="dispGenero" class="val-custom">--</p></div>
-                <div class="data-box"><span class="label-custom">Teléfono</span><p id="dispTelefono" class="val-custom">--</p></div>
-                <div class="data-box" style="cursor:pointer" onclick="irALinkedin()"><span class="label-custom">LinkedIn</span><p id="dispLinkedin" class="val-custom text-info">Ver Perfil</p></div>
-                <div class="data-box"><span class="label-custom">Institución</span><p class="val-custom">UES</p></div>
-                <div class="data-box bio-box"><span class="label-custom">Sobre Mí</span><p id="dispBio" class="val-custom opacity-75" style="font-weight: 400;">Sin biografía registrada.</p></div>
+                <div class="data-box"><span class="label-custom">WhatsApp</span><p id="dispTelefono" class="val-custom">--</p></div>
+                <div class="data-box" style="cursor:pointer" onclick="irALinkedin()"><span class="label-custom">LinkedIn</span><p id="dispLinkedin" class="val-custom text-info"><i class="fab fa-linkedin me-2"></i>Ver Perfil</p></div>
+                <div class="data-box"><span class="label-custom">Institución</span><p class="val-custom">UES Sonora</p></div>
+                <div class="data-box bio-box"><span class="label-custom">Biografía Profesional</span><p id="dispBio" class="val-custom opacity-75" style="font-weight: 400; font-size: 0.95rem;">Sin descripción...</p></div>
             </div>
         </div>
     </div>
@@ -96,16 +107,19 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body p-4">
-                    <h5 class="fw-bold mb-4 text-danger">Actualizar mi Información</h5>
+                    <div class="text-center mb-4">
+                        <i class="fas fa-id-card text-danger fa-2x mb-2"></i>
+                        <h5 class="fw-bold">Actualizar Datos</h5>
+                    </div>
                     
                     <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">Nombre Completo</label>
-                        <input type="text" id="editNombre" class="form-control" placeholder="Nombre completo">
+                        <label class="small fw-bold text-muted text-uppercase mb-2">Nombre Completo</label>
+                        <input type="text" id="editNombre" class="form-control" placeholder="Ej. Francisco Aguayo">
                     </div>
 
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="small fw-bold text-muted mb-1">Género</label>
+                            <label class="small fw-bold text-muted text-uppercase mb-2">Género</label>
                             <select id="editGenero" class="form-select">
                                 <option value="Masculino">Masculino</option>
                                 <option value="Femenino">Femenino</option>
@@ -113,24 +127,24 @@
                             </select>
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="small fw-bold text-muted mb-1">Semestre</label>
+                            <label class="small fw-bold text-muted text-uppercase mb-2">Semestre</label>
                             <input type="number" id="editSemestre" class="form-control" placeholder="1-12">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">WhatsApp / Teléfono</label>
+                        <label class="small fw-bold text-muted text-uppercase mb-2">Teléfono / WhatsApp</label>
                         <input type="text" id="editTelefono" class="form-control" placeholder="662XXXXXXX">
                     </div>
 
                     <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">LinkedIn (URL)</label>
-                        <input type="text" id="editLinkedin" class="form-control" placeholder="https://linkedin.com/in/tu-perfil">
+                        <label class="small fw-bold text-muted text-uppercase mb-2">Enlace LinkedIn</label>
+                        <input type="text" id="editLinkedin" class="form-control" placeholder="linkedin.com/in/tu-perfil">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">Breve Biografía</label>
-                        <textarea id="editBio" class="form-control" rows="3" placeholder="Intereses, habilidades..."></textarea>
+                    <div class="mb-4">
+                        <label class="small fw-bold text-muted text-uppercase mb-2">Biografía</label>
+                        <textarea id="editBio" class="form-control" rows="3" placeholder="Sobre ti..."></textarea>
                     </div>
 
                     <button class="btn btn-danger w-100 py-3 rounded-4 fw-bold shadow" onclick="guardarTodo()">
@@ -148,21 +162,28 @@
 
         async function cargarPerfil() {
             if (!userEmail) return window.location.href = '/index.html';
+            
+            // Lógica de Admin
+            if (userEmail === "franciscoaguayo2005@gmail.com") {
+                const nav = document.getElementById('sidebarNav');
+                if (!document.getElementById('btnAdmin')) {
+                    nav.insertAdjacentHTML('beforeend', `<a href="/master.html" id="btnAdmin" class="nav-btn text-warning fw-bold"><i class="fas fa-crown me-3"></i> Panel Maestro</a>`);
+                }
+            }
+
             try {
                 const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
                 const u = await res.json();
 
-                // Pintar en la vista principal
                 document.getElementById('dispNombre').innerText = u.nombreReal || "Estudiante UES";
                 document.getElementById('dispCorreo').innerText = u.identificador;
                 document.getElementById('dispCarrera').innerText = u.carrera || "Ingeniería";
-                document.getElementById('dispSemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "N/A";
-                document.getElementById('dispGenero').innerText = u.genero || "Sin definir";
+                document.getElementById('dispSemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "No asignado";
+                document.getElementById('dispGenero').innerText = u.genero || "No definido";
                 document.getElementById('dispTelefono').innerText = u.telefono || "Sin registrar";
-                document.getElementById('dispBio').innerText = u.biografia || "Sin biografía.";
+                document.getElementById('dispBio').innerText = u.biografia || "Sin biografía registrada aún.";
                 document.getElementById('dispFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
                 
-                // Cargar en el editor
                 document.getElementById('editNombre').value = u.nombreReal || "";
                 document.getElementById('editTelefono').value = u.telefono || "";
                 document.getElementById('editSemestre').value = u.semestre || "";
@@ -171,12 +192,12 @@
                 document.getElementById('editGenero').value = u.genero || "Masculino";
                 fotoBase64 = u.foto || "";
 
-            } catch (e) { console.error("Error cargando perfil", e); }
+            } catch (e) { console.error("Error", e); }
         }
 
         async function guardarTodo() {
             const btn = document.querySelector('#modalEditar .btn-danger');
-            btn.innerText = "PROCESANDO...";
+            btn.innerText = "SINCRONIZANDO...";
             btn.disabled = true;
 
             const datos = {
@@ -197,16 +218,16 @@
                     body: JSON.stringify(datos)
                 });
                 if(res.ok) {
-                    alert("✅ ¡Perfil actualizado!");
+                    alert("✅ ¡Perfil actualizado correctamente!");
                     location.reload();
                 }
-            } catch (e) { alert("❌ Error al guardar."); btn.innerText = "GUARDAR CAMBIOS"; btn.disabled = false; }
+            } catch (e) { alert("Error al conectar con el servidor."); btn.innerText = "GUARDAR CAMBIOS"; btn.disabled = false; }
         }
 
         function irALinkedin() {
             const url = document.getElementById('editLinkedin').value;
             if(url) window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
-            else alert("Registra tu LinkedIn primero.");
+            else alert("Registra tu enlace de LinkedIn en el botón Editar.");
         }
 
         function previsualizarYGuardar(input) {

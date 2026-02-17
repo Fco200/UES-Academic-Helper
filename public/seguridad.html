@@ -2,83 +2,161 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seguridad de la Cuenta | UES Helper</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; }
-        body { background: #000; color: #eee; font-family: 'Inter', sans-serif; }
-        .sidebar { width: 280px; background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px; }
-        .main-content { margin-left: 280px; padding: 60px; display: flex; justify-content: center; }
-        .security-card { background: rgba(255,255,255,0.03); border-radius: 30px; padding: 40px; width: 100%; max-width: 550px; border: 1px solid rgba(255,255,255,0.1); }
-        .form-control { background: #111 !important; border: 1px solid #333 !important; color: white !important; border-radius: 12px; padding: 12px; }
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; --sidebar-w: 280px; }
+        body { 
+            background: #000; color: #eee; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;
+            background-image: radial-gradient(circle at top right, #1a0000, #000);
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-w); background: rgba(15,15,15,0.98); border-right: 1px solid rgba(128,0,0,0.3); height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
+        .main-content { margin-left: var(--sidebar-w); padding: 50px; display: flex; flex-direction: column; align-items: center; }
+        
+        .nav-btn { width: 100%; padding: 15px; border-radius: 15px; display: flex; align-items: center; color: #888; text-decoration: none; transition: 0.4s; margin-bottom: 10px; border: 1px solid transparent; background: transparent; }
+        .nav-btn:hover { background: rgba(128,0,0,0.1); color: white; transform: translateX(8px); border-color: var(--ues-guinda); }
+        .nav-btn.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 15px rgba(128,0,0,0.3); }
+
+        /* Security Card */
+        .security-card { 
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 35px; padding: 45px; width: 100%; max-width: 550px; 
+            backdrop-filter: blur(15px); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            margin-top: 20px;
+        }
+
+        .activity-box { 
+            background: rgba(184, 134, 11, 0.05); border-radius: 20px; padding: 20px; 
+            border-left: 5px solid var(--ues-oro); margin-bottom: 30px;
+        }
+
+        .form-control { 
+            background: rgba(0,0,0,0.4) !important; border: 1px solid #333 !important; 
+            color: white !important; border-radius: 12px; padding: 14px; transition: 0.3s;
+        }
+        .form-control:focus { border-color: var(--ues-guinda); box-shadow: 0 0 15px rgba(128,0,0,0.1); }
+
+        .btn-update { 
+            background: var(--ues-guinda); color: white; border: none; padding: 18px; 
+            border-radius: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.4s; width: 100%; box-shadow: 0 10px 20px rgba(128,0,0,0.2);
+        }
+        .btn-update:hover { background: #a00000; transform: translateY(-3px); }
+
+        /* Status Badge */
+        .status-badge { position: fixed; top: 20px; right: 20px; background: rgba(15,15,15,0.8); border: 1px solid rgba(255,255,255,0.1); color: #28a745; padding: 8px 18px; border-radius: 30px; font-size: 0.7rem; font-weight: 800; z-index: 2000; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); }
+        .dot { width: 8px; height: 8px; background: #28a745; border-radius: 50%; box-shadow: 0 0 10px #28a745; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
+
+    <div class="status-badge">
+        <div class="dot"></div>
+        <span>PROTECCIÓN ACTIVA V1.2.4</span>
+    </div>
+
     <div class="sidebar">
-        <h4 class="fw-bold mb-5 text-white">UES <span class="text-danger">HELPER</span></h4>
-        <nav>
-            <a href="/dashboard.html" class="nav-btn"><i class="nav-link text-white-50 mb-3 text-decoration-none d-block"></i> Tareas CRUD</a>
-            
-            <a href="/home.html" class="nav-link text-white-50 mb-3 text-decoration-none d-block"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
-            <a href="/seguridad.html" class="nav-link text-white fw-bold mb-3 text-decoration-none d-block"><i class="fas fa-shield-alt me-2 text-danger"></i> Seguridad</a>
-            <a href="/soporte.html" class="nav-link text-white-50 mb-3 text-decoration-none d-block"><i class="fas fa-headset me-2"></i> Soporte</a>
+        <div class="text-center mb-5">
+            <img src="logo.png" style="width: 50px;">
+            <h5 class="fw-bold mt-2 text-white">UES <span class="text-danger">HELPER</span></h5>
+        </div>
+        <nav id="sidebarNav">
+            <a href="/home.html" class="nav-btn"><i class="fas fa-home me-3"></i> Inicio</a>
+            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Tareas CRUD</a>
+            <a href="/perfil.html" class="nav-btn"><i class="fas fa-user-circle me-3"></i> Mi Perfil</a>
+            <a href="/seguridad.html" class="nav-btn active"><i class="fas fa-shield-alt me-3"></i> Seguridad</a>
+            <a href="/soporte.html" class="nav-btn"><i class="fas fa-headset me-3"></i> Soporte</a>
         </nav>
+        <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 mt-5">SALIR</button>
     </div>
 
     <div class="main-content">
-        <div class="security-card shadow-lg">
-            <h3 class="fw-bold mb-4"><i class="fas fa-lock text-danger me-2"></i> Gestión de Seguridad</h3>
-            <p class="text-muted small mb-4">Actualiza tu contraseña periódicamente para mantener tu cuenta académica protegida.</p>
-            
-            <div class="data-card mb-4" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border-left: 4px solid #b8860b;">
-    <small class="text-muted fw-bold">ACTIVIDAD DE LA CUENTA</small>
-    <p class="m-0 text-white">
-        <i class="fas fa-history me-2 text-warning"></i> 
-        Último acceso: <span id="displayUltimoAcceso" class="fw-bold text-warning">Cargando...</span>
-    </p>
-</div>
-
-<script>
-    // Al cargar la página de seguridad, traemos el dato del servidor
-    window.onload = async () => {
-        const email = localStorage.getItem('userEmail');
-        const res = await fetch(`/obtener-usuario/${encodeURIComponent(email)}`);
-        const u = await res.json();
-        document.getElementById('displayUltimoAcceso').innerText = u.ultimoAcceso || "Primera sesión";
-    };
-</script>
-            <div class="mb-3">
-                <label class="small fw-bold text-muted mb-2">CONTRASEÑA ACTUAL</label>
-                <input type="password" id="passActual" class="form-control" placeholder="••••••••">
+        <div class="security-card">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-shield text-danger fa-3x mb-3"></i>
+                <h2 class="fw-bold m-0 text-white">Gestión de Seguridad</h2>
+                <p class="text-muted small">Protege tu acceso al ecosistema académico.</p>
             </div>
-            <hr class="my-4 border-secondary">
+
+            <div class="activity-box">
+                <label class="small text-muted fw-bold uppercase mb-1 d-block" style="font-size: 0.65rem; letter-spacing: 1px;">ÚLTIMA SESIÓN DETECTADA</label>
+                <p class="m-0 text-white fw-bold">
+                    <i class="fas fa-history me-2 text-warning"></i> 
+                    <span id="displayUltimoAcceso">Sincronizando...</span>
+                </p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="small fw-bold text-muted mb-2 uppercase" style="font-size: 0.65rem;">Contraseña Actual</label>
+                <div class="position-relative">
+                    <input type="password" id="passActual" class="form-control" placeholder="••••••••">
+                </div>
+            </div>
+
+            <hr class="my-4 border-secondary opacity-25">
+
             <div class="mb-3">
-                <label class="small fw-bold text-muted mb-2">NUEVA CONTRASEÑA</label>
+                <label class="small fw-bold text-muted mb-2 uppercase" style="font-size: 0.65rem;">Nueva Contraseña</label>
                 <input type="password" id="nuevaPass" class="form-control" placeholder="Mínimo 6 caracteres">
             </div>
-            <div class="mb-4">
-                <label class="small fw-bold text-muted mb-2">CONFIRMAR NUEVA CONTRASEÑA</label>
-                <input type="password" id="confirmaPass" class="form-control" placeholder="Repite la contraseña">
+
+            <div class="mb-5">
+                <label class="small fw-bold text-muted mb-2 uppercase" style="font-size: 0.65rem;">Confirmar Nueva Contraseña</label>
+                <input type="password" id="confirmaPass" class="form-control" placeholder="Repite tu nueva clave">
             </div>
             
-            <button onclick="actualizarCredenciales()" class="btn btn-danger w-100 py-3 fw-bold rounded-4 shadow">
-                GUARDAR CAMBIOS DE SEGURIDAD
+            <button onclick="actualizarCredenciales()" class="btn btn-update">
+                <i class="fas fa-sync-alt me-2"></i> ACTUALIZAR CREDENCIALES
             </button>
+            
+            <p class="text-center text-muted mt-4 mb-0" style="font-size: 0.7rem;">
+                Al cambiar tu contraseña, se cerrará la sesión por seguridad.
+            </p>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const userEmail = localStorage.getItem('userEmail');
-        if(!userEmail) window.location.href = '/bienvenida.html';
+
+        window.onload = async () => {
+            if(!userEmail) return window.location.href = '/index.html';
+
+            // Mostrar Panel Maestro si es Francisco
+            if (userEmail === "franciscoaguayo2005@gmail.com") {
+                const nav = document.getElementById('sidebarNav');
+                nav.insertAdjacentHTML('beforeend', `<a href="/master.html" class="nav-btn text-warning fw-bold"><i class="fas fa-crown me-3"></i> Panel Maestro</a>`);
+            }
+
+            try {
+                const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+                const u = await res.json();
+                document.getElementById('displayUltimoAcceso').innerText = u.ultimoAcceso || "Sesión Inicial";
+            } catch (e) { 
+                document.getElementById('displayUltimoAcceso').innerText = "Error al cargar";
+            }
+        };
 
         async function actualizarCredenciales() {
+            const btn = document.querySelector('.btn-update');
             const passActual = document.getElementById('passActual').value;
             const nuevaPass = document.getElementById('nuevaPass').value;
             const confirmaPass = document.getElementById('confirmaPass').value;
 
+            if(!passActual || !nuevaPass || !confirmaPass) return alert("⚠️ Por favor llena todos los campos.");
             if(nuevaPass !== confirmaPass) return alert("❌ Las nuevas contraseñas no coinciden.");
-            if(nuevaPass.length < 6) return alert("❌ La nueva contraseña es muy corta.");
+            if(nuevaPass.length < 6) return alert("❌ La nueva contraseña debe tener al menos 6 caracteres.");
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> PROCESANDO...';
+            btn.disabled = true;
 
             try {
                 const res = await fetch('/actualizar-seguridad', {
@@ -89,14 +167,21 @@
 
                 const data = await res.json();
                 if(res.ok) {
-                    alert("✅ Seguridad actualizada. Por favor, inicia sesión de nuevo.");
+                    alert("✅ ¡Éxito! Tu contraseña ha sido actualizada. Inicia sesión con tu nueva clave.");
                     localStorage.clear();
                     window.location.href = '/index.html';
                 } else {
-                    alert("❌ " + data.message);
+                    alert("❌ " + (data.message || "Error al actualizar"));
+                    btn.innerHTML = '<i class="fas fa-sync-alt me-2"></i> ACTUALIZAR CREDENCIALES';
+                    btn.disabled = false;
                 }
-            } catch (e) { alert("❌ Error de conexión."); }
+            } catch (e) { 
+                alert("❌ Error de conexión con el servidor."); 
+                btn.disabled = false;
+            }
         }
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>
 </html>

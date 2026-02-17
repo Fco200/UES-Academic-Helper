@@ -36,17 +36,75 @@
             <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-2"></i></button>
         </div>
         <div id="paso2" style="display:none;">
-            <div class="text-center mb-4"><span id="infoCarreraSeleccionada" class="badge bg-light text-danger border border-danger rounded-pill py-2 px-3"></span></div>
-            <label class="form-label">Correo</label><input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
-            <label class="form-label">Contraseña</label><input type="password" id="passInput" class="form-control" placeholder="••••••••">
-            <button onclick="entrar()" class="btn-main">Ingresar al Portal</button>
-        </div>
+    <div class="text-center mb-4">
+        <span id="infoCarreraSeleccionada" class="badge bg-light text-danger border border-danger rounded-pill py-2 px-3"></span>
+    </div>
+    
+    <label class="form-label">Correo Institucional</label>
+    <input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
+    
+    <label class="form-label">Contraseña</label>
+    <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+    
+    <div class="text-end mb-4" style="margin-top: -15px;">
+        <a href="/recuperar.html" class="text-danger small fw-bold text-decoration-none">
+            <i class="fas fa-question-circle me-1"></i> ¿Olvidaste tu contraseña?
+        </a>
+    </div>
+
+    <button onclick="entrar()" class="btn-main shadow">Ingresar al Portal</button>
+</div>
         <div class="version-tag text-center"><p class="m-0 text-danger fw-bold">Francisco Aguayo - V1.2.4</p></div>
     </div>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         particlesJS("particles-js", {"particles":{"number":{"value":40},"color":{"value":"#800000"},"opacity":{"value":0.2},"move":{"speed":1}}});
-        const oferta = {"UES": ["Ingeniería en Software", "Mecatrónica", "Derecho"], "UNISON": ["Medicina", "Psicología", "Ing. Industrial"]};
+        const oferta = {
+  "UES": [
+    "Ingeniería en Software",
+    "Ingeniería Mecatrónica",
+    "Ingeniería Ambiental",
+    "Ingeniería en Logística",
+    "Ingeniería en Energías Renovables",
+    "Ingeniería Industrial",
+    "Ingeniería en Sistemas de Información",
+    "Licenciatura en Derecho",
+    "Licenciatura en Administración",
+    "Licenciatura en Finanzas",
+    "Licenciatura en Mercadotecnia",
+    "Licenciatura en Educación",
+    "Licenciatura en Nutrición",
+    "Licenciatura en Enfermería",
+    "Licenciatura en Psicología"
+  ],
+  "UNISON": [
+    "Medicina",
+    "Odontología",
+    "Psicología",
+    "Ingeniería Industrial",
+    "Ingeniería Civil",
+    "Ingeniería Química",
+    "Ingeniería en Sistemas de Información",
+    "Ingeniería en Minas",
+    "Ingeniería Mecánica",
+    "Ingeniería Eléctrica",
+    "Licenciatura en Derecho",
+    "Licenciatura en Administración",
+    "Licenciatura en Contabilidad",
+    "Licenciatura en Economía",
+    "Licenciatura en Historia",
+    "Licenciatura en Filosofía",
+    "Licenciatura en Artes Escénicas",
+    "Licenciatura en Música",
+    "Licenciatura en Ciencias de la Comunicación",
+    "Licenciatura en Trabajo Social",
+    "Licenciatura en Biología",
+    "Licenciatura en Física",
+    "Licenciatura en Matemáticas",
+    "Licenciatura en Químico-Biólogo Clínico"
+  ]
+};
+
         function actualizarCarreras(){ const u=document.getElementById('uniInput').value; document.getElementById('carreraInput').innerHTML=oferta[u].map(c=>`<option value="${c}">${c}</option>`).join(''); }
         function validarYPasar(){ document.getElementById('infoCarreraSeleccionada').innerText=document.getElementById('carreraInput').value; document.getElementById('paso1').style.display='none'; document.getElementById('paso2').style.display='block'; }
         async function entrar() {

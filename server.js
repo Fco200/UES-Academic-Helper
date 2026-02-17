@@ -23,15 +23,72 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // 3. CONFIGURACIÓN DE CORREO (NODEMAILER)
+const nodemailer = require('nodemailer');
+
+// Objeto temporal para guardar códigos (En producción usa Redis o un campo en el Schema)
+const codigosRecuperacion = {}; 
+
+// CONFIGURACIÓN DE CORREO (Usa tus credenciales)
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Puerto 587 usa false
+    service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: { rejectUnauthorized: false }
+        user: 'tu-correo@gmail.com', // Tu correo de envío
+        pass: 'tu-app-password'      // Tu "Contraseña de Aplicación" de Google
+    }
+});
+
+// 1. RUTA PARA SOLICITAR CÓDIGO
+app.post('/solicitar-recuperacion', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const usuario = await Usuario.findOne({ identificador: email.toLowerCase().trim() });
+        if (!usuario) return res.status(404).json({ message: "El correo no está registrado." });
+
+        // Generar código de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+        codigosRecuperacion[email] = codigo; // Guardar temporalmente
+
+        // Enviar Correo
+        const mailOptions = {
+            from: '"UES Helper Soporte" <tu-correo@gmail.com>',
+            to: email,
+            subject: 'Código de Recuperación - UES Helper',
+            html: `
+                <div style="font-family: sans-serif; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: #800000;">Recuperación de Cuenta</h2>
+                    <p>Hola, <b>${usuario.nombreReal}</b>. Tu código de verificación es:</p>
+                    <div style="background: #f8f9fa; padding: 15px; font-size: 24px; text-align: center; font-weight: bold; letter-spacing: 5px; color: #111;">
+                        ${codigo}
+                    </div>
+                    <p style="font-size: 12px; color: #888; margin-top: 20px;">Si no solicitaste este cambio, ignora este correo.</p>
+                </div>`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ message: "Error al enviar el correo." });
+    }
+});
+
+// 2. RUTA PARA CONFIRMAR CÓDIGO Y CAMBIAR CLAVE
+app.post('/confirmar-recuperacion', async (req, res) => {
+    const { email, codigo, nuevaPass } = req.body;
+
+    if (codigosRecuperacion[email] === codigo) {
+        try {
+            await Usuario.findOneAndUpdate(
+                { identificador: email.toLowerCase().trim() },
+                { password: nuevaPass }
+            );
+            delete codigosRecuperacion[email]; // Borrar código usado
+            res.json({ success: true });
+        } catch (e) {
+            res.status(500).json({ message: "Error al actualizar contraseña." });
+        }
+    } else {
+        res.status(400).json({ message: "Código inválido o expirado." });
+    }
 });
 
 // --- CONEXIÓN A MONGODB ---
@@ -293,28 +350,7 @@ app.post('/completar-tarea', async (req, res) => {
     } catch (e) { res.status(500).send(e); }
 });
 
-// --- IA ASISTENTE ---
-app.post('/ia-asistente', async (req, res) => {
-    try {
-        const result = await model.generateContent(req.body.prompt);
-        res.json({ respuesta: result.response.text() });
-    } catch (e) { res.status(500).json({ respuesta: "IA no disponible." }); }
-});
 
-async function enviarCorreoBienvenida(email, nombre) {
-    try {
-        await transporter.sendMail({
-            // Corrección de las comillas y el formato del remitente
-            from: `"UES Helper" <${process.env.EMAIL_USER}>`, 
-            to: email,
-            subject: "¡Bienvenido al Portal Académico!",
-            text: `Hola ${nombre}, tu cuenta ha sido activada con éxito.`
-        });
-        console.log("✅ Correo de bienvenida enviado a:", email);
-    } catch (e) { 
-        console.error("❌ Error envío bienvenida:", e); 
-    }
-}
 app.post('/nuevo-registro', async (req, res) => {
     const { nombre, identificador, password, universidad, carrera, telefono } = req.body;
     try {

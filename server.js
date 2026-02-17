@@ -28,66 +28,48 @@ const nodemailer = require('nodemailer');
 // Objeto temporal para guardar códigos (En producción usa Redis o un campo en el Schema)
 const codigosRecuperacion = {}; 
 
-// CONFIGURACIÓN DE CORREO (Usa tus credenciales)
+const nodemailer = require('nodemailer');
+let codigosTemporales = {}; // Guarda los códigos de recuperación
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'tu-correo@gmail.com', // Tu correo de envío
-        pass: 'tu-app-password'      // Tu "Contraseña de Aplicación" de Google
+        user: 'carlosfrancoaguayo44@gmail.com', // Tu correo
+        pass: 'vfmt npdw sovp nvfe' // Tienes que generar esto en tu cuenta de Google
     }
 });
 
-// 1. RUTA PARA SOLICITAR CÓDIGO
+// RUTA 1: Generar y Enviar Código
 app.post('/solicitar-recuperacion', async (req, res) => {
     const { email } = req.body;
-    try {
-        const usuario = await Usuario.findOne({ identificador: email.toLowerCase().trim() });
-        if (!usuario) return res.status(404).json({ message: "El correo no está registrado." });
+    const user = await Usuario.findOne({ identificador: email.toLowerCase().trim() });
+    if (!user) return res.status(404).send();
 
-        // Generar código de 6 dígitos
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-        codigosRecuperacion[email] = codigo; // Guardar temporalmente
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    codigosTemporales[email] = codigo;
 
-        // Enviar Correo
-        const mailOptions = {
-            from: '"UES Helper Soporte" <tu-correo@gmail.com>',
-            to: email,
-            subject: 'Código de Recuperación - UES Helper',
-            html: `
-                <div style="font-family: sans-serif; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                    <h2 style="color: #800000;">Recuperación de Cuenta</h2>
-                    <p>Hola, <b>${usuario.nombreReal}</b>. Tu código de verificación es:</p>
-                    <div style="background: #f8f9fa; padding: 15px; font-size: 24px; text-align: center; font-weight: bold; letter-spacing: 5px; color: #111;">
-                        ${codigo}
-                    </div>
-                    <p style="font-size: 12px; color: #888; margin-top: 20px;">Si no solicitaste este cambio, ignora este correo.</p>
-                </div>`
-        };
+    const mailOptions = {
+        from: 'UES Helper Support',
+        to: email,
+        subject: 'Código de Recuperación: ' + codigo,
+        text: `Hola ${user.nombreReal}, tu código de acceso es: ${codigo}`
+    };
 
-        await transporter.sendMail(mailOptions);
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ message: "Error al enviar el correo." });
-    }
+    transporter.sendMail(mailOptions, (error) => {
+        if (error) return res.status(500).send();
+        res.status(200).send();
+    });
 });
 
-// 2. RUTA PARA CONFIRMAR CÓDIGO Y CAMBIAR CLAVE
+// RUTA 2: Confirmar Código y Actualizar
 app.post('/confirmar-recuperacion', async (req, res) => {
     const { email, codigo, nuevaPass } = req.body;
-
-    if (codigosRecuperacion[email] === codigo) {
-        try {
-            await Usuario.findOneAndUpdate(
-                { identificador: email.toLowerCase().trim() },
-                { password: nuevaPass }
-            );
-            delete codigosRecuperacion[email]; // Borrar código usado
-            res.json({ success: true });
-        } catch (e) {
-            res.status(500).json({ message: "Error al actualizar contraseña." });
-        }
+    if (codigosTemporales[email] === codigo) {
+        await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPass });
+        delete codigosTemporales[email];
+        res.status(200).send();
     } else {
-        res.status(400).json({ message: "Código inválido o expirado." });
+        res.status(400).send();
     }
 });
 

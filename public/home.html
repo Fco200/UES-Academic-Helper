@@ -20,20 +20,57 @@
         .nav-link-custom.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 12px rgba(128,0,0,0.2); }
 
         .profile-header { background: white; border-radius: 25px; padding: 30px; border: 1px solid #eee; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .user-photo { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--ues-guinda); object-fit: cover; }
+        
+        /* Contenedor de foto con botón de carga */
+        .photo-container { position: relative; width: 120px; height: 120px; margin-right: 1.5rem; }
+        .user-photo { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--ues-guinda); object-fit: cover; }
+        .upload-badge { position: absolute; bottom: 0; right: 0; background: var(--ues-guinda); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white; transition: 0.3s; }
+        .upload-badge:hover { transform: scale(1.1); background: #a00000; }
 
         .data-card { background: white; border-radius: 20px; padding: 20px; border-left: 5px solid var(--ues-guinda); border-right: 1px solid #eee; border-top: 1px solid #eee; border-bottom: 1px solid #eee; transition: 0.3s; }
         .data-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
         
-        .glass-card { background: white; border: 1px solid #eee; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .news-card { background: white; border: 1px solid #eee; border-radius: 20px; overflow: hidden; transition: 0.3s; }
-        .news-card:hover { border-color: var(--ues-guinda); }
+        .glass-card { background: white; border: 1px solid #eee; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); min-height: 100px; }
+        .news-card { background: white; border: 1px solid #eee; border-radius: 20px; overflow: hidden; transition: 0.3s; height: 100%; }
+        .news-card:hover { border-color: var(--ues-guinda); transform: scale(1.02); }
         
         .text-dark-bold { color: #111; font-weight: 800; }
         .form-control { background: #fff !important; border: 1px solid #ccc !important; color: #111 !important; border-radius: 12px; }
     </style>
 </head>
 <body>
+
+    <div class="modal fade" id="modalManual" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 30px;">
+                <div class="modal-header bg-danger text-white border-0 py-4" style="border-radius: 30px 30px 0 0;">
+                    <h4 class="modal-title fw-bold"><i class="fas fa-book-open me-2"></i> Guía de Inicio - UES Helper</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="fw-bold text-danger"><i class="fas fa-user-edit me-2"></i> Mi Perfil</h5>
+                            <p class="text-muted">Personaliza tu información, sube tu foto y vincula tu LinkedIn para ser visible en la comunidad.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="fw-bold text-danger"><i class="fas fa-tasks me-2"></i> Gestión de Tareas</h5>
+                            <p class="text-muted">Añade tus materias en el Dashboard y organiza tus entregas. El sistema te recordará tus pendientes aquí en el Home.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="fw-bold text-danger"><i class="fas fa-shield-alt me-2"></i> Seguridad</h5>
+                            <p class="text-muted">Cambia tu contraseña inicial por una segura para proteger tus datos académicos.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="fw-bold text-danger"><i class="fas fa-camera me-2"></i> Fotos en Tiempo Real</h5>
+                            <p class="text-muted">Al subir una foto en el Home, se actualizará automáticamente en tu Perfil y Dashboard.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger w-100 py-3 mt-4 rounded-4 fw-bold" data-bs-dismiss="modal">¡ENTENDIDO, EMPEZAR!</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="sidebar">
         <h4 class="fw-bold mb-5 text-dark">UES <span class="text-danger">HELPER</span></h4>
@@ -49,7 +86,14 @@
 
     <div class="main-content">
         <div id="mainContent" class="profile-header d-flex align-items-center mb-5">
-            <img id="displayFoto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo me-4">
+            <div class="photo-container">
+                <img id="displayFoto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo">
+                <label for="inputFoto" class="upload-badge">
+                    <i class="fas fa-camera"></i>
+                </label>
+                <input type="file" id="inputFoto" hidden accept="image/*" onchange="actualizarFotoRapido(this)">
+            </div>
+            
             <div>
                 <h1 id="displayNombre" class="fw-bold m-0 text-dark">Cargando...</h1>
                 <p id="displayCarrera" class="text-danger fw-bold mb-1"></p>
@@ -67,11 +111,15 @@
         <div class="row">
             <div class="col-lg-8">
                 <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-newspaper text-danger me-2"></i> Noticias Académicas</h3>
-                <div id="contenedorNoticias" class="row g-4"></div>
+                <div id="contenedorNoticias" class="row g-4">
+                    <div class="text-center p-5 text-muted">Cargando noticias...</div>
+                </div>
             </div>
             <div class="col-lg-4">
                 <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-clipboard-list text-warning me-2"></i> Pendientes</h3>
-                <div id="listaPendientesHome" class="glass-card p-3"></div>
+                <div id="listaPendientesHome" class="glass-card p-3">
+                    <div class="text-center p-3 text-muted">Cargando tareas...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -86,7 +134,14 @@
                         <input type="text" id="editNombre" class="form-control">
                     </div>
                     <div class="row">
-                        <div class="col-6 mb-3"><label class="small fw-bold">GÉNERO</label><select id="editGenero" class="form-select"><option value="Masculino">Masculino</option><option value="Femenino">Femenino</option></select></div>
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">GÉNERO</label>
+                            <select id="editGenero" class="form-select">
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
                         <div class="col-6 mb-3"><label class="small fw-bold">SEMESTRE</label><input type="number" id="editSemestre" class="form-control"></div>
                     </div>
                     <div class="mb-3"><label class="small fw-bold">TELÉFONO</label><input type="text" id="editTelefono" class="form-control"></div>
@@ -105,10 +160,32 @@
 
         window.onload = async () => {
             if(!userEmail) return window.location.href = '/index.html';
+            
+            // Mostrar manual solo la primera vez en la sesión
+            if (!sessionStorage.getItem('manualMostrado')) {
+                const myModal = new bootstrap.Modal(document.getElementById('modalManual'));
+                myModal.show();
+                sessionStorage.setItem('manualMostrado', 'true');
+            }
+
             await cargarDatosPerfil();
             await cargarNoticiasHome();
             await cargarPendientesHome();
         };
+
+        // FUNCIÓN PARA ACTUALIZAR FOTO AL INSTANTE
+        function actualizarFotoRapido(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoBase64 = e.target.result;
+                    document.getElementById('displayFoto').src = fotoBase64;
+                    // Guardar automáticamente para que se vea en el Perfil
+                    guardarTodo(true); 
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         async function cargarDatosPerfil() {
             try {
@@ -121,48 +198,99 @@
                 document.getElementById('displayTelefono').innerText = u.telefono || "N/A";
                 document.getElementById('displaySemestre').innerText = u.semestre ? u.semestre + "°" : "--";
                 
+                // Llenar inputs del modal
                 document.getElementById('editNombre').value = u.nombreReal || "";
                 document.getElementById('editTelefono').value = u.telefono || "";
                 document.getElementById('editSemestre').value = u.semestre || "";
                 document.getElementById('editLinkedin').value = u.linkedin || "";
                 document.getElementById('editBio').value = u.biografia || "";
-            } catch (e) { console.error(e); }
+                document.getElementById('editGenero').value = u.genero || "Masculino";
+                fotoBase64 = u.foto || "";
+            } catch (e) { console.error("Error al cargar perfil:", e); }
         }
 
-        async function guardarTodo() {
-            const datos = { email: userEmail, nombreReal: document.getElementById('editNombre').value, genero: document.getElementById('editGenero').value, semestre: document.getElementById('editSemestre').value, telefono: document.getElementById('editTelefono').value, linkedin: document.getElementById('editLinkedin').value, biografia: document.getElementById('editBio').value, foto: fotoBase64 };
-            await fetch('/actualizar-perfil-completo', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos) });
-            location.reload();
+        async function guardarTodo(silent = false) {
+            const datos = { 
+                email: userEmail, 
+                nombreReal: document.getElementById('editNombre').value, 
+                genero: document.getElementById('editGenero').value, 
+                semestre: document.getElementById('editSemestre').value, 
+                telefono: document.getElementById('editTelefono').value, 
+                linkedin: document.getElementById('editLinkedin').value, 
+                biografia: document.getElementById('editBio').value, 
+                foto: fotoBase64 
+            };
+            
+            try {
+                const res = await fetch('/actualizar-perfil-completo', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify(datos) 
+                });
+                
+                if (res.ok && !silent) {
+                    alert("✅ Perfil actualizado con éxito");
+                    location.reload();
+                }
+            } catch (e) { console.error("Error al guardar:", e); }
         }
 
         async function cargarNoticiasHome() {
-            const res = await fetch('/obtener-noticias');
-            const noticias = await res.json();
-            document.getElementById('contenedorNoticias').innerHTML = noticias.map(n => `
-                <div class="col-md-6 mb-3">
-                    <div class="news-card h-100 shadow-sm">
-                        ${n.imagen ? `<img src="${n.imagen}" class="w-100" style="height:150px; object-fit:cover;">` : ''}
-                        <div class="p-3">
-                            <h6 class="fw-bold text-dark mb-1">${n.titulo}</h6>
-                            <p class="text-muted small m-0">${n.contenido.substring(0,80)}...</p>
+            try {
+                const res = await fetch('/obtener-noticias');
+                const noticias = await res.json();
+                const contenedor = document.getElementById('contenedorNoticias');
+                
+                if (noticias.length === 0) {
+                    contenedor.innerHTML = '<div class="col-12 text-center text-muted p-4">No hay noticias hoy.</div>';
+                    return;
+                }
+
+                contenedor.innerHTML = noticias.map(n => `
+                    <div class="col-md-6 mb-3">
+                        <div class="news-card h-100 shadow-sm border">
+                            ${n.imagen ? `<img src="${n.imagen}" class="w-100" style="height:160px; object-fit:cover;">` : ''}
+                            <div class="p-3">
+                                <h6 class="fw-bold text-dark mb-2">${n.titulo}</h6>
+                                <p class="text-muted small m-0">${n.contenido.substring(0,100)}...</p>
+                            </div>
                         </div>
-                    </div>
-                </div>`).join('');
+                    </div>`).join('');
+            } catch (e) { document.getElementById('contenedorNoticias').innerHTML = "Error al cargar noticias."; }
         }
 
         async function cargarPendientesHome() {
-            const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-            const materias = await res.json();
-            let html = "";
-            materias.forEach(m => m.tareas.forEach(t => {
-                if (!t.completada) html += `<div class="p-2 mb-2 border-start border-warning border-4 bg-light small"><strong>${t.descripcion}</strong><br><span class="text-muted">${m.nombre}</span></div>`;
-            }));
-            document.getElementById('listaPendientesHome').innerHTML = html || '<p class="text-muted small">Sin pendientes</p>';
+            try {
+                const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
+                const materias = await res.json();
+                const contenedor = document.getElementById('listaPendientesHome');
+                let html = "";
+                
+                materias.forEach(m => {
+                    if(m.tareas) {
+                        m.tareas.forEach(t => {
+                            if (!t.completada) {
+                                html += `
+                                <div class="p-3 mb-2 border-start border-warning border-4 bg-light shadow-sm" style="border-radius: 8px;">
+                                    <strong class="text-dark d-block">${t.descripcion}</strong>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-danger fw-bold">${m.nombre}</small>
+                                        <small class="text-muted">${t.fecha || 'Sin fecha'}</small>
+                                    </div>
+                                </div>`;
+                            }
+                        });
+                    }
+                });
+                
+                contenedor.innerHTML = html || '<div class="text-center p-4 text-muted"><i class="fas fa-check-circle text-success d-block mb-2"></i> ¡Todo libre!</div>';
+            } catch (e) { document.getElementById('listaPendientesHome').innerHTML = "Error al cargar pendientes."; }
         }
 
         function irALinkedin() {
             const url = document.getElementById('editLinkedin').value;
             if(url) window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
+            else alert("Primero registra tu LinkedIn en 'Editar Perfil'");
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }

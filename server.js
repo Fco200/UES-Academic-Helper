@@ -3,22 +3,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const nodemailer = require("nodemailer"); // Única declaración necesaria
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- CONFIGURACIÓN DE CORREO (CREDENCIALES INTEGRADAS) ---
+// --- CONFIGURACIÓN DE CORREO ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'carlosfrancoaguayo44@gmail.com',
-        pass: 'vfmt npdw sovp nvfe' // Tu contraseña de aplicación de Google
+        pass: 'vfmt npdw sovp nvfe' 
     }
 });
 
-// Objeto para códigos temporales de recuperación
 let codigosTemporales = {}; 
 
 // --- MIDDLEWARES ---
@@ -33,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI || "mongodb+srv://franciscoaguayo2005_db_
   .catch(err => console.error("❌ ERROR DE CONEXIÓN:", err));
 
 // --- MODELOS DE DATOS ---
-const UsuarioSchema = new mongoose.Schema({
+const Usuario = mongoose.model('Usuario', new mongoose.Schema({
     identificador: { type: String, unique: true },
     password: { type: String, default: "UES2026" },
     universidad: { type: String, default: "UES" },
@@ -46,8 +44,7 @@ const UsuarioSchema = new mongoose.Schema({
     linkedin: { type: String, default: "" },
     genero: { type: String, default: "No especificado" },
     ultimoAcceso: { type: String, default: "Nunca" }
-});
-const Usuario = mongoose.model('Usuario', UsuarioSchema);
+}));
 
 const Noticia = mongoose.model('Noticia', new mongoose.Schema({
     titulo: String,
@@ -57,101 +54,121 @@ const Noticia = mongoose.model('Noticia', new mongoose.Schema({
 }));
 
 const Materia = mongoose.model('Materia', new mongoose.Schema({
-    user: String,
+    user: String, // Email del dueño
     nombre: String,
-    tareas: [{ descripcion: String, fecha: String, completada: { type: Boolean, default: false } }]
+    tareas: [{ 
+        descripcion: String, 
+        fecha: String, 
+        completada: { type: Boolean, default: false } 
+    }]
 }, { timestamps: true }));
 
-// --- RUTAS DE RECUPERACIÓN ---
+// --- RUTAS DE NOTICIAS (Para Home y Administrador) ---
 
-app.post('/solicitar-recuperacion', async (req, res) => {
-    const { email } = req.body;
+app.get('/obtener-noticias', async (req, res) => {
     try {
-        const user = await Usuario.findOne({ identificador: email.toLowerCase().trim() });
-        if (!user) return res.status(404).json({ message: "Correo no encontrado" });
+        const noticias = await Noticia.find().sort({ fecha: -1 });
+        res.json(noticias);
+    } catch (e) { res.status(500).json([]); }
+});
 
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-        codigosTemporales[email] = codigo;
-
-        const mailOptions = {
-            from: '"Soporte UES Helper" <carlosfrancoaguayo44@gmail.com>',
-            to: email,
-            subject: 'Tu Código de Recuperación: ' + codigo,
-            html: `
-                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; text-align: center;">
-                    <h2 style="color: #800000;">UES HELPER</h2>
-                    <p>Hola <b>${user.nombreReal}</b>, usa el siguiente código para restablecer tu contraseña:</p>
-                    <h1 style="background: #f8f9fa; padding: 10px; letter-spacing: 10px; color: #800000; border-radius: 5px;">${codigo}</h1>
-                    <p style="color: #666; font-size: 0.8rem;">Este código es temporal.</p>
-                </div>`
-        };
-
-        await transporter.sendMail(mailOptions);
+app.post('/agregar-noticia', async (req, res) => {
+    try {
+        const nuevaNoticia = new Noticia(req.body);
+        await nuevaNoticia.save();
         res.status(200).json({ success: true });
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ message: "Error al enviar el correo" });
-    }
+    } catch (e) { res.status(500).send(e); }
 });
 
-app.post('/confirmar-recuperacion', async (req, res) => {
-    const { email, codigo, nuevaPass } = req.body;
-    if (codigosTemporales[email] === codigo) {
-        try {
-            await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPass });
-            delete codigosTemporales[email];
-            res.status(200).json({ success: true });
-        } catch (e) {
-            res.status(500).json({ message: "Error al actualizar la contraseña" });
-        }
-    } else {
-        res.status(400).json({ message: "Código incorrecto o expirado" });
-    }
+app.post('/eliminar-noticia', async (req, res) => {
+    try {
+        await Noticia.findByIdAndDelete(req.body.id);
+        res.status(200).json({ success: true });
+    } catch (e) { res.status(500).send(e); }
 });
 
-// --- RUTAS DE AUTENTICACIÓN ---
+// --- RUTAS DE MATERIAS Y TAREAS (PRIVACIDAD TOTAL) ---
+
+app.get('/obtener-materias/:identificador', async (req, res) => {
+    try {
+        // Filtramos por el email del usuario para que nadie vea tareas ajenas
+        const email = req.params.identificador.toLowerCase().trim();
+        const datos = await Materia.find({ user: email });
+        res.json(datos);
+    } catch (e) { res.status(500).json([]); }
+});
+
+app.post('/agregar-materia', async (req, res) => {
+    try {
+        const { email, nombre } = req.body;
+        await Materia.create({ user: email.toLowerCase().trim(), nombre, tareas: [] });
+        res.sendStatus(200);
+    } catch (e) { res.status(500).send(e); }
+});
+
+app.post('/eliminar-materia', async (req, res) => {
+    try {
+        await Materia.findByIdAndDelete(req.body.materiaId);
+        res.sendStatus(200);
+    } catch (e) { res.status(500).send(e); }
+});
+
+app.post('/agregar-tarea', async (req, res) => {
+    try {
+        const { materiaId, descripcion, fecha } = req.body;
+        const materia = await Materia.findById(materiaId);
+        materia.tareas.push({ descripcion, fecha });
+        await materia.save();
+        res.sendStatus(200);
+    } catch (e) { res.status(500).send(e); }
+});
+
+app.post('/completar-tarea', async (req, res) => {
+    try {
+        const { materiaId, tareaId, completada } = req.body;
+        const materia = await Materia.findById(materiaId);
+        const tarea = materia.tareas.id(tareaId);
+        tarea.completada = completada;
+        await materia.save();
+        res.sendStatus(200);
+    } catch (e) { res.status(500).send(e); }
+});
+
+app.post('/editar-tarea', async (req, res) => {
+    try {
+        const { materiaId, tareaId, nuevaDescripcion, nuevaFecha } = req.body;
+        const materia = await Materia.findById(materiaId);
+        const tarea = materia.tareas.id(tareaId);
+        tarea.descripcion = nuevaDescripcion;
+        tarea.fecha = nuevaFecha;
+        await materia.save();
+        res.sendStatus(200);
+    } catch (e) { res.status(500).send(e); }
+});
+
+// --- RUTAS DE USUARIO Y PERFIL ---
 
 app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo, carrera, universidad } = req.body;
     try {
         const idLower = email.toLowerCase().trim();
-        
-        // EXCEPCIÓN MAESTRA PARA FRANCISCO
         if (idLower === "franciscoaguayo2005@gmail.com" && codigo === "VILLA1") {
-            return res.json({ 
-                success: true, 
-                redirect: '/home.html', 
-                nombreUsuario: "Francisco Aguayo (Admin)"
-            });
+            return res.json({ success: true, redirect: '/home.html', nombreUsuario: "Francisco Admin" });
         }
 
         let usuario = await Usuario.findOne({ identificador: idLower });
         if (!usuario) {
-            usuario = await Usuario.create({ 
-                identificador: idLower, 
-                password: "UES2026", 
-                carrera: carrera || "Ingeniería", 
-                universidad: universidad || "UES",
-                nombreReal: "Estudiante UES" 
-            });
+            usuario = await Usuario.create({ identificador: idLower, password: "UES2026", carrera, universidad });
         }
 
         if (usuario.password === codigo) {
-            const ahora = new Date().toLocaleString('es-MX', { timeZone: 'America/Hermosillo' });
-            usuario.ultimoAcceso = ahora;
+            usuario.ultimoAcceso = new Date().toLocaleString();
             await usuario.save();
-
-            res.json({ 
-                success: true, 
-                redirect: '/home.html',
-                nombreUsuario: usuario.nombreReal 
-            });
+            res.json({ success: true, redirect: '/home.html', nombreUsuario: usuario.nombreReal });
         } else {
             res.status(401).json({ success: false, message: "Clave incorrecta" });
         }
-    } catch (e) { 
-        res.status(500).json({ success: false }); 
-    }
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.get('/obtener-usuario/:email', async (req, res) => {
@@ -161,46 +178,46 @@ app.get('/obtener-usuario/:email', async (req, res) => {
     } catch (e) { res.status(500).send("Error"); }
 });
 
-// --- RUTAS DE GESTIÓN (CRUD) ---
-
-app.get('/obtener-materias/:identificador', async (req, res) => {
-    try {
-        const datos = await Materia.find({ user: req.params.identificador.toLowerCase() });
-        res.json(datos);
-    } catch (e) { res.status(500).json([]); }
-});
-
-app.post('/agregar-materia', async (req, res) => {
-    try {
-        await Materia.create({ user: req.body.email.toLowerCase(), nombre: req.body.nombre, tareas: [] });
-        res.sendStatus(200);
-    } catch (e) { res.status(500).send(e); }
-});
-
-app.post('/agregar-tarea', async (req, res) => {
-    try {
-        const materia = await Materia.findById(req.body.materiaId);
-        materia.tareas.push({ descripcion: req.body.descripcion, fecha: req.body.fecha });
-        await materia.save();
-        res.sendStatus(200);
-    } catch (e) { res.status(500).send(e); }
-});
-
 app.post('/actualizar-perfil-completo', async (req, res) => {
-    const { email, nombreReal, genero, semestre, telefono, linkedin, biografia, foto } = req.body;
     try {
-        await Usuario.findOneAndUpdate(
-            { identificador: email.toLowerCase().trim() },
-            { nombreReal, genero, semestre, telefono, linkedin, biografia, foto }
-        );
+        const { email, ...datos } = req.body;
+        await Usuario.findOneAndUpdate({ identificador: email.toLowerCase().trim() }, datos);
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// --- INICIO DEL SERVIDOR ---
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'bienvenida.html'));
+// --- RECUPERACIÓN DE CONTRASEÑA ---
+
+app.post('/solicitar-recuperacion', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await Usuario.findOne({ identificador: email.toLowerCase().trim() });
+        if (!user) return res.status(404).json({ message: "No encontrado" });
+
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+        codigosTemporales[email] = codigo;
+
+        await transporter.sendMail({
+            from: '"Soporte UES Helper" <carlosfrancoaguayo44@gmail.com>',
+            to: email,
+            subject: 'Tu Código: ' + codigo,
+            html: `<h1>${codigo}</h1>`
+        });
+        res.status(200).json({ success: true });
+    } catch (e) { res.status(500).json({ message: "Error" }); }
 });
+
+app.post('/confirmar-recuperacion', async (req, res) => {
+    const { email, codigo, nuevaPass } = req.body;
+    if (codigosTemporales[email] === codigo) {
+        await Usuario.findOneAndUpdate({ identificador: email }, { password: nuevaPass });
+        delete codigosTemporales[email];
+        res.status(200).json({ success: true });
+    } else res.status(400).send("Código inválido");
+});
+
+// --- INICIO ---
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'bienvenida.html')));
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVIDOR LISTO EN PUERTO ${PORT}`);

@@ -20,277 +20,139 @@
         .nav-link-custom.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 12px rgba(128,0,0,0.2); }
 
         .profile-header { background: white; border-radius: 25px; padding: 30px; border: 1px solid #eee; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        
-        /* Contenedor de foto con botón de carga */
         .photo-container { position: relative; width: 120px; height: 120px; margin-right: 1.5rem; }
         .user-photo { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--ues-guinda); object-fit: cover; }
-        .upload-badge { position: absolute; bottom: 0; right: 0; background: var(--ues-guinda); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white; transition: 0.3s; }
-        .upload-badge:hover { transform: scale(1.1); background: #a00000; }
-
+        
         .data-card { background: white; border-radius: 20px; padding: 20px; border-left: 5px solid var(--ues-guinda); border-right: 1px solid #eee; border-top: 1px solid #eee; border-bottom: 1px solid #eee; transition: 0.3s; }
         .data-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
         
-        .glass-card { background: white; border: 1px solid #eee; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); min-height: 100px; }
         .news-card { background: white; border: 1px solid #eee; border-radius: 20px; overflow: hidden; transition: 0.3s; height: 100%; }
-        .news-card:hover { border-color: var(--ues-guinda); transform: scale(1.02); }
+        .news-card img { width: 100%; height: 160px; object-fit: cover; }
         
         .text-dark-bold { color: #111; font-weight: 800; }
-        .form-control { background: #fff !important; border: 1px solid #ccc !important; color: #111 !important; border-radius: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="modal fade" id="modalManual" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 30px;">
-                <div class="modal-header bg-danger text-white border-0 py-4" style="border-radius: 30px 30px 0 0;">
-                    <h4 class="modal-title fw-bold"><i class="fas fa-book-open me-2"></i> Guía de Inicio - UES Helper</h4>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-5">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <h5 class="fw-bold text-danger"><i class="fas fa-user-edit me-2"></i> Mi Perfil</h5>
-                            <p class="text-muted">Personaliza tu información, sube tu foto y vincula tu LinkedIn para ser visible en la comunidad.</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5 class="fw-bold text-danger"><i class="fas fa-tasks me-2"></i> Gestión de Tareas</h5>
-                            <p class="text-muted">Añade tus materias en el Dashboard y organiza tus entregas. El sistema te recordará tus pendientes aquí en el Home.</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5 class="fw-bold text-danger"><i class="fas fa-shield-alt me-2"></i> Seguridad</h5>
-                            <p class="text-muted">Cambia tu contraseña inicial por una segura para proteger tus datos académicos.</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5 class="fw-bold text-danger"><i class="fas fa-camera me-2"></i> Fotos en Tiempo Real</h5>
-                            <p class="text-muted">Al subir una foto en el Home, se actualizará automáticamente en tu Perfil y Dashboard.</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-danger w-100 py-3 mt-4 rounded-4 fw-bold" data-bs-dismiss="modal">¡ENTENDIDO, EMPEZAR!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="sidebar">
         <h4 class="fw-bold mb-5 text-dark">UES <span class="text-danger">HELPER</span></h4>
-        <nav id="sidebarNav">
+        <nav>
             <a href="/home.html" class="nav-link-custom active"><i class="fas fa-home me-2"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tasks me-2"></i> Tareas</a>
             <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
             <a href="/seguridad.html" class="nav-link-custom"><i class="fas fa-shield-alt me-2 text-danger"></i> Seguridad</a>
-            <a href="/soporte.html" class="nav-link-custom"><i class="fas fa-headset me-2"></i> Soporte</a>
+            <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill mt-5 fw-bold">SALIR</button>
         </nav>
-        <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill mt-5 fw-bold">SALIR</button>
     </div>
 
     <div class="main-content">
-        <div id="mainContent" class="profile-header d-flex align-items-center mb-5">
+        <div class="profile-header d-flex align-items-center mb-5">
             <div class="photo-container">
                 <img id="displayFoto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo">
-                <label for="inputFoto" class="upload-badge">
-                    <i class="fas fa-camera"></i>
-                </label>
-                <input type="file" id="inputFoto" hidden accept="image/*" onchange="actualizarFotoRapido(this)">
             </div>
-            
             <div>
                 <h1 id="displayNombre" class="fw-bold m-0 text-dark">Cargando...</h1>
-                <p id="displayCarrera" class="text-danger fw-bold mb-1"></p>
-                <p id="displayCorreo" class="text-muted small"></p>
-                <button class="btn btn-danger btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalEditar">Editar Perfil</button>
+                <p id="displayCorreo" class="text-muted small m-0"></p>
             </div>
-        </div>
-
-        <div class="row g-4 mb-5">
-            <div class="col-md-4"><div class="data-card"><small class="text-muted fw-bold">WHATSAPP</small><p id="displayTelefono" class="m-0 fs-5 text-dark-bold">--</p></div></div>
-            <div class="col-md-4"><div class="data-card" style="border-left-color: var(--ues-oro);"><small class="text-muted fw-bold">SEMESTRE</small><p id="displaySemestre" class="m-0 fs-5 text-dark-bold">--</p></div></div>
-            <div class="col-md-4"><div class="data-card" style="cursor:pointer" onclick="irALinkedin()"><small class="text-muted fw-bold">LINKEDIN</small><p id="displayLinkedin" class="m-0 fs-5 text-primary">Ver Perfil</p></div></div>
         </div>
 
         <div class="row">
             <div class="col-lg-8">
-                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-newspaper text-danger me-2"></i> Noticias Académicas</h3>
+                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-newspaper text-danger me-2"></i> Noticias</h3>
                 <div id="contenedorNoticias" class="row g-4">
-                    <div class="text-center p-5 text-muted">Cargando noticias...</div>
+                    <div class="text-center p-5"><div class="spinner-border text-danger"></div></div>
                 </div>
             </div>
+
             <div class="col-lg-4">
-                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-clipboard-list text-warning me-2"></i> Pendientes</h3>
-                <div id="listaPendientesHome" class="glass-card p-3">
-                    <div class="text-center p-3 text-muted">Cargando tareas...</div>
+                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-clipboard-list text-warning me-2"></i> Mis Pendientes</h3>
+                <div id="listaPendientesHome" class="p-2">
+                    <div class="text-center p-3 text-muted">Cargando tus tareas...</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalEditar" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
-                <div class="modal-body p-4 text-dark">
-                    <h5 class="fw-bold text-danger mb-4">Actualizar Datos</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">NOMBRE COMPLETO</label>
-                        <input type="text" id="editNombre" class="form-control">
-                    </div>
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="small fw-bold">GÉNERO</label>
-                            <select id="editGenero" class="form-select">
-                                <option value="Masculino">Masculino</option>
-                                <option value="Femenino">Femenino</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div class="col-6 mb-3"><label class="small fw-bold">SEMESTRE</label><input type="number" id="editSemestre" class="form-control"></div>
-                    </div>
-                    <div class="mb-3"><label class="small fw-bold">TELÉFONO</label><input type="text" id="editTelefono" class="form-control"></div>
-                    <div class="mb-3"><label class="small fw-bold">LINKEDIN URL</label><input type="text" id="editLinkedin" class="form-control"></div>
-                    <div class="mb-3"><label class="small fw-bold">BIOGRAFÍA</label><textarea id="editBio" class="form-control" rows="3"></textarea></div>
-                    <button class="btn btn-danger w-100 py-3 fw-bold rounded-4" onclick="guardarTodo()">GUARDAR CAMBIOS</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // SEGURIDAD: Obtener el email del usuario logueado
         const userEmail = localStorage.getItem('userEmail');
-        let fotoBase64 = "";
 
         window.onload = async () => {
-            if(!userEmail) return window.location.href = '/index.html';
-            
-            // Mostrar manual solo la primera vez en la sesión
-            if (!sessionStorage.getItem('manualMostrado')) {
-                const myModal = new bootstrap.Modal(document.getElementById('modalManual'));
-                myModal.show();
-                sessionStorage.setItem('manualMostrado', 'true');
+            if(!userEmail) {
+                window.location.href = '/index.html';
+                return;
             }
-
+            
             await cargarDatosPerfil();
             await cargarNoticiasHome();
-            await cargarPendientesHome();
+            await cargarPendientesHome(); // Esta función es la que filtra
         };
-
-        // FUNCIÓN PARA ACTUALIZAR FOTO AL INSTANTE
-        function actualizarFotoRapido(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    fotoBase64 = e.target.result;
-                    document.getElementById('displayFoto').src = fotoBase64;
-                    // Guardar automáticamente para que se vea en el Perfil
-                    guardarTodo(true); 
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
 
         async function cargarDatosPerfil() {
             try {
                 const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
                 const u = await res.json();
                 document.getElementById('displayNombre').innerText = u.nombreReal || "Estudiante";
-                document.getElementById('displayCarrera').innerText = u.carrera || "Carrera UES";
-                document.getElementById('displayCorreo').innerText = u.identificador;
-                document.getElementById('displayFoto').src = u.foto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-                document.getElementById('displayTelefono').innerText = u.telefono || "N/A";
-                document.getElementById('displaySemestre').innerText = u.semestre ? u.semestre + "°" : "--";
-                
-                // Llenar inputs del modal
-                document.getElementById('editNombre').value = u.nombreReal || "";
-                document.getElementById('editTelefono').value = u.telefono || "";
-                document.getElementById('editSemestre').value = u.semestre || "";
-                document.getElementById('editLinkedin').value = u.linkedin || "";
-                document.getElementById('editBio').value = u.biografia || "";
-                document.getElementById('editGenero').value = u.genero || "Masculino";
-                fotoBase64 = u.foto || "";
-            } catch (e) { console.error("Error al cargar perfil:", e); }
-        }
-
-        async function guardarTodo(silent = false) {
-            const datos = { 
-                email: userEmail, 
-                nombreReal: document.getElementById('editNombre').value, 
-                genero: document.getElementById('editGenero').value, 
-                semestre: document.getElementById('editSemestre').value, 
-                telefono: document.getElementById('editTelefono').value, 
-                linkedin: document.getElementById('editLinkedin').value, 
-                biografia: document.getElementById('editBio').value, 
-                foto: fotoBase64 
-            };
-            
-            try {
-                const res = await fetch('/actualizar-perfil-completo', { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify(datos) 
-                });
-                
-                if (res.ok && !silent) {
-                    alert("✅ Perfil actualizado con éxito");
-                    location.reload();
-                }
-            } catch (e) { console.error("Error al guardar:", e); }
+                document.getElementById('displayCorreo').innerText = userEmail;
+                if(u.foto) document.getElementById('displayFoto').src = u.foto;
+            } catch (e) { console.error("Error Perfil"); }
         }
 
         async function cargarNoticiasHome() {
             try {
+                // Asegúrate que tu backend tenga esta ruta habilitada
                 const res = await fetch('/obtener-noticias');
                 const noticias = await res.json();
                 const contenedor = document.getElementById('contenedorNoticias');
                 
-                if (noticias.length === 0) {
-                    contenedor.innerHTML = '<div class="col-12 text-center text-muted p-4">No hay noticias hoy.</div>';
+                if (!noticias || noticias.length === 0) {
+                    contenedor.innerHTML = '<p class="text-muted">No hay noticias disponibles por ahora.</p>';
                     return;
                 }
 
                 contenedor.innerHTML = noticias.map(n => `
                     <div class="col-md-6 mb-3">
-                        <div class="news-card h-100 shadow-sm border">
-                            ${n.imagen ? `<img src="${n.imagen}" class="w-100" style="height:160px; object-fit:cover;">` : ''}
+                        <div class="news-card shadow-sm border">
+                            ${n.imagen ? `<img src="${n.imagen}">` : '<div class="bg-secondary text-white text-center py-4">UES Noticia</div>'}
                             <div class="p-3">
-                                <h6 class="fw-bold text-dark mb-2">${n.titulo}</h6>
-                                <p class="text-muted small m-0">${n.contenido.substring(0,100)}...</p>
+                                <h6 class="fw-bold text-dark">${n.titulo}</h6>
+                                <p class="text-muted small">${n.contenido.substring(0,80)}...</p>
                             </div>
                         </div>
                     </div>`).join('');
-            } catch (e) { document.getElementById('contenedorNoticias').innerHTML = "Error al cargar noticias."; }
+            } catch (e) { 
+                document.getElementById('contenedorNoticias').innerHTML = "Error al conectar con el servidor de noticias."; 
+            }
         }
 
         async function cargarPendientesHome() {
             try {
+                // IMPORTANTE: Enviamos el userEmail en la URL para que el servidor
+                // sepa de quién son las tareas que debe buscar.
                 const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
                 const materias = await res.json();
                 const contenedor = document.getElementById('listaPendientesHome');
                 let html = "";
                 
+                // Recorremos las materias que el servidor nos dio (ya filtradas por el servidor)
                 materias.forEach(m => {
                     if(m.tareas) {
                         m.tareas.forEach(t => {
                             if (!t.completada) {
                                 html += `
-                                <div class="p-3 mb-2 border-start border-warning border-4 bg-light shadow-sm" style="border-radius: 8px;">
+                                <div class="p-3 mb-2 border-start border-warning border-4 bg-white shadow-sm rounded-3">
                                     <strong class="text-dark d-block">${t.descripcion}</strong>
-                                    <div class="d-flex justify-content-between mt-1">
-                                        <small class="text-danger fw-bold">${m.nombre}</small>
-                                        <small class="text-muted">${t.fecha || 'Sin fecha'}</small>
-                                    </div>
+                                    <small class="text-danger fw-bold">${m.nombre}</small>
                                 </div>`;
                             }
                         });
                     }
                 });
                 
-                contenedor.innerHTML = html || '<div class="text-center p-4 text-muted"><i class="fas fa-check-circle text-success d-block mb-2"></i> ¡Todo libre!</div>';
-            } catch (e) { document.getElementById('listaPendientesHome').innerHTML = "Error al cargar pendientes."; }
-        }
-
-        function irALinkedin() {
-            const url = document.getElementById('editLinkedin').value;
-            if(url) window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
-            else alert("Primero registra tu LinkedIn en 'Editar Perfil'");
+                contenedor.innerHTML = html || '<div class="text-muted small">¡Excelente! No tienes tareas pendientes.</div>';
+            } catch (e) { 
+                document.getElementById('listaPendientesHome').innerHTML = "No pudimos cargar tus tareas."; 
+            }
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }

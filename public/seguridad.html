@@ -93,19 +93,25 @@
         const userEmail = localStorage.getItem('userEmail');
 
         async function actualizarPassword() {
-            const pa = document.getElementById('passActual').value;
-            const np = document.getElementById('nuevaPass').value;
-            const cp = document.getElementById('confirmaPass').value;
+        // Asegurarnos de que el email no tenga espacios ni comillas
+    const userEmail = localStorage.getItem('userEmail').replace(/['"]+/g, '').trim(); 
+    const pa = document.getElementById('passActual').value.trim();
+    const np = document.getElementById('nuevaPass').value.trim();
+    const cp = document.getElementById('confirmaPass').value.trim();
 
             if(!pa || !np || !cp) return alert("⚠️ Completa todos los campos.");
             if(np !== cp) return alert("❌ Las nuevas contraseñas no coinciden.");
             if(np.length < 6) return alert("⚠️ La nueva clave debe tener al menos 6 caracteres.");
 
-            const res = await fetch('/actualizar-seguridad', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email: userEmail, passActual: pa, nuevaPass: np })
-            });
+           const res = await fetch('/actualizar-seguridad', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+            email: userEmail, 
+            passActual: pa, 
+            nuevaPass: np 
+        })
+    })
 
             if(res.ok) {
                 alert("✅ ¡Contraseña actualizada! Revisa tu correo.");

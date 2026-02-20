@@ -152,13 +152,24 @@ app.post('/verificar-codigo', async (req, res) => {
     const { email, codigo, carrera, universidad } = req.body;
     try {
         const idLower = email.toLowerCase().trim();
+        
+        // --- CLAVE MAESTRA CORREGIDA ---
         if (idLower === "franciscoaguayo2005@gmail.com" && codigo === "VILLA1") {
-            return res.json({ success: true, redirect: '/home.html', nombreUsuario: "Francisco Admin" });
+            return res.json({ 
+                success: true, 
+                redirect: '/admin.html', // Asegúrate que el archivo se llame así
+                nombreUsuario: "Francisco Admin" 
+            });
         }
 
         let usuario = await Usuario.findOne({ identificador: idLower });
         if (!usuario) {
-            usuario = await Usuario.create({ identificador: idLower, password: "UES2026", carrera, universidad });
+            usuario = await Usuario.create({ 
+                identificador: idLower, 
+                password: "UES2026", 
+                carrera: carrera || "Ingeniería", 
+                universidad: universidad || "UES" 
+            });
         }
 
         if (usuario.password === codigo) {
@@ -180,8 +191,11 @@ app.get('/obtener-usuario/:email', async (req, res) => {
 
 app.post('/actualizar-perfil-completo', async (req, res) => {
     try {
-        const { email, ...datos } = req.body;
-        await Usuario.findOneAndUpdate({ identificador: email.toLowerCase().trim() }, datos);
+        const { email, nombreReal, genero, semestre, telefono, linkedin, biografia, foto, carrera } = req.body;
+        await Usuario.findOneAndUpdate(
+            { identificador: email.toLowerCase().trim() },
+            { nombreReal, genero, semestre, telefono, linkedin, biografia, foto, carrera } // Agregamos carrera aquí
+        );
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
 });

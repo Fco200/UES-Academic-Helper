@@ -4,37 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noticia | UES Helper</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #f8f9fa; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .noticia-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .img-header { width: 100%; border-radius: 20px; margin-bottom: 30px; max-height: 400px; object-fit: cover; }
-        .btn-volver { color: #800000; text-decoration: none; font-weight: bold; }
+        :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
+        body { background: #f4f7f6; font-family: 'Plus Jakarta Sans', sans-serif; color: #333; }
+        
+        /* Contenedor Adaptable */
+        .noticia-container { 
+            max-width: 750px; 
+            margin: 30px auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
+        }
+
+        /* Imagen Ajustada */
+        .img-wrapper {
+            width: 100%;
+            max-height: 350px; /* Evita que la imagen sea gigante */
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 25px;
+        }
+        .img-header { 
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; /* Ajusta la imagen sin deformarla */
+            transition: transform 0.5s;
+        }
+
+        /* Tipografía Clara */
+        h1 { font-weight: 800; letter-spacing: -1px; color: #111; line-height: 1.2; }
+        .content { 
+            font-size: 1.05rem; 
+            line-height: 1.7; 
+            color: #4a4a4a; 
+            text-align: justify; 
+        }
+
+        .btn-volver { 
+            color: var(--ues-guinda); 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-volver:hover { transform: translateX(-5px); color: #550000; }
+
+        /* Ajustes para Celulares */
+        @media (max-width: 768px) {
+            .noticia-container { margin: 15px; padding: 20px; border-radius: 15px; }
+            h1 { font-size: 1.6rem; }
+            .img-wrapper { max-height: 250px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="noticia-container">
-            <a href="/home.html" class="btn-volver mb-4 d-inline-block"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
+            <nav class="mb-4">
+                <a href="/home.html" class="btn-volver"><i class="fas fa-arrow-left me-2"></i> VOLVER AL INICIO</a>
+            </nav>
+
             <div id="contenidoNoticia">
-                <div class="text-center py-5"><div class="spinner-border text-danger"></div></div>
+                <div class="text-center py-5">
+                    <div class="spinner-border text-danger" role="status"></div>
+                    <p class="mt-2 text-muted">Cargando noticia...</p>
+                </div>
             </div>
-             <div class="text-center mt-5 pt-4 border-top">
-    <p class="text-muted small fw-bold">¿Quieres informar a tus compañeros?</p>
-    <button onclick="compartirWhatsApp()" class="btn btn-success rounded-pill px-4 fw-bold">
-        <i class="fab fa-whatsapp me-2"></i> Compartir por WhatsApp
-    </button>
-</div>
+
+            <div class="text-center mt-5 pt-4 border-top">
+                <p class="text-muted small fw-bold">¿Quieres informar a tus compañeros?</p>
+                <button onclick="compartirWhatsApp()" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                    <i class="fab fa-whatsapp me-2"></i> COMPARTIR EN WHATSAPP
+                </button>
+            </div>
         </div>
     </div>
-   
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const noticiaId = urlParams.get('id');
 
         window.onload = async () => {
+            if (!noticiaId) {
+                document.getElementById('contenidoNoticia').innerHTML = "<h3 class='text-center'>ID de noticia no válido.</h3>";
+                return;
+            }
+
             try {
                 const res = await fetch('/obtener-noticias');
                 const noticias = await res.json();
@@ -42,35 +103,44 @@
 
                 if (n) {
                     document.getElementById('contenidoNoticia').innerHTML = `
-                        <h1 class="fw-bold mb-3">${n.titulo}</h1>
-                        <p class="text-muted small mb-4"><i class="far fa-calendar-alt"></i> Publicado recientemente</p>
-                        ${n.imagen ? `<img src="${n.imagen}" class="img-header shadow">` : ''}
-                        <div class="content mt-4" style="font-size: 1.1rem; line-height: 1.8; color: #444;">
-                            ${n.contenido}
+                        <h1 class="mb-2">${n.titulo}</h1>
+                        <div class="d-flex align-items-center mb-4">
+                            <span class="badge bg-light text-dark border me-2">Academia</span>
+                            <small class="text-muted"><i class="far fa-calendar-alt me-1"></i> ${new Date(n.fecha || Date.now()).toLocaleDateString()}</small>
+                        </div>
+                        
+                        ${n.imagen ? `
+                            <div class="img-wrapper shadow-sm">
+                                <img src="${n.imagen}" class="img-header">
+                            </div>
+                        ` : ''}
+                        
+                        <div class="content">
+                            ${n.contenido.replace(/\n/g, '<br>')} 
                         </div>
                     `;
                 } else {
-                    document.getElementById('contenidoNoticia').innerHTML = "<h3>Noticia no encontrada</h3>";
+                    document.getElementById('contenidoNoticia').innerHTML = "<h3 class='text-center'>La noticia ya no está disponible.</h3>";
                 }
             } catch (e) {
-                document.getElementById('contenidoNoticia').innerHTML = "Error al cargar.";
+                document.getElementById('contenidoNoticia').innerHTML = "<p class='text-center text-danger'>Error al conectar con el servidor.</p>";
             }
         };
+
         function compartirWhatsApp() {
-    // Obtenemos el título de la noticia que ya está cargado en el h1
-    const titulo = document.querySelector('#contenidoNoticia h1').innerText;
-    const urlActual = window.location.href;
-    
-    // Creamos el mensaje con un formato llamativo
-    const mensaje = encodeURIComponent(
-        `📢 *NOTICIA UES HELPER*\n\n` +
-        `🔔 *${titulo}*\n\n` +
-        `Lee los detalles aquí: \n${urlActual}`
-    );
-    
-    // Abrimos WhatsApp
-    window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
-}
+            const h1 = document.querySelector('#contenidoNoticia h1');
+            if (!h1) return;
+            const titulo = h1.innerText;
+            const urlActual = window.location.href;
+            
+            const mensaje = encodeURIComponent(
+                `📢 *UES HELPER - INFORMACIÓN IMPORTANTE*\n\n` +
+                `🔔 *${titulo}*\n\n` +
+                `Lee la nota completa aquí: \n${urlActual}`
+            );
+            
+            window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
+        }
     </script>
 </body>
 </html>

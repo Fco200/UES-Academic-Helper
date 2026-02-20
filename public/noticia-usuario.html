@@ -20,8 +20,15 @@
             <div id="contenidoNoticia">
                 <div class="text-center py-5"><div class="spinner-border text-danger"></div></div>
             </div>
+             <div class="text-center mt-5 pt-4 border-top">
+    <p class="text-muted small fw-bold">¿Quieres informar a tus compañeros?</p>
+    <button onclick="compartirWhatsApp()" class="btn btn-success rounded-pill px-4 fw-bold">
+        <i class="fab fa-whatsapp me-2"></i> Compartir por WhatsApp
+    </button>
+</div>
         </div>
     </div>
+   
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -49,6 +56,21 @@
                 document.getElementById('contenidoNoticia').innerHTML = "Error al cargar.";
             }
         };
+        function compartirWhatsApp() {
+    // Obtenemos el título de la noticia que ya está cargado en el h1
+    const titulo = document.querySelector('#contenidoNoticia h1').innerText;
+    const urlActual = window.location.href;
+    
+    // Creamos el mensaje con un formato llamativo
+    const mensaje = encodeURIComponent(
+        `📢 *NOTICIA UES HELPER*\n\n` +
+        `🔔 *${titulo}*\n\n` +
+        `Lee los detalles aquí: \n${urlActual}`
+    );
+    
+    // Abrimos WhatsApp
+    window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
+}
     </script>
 </body>
 </html>

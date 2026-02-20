@@ -12,212 +12,206 @@
         :root { 
             --ues-guinda: #800000; 
             --sidebar-w: 280px;
-            --bg-body: #f4f7f6;
+            --sidebar-collapsed: 80px;
         }
 
         body { 
-            background: var(--bg-body); 
+            background: #f4f7f6; 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            margin: 0;
-            overflow-x: hidden;
+            transition: all 0.3s ease;
         }
 
-        /* --- SIDEBAR DESIGN --- */
+        /* --- SIDEBAR DINÁMICO --- */
         .sidebar { 
             width: var(--sidebar-w); 
             background: white; 
             border-right: 1px solid #eee; 
             height: 100vh; 
             position: fixed; 
-            padding: 30px 20px; 
+            padding: 20px; 
             left: 0; 
-            transition: 0.3s ease; 
-            z-index: 1000; 
+            top: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow: hidden;
         }
 
+        /* Clase cuando el menú está cerrado */
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar.collapsed .nav-text, 
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-btn {
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        /* --- BOTONES DE NAVEGACIÓN --- */
         .nav-btn { 
             width: 100%; 
-            padding: 14px 18px; 
-            border-radius: 14px; 
+            padding: 12px 15px; 
+            border-radius: 12px; 
             display: flex; 
             align-items: center; 
             color: #555; 
             text-decoration: none; 
-            transition: 0.3s; 
             margin-bottom: 8px; 
             font-weight: 600; 
+            transition: 0.2s;
         }
 
         .nav-btn:hover { background: #f8f9fa; color: var(--ues-guinda); }
-        .nav-btn.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 15px rgba(128,0,0,0.2); }
-        .nav-btn i { width: 25px; font-size: 1.1rem; }
+        .nav-btn.active { background: var(--ues-guinda); color: white; }
+        .nav-btn i { font-size: 1.2rem; min-width: 35px; }
 
-        /* --- MOBILE MENU BUTTONS --- */
-        .menu-toggle {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1100;
-            background: var(--ues-guinda);
-            color: white;
+        /* --- BOTÓN HAMBURGUESA --- */
+        .toggle-btn {
+            background: none;
             border: none;
-            padding: 10px 15px;
-            border-radius: 12px;
-            display: none; /* Oculto en PC */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
+            padding: 5px 15px;
+            margin-bottom: 30px;
         }
 
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            display: none;
-            z-index: 900;
-            backdrop-filter: blur(2px);
-        }
-
-        /* --- CONTENT AREA --- */
+        /* --- CONTENIDO PRINCIPAL --- */
         .main-content { 
             margin-left: var(--sidebar-w); 
             padding: 40px; 
-            transition: 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .welcome-card {
-            background: linear-gradient(135deg, #800000, #4a0000);
-            border-radius: 25px;
-            padding: 40px;
-            color: white;
-            margin-bottom: 40px;
-            position: relative;
-            overflow: hidden;
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed);
         }
 
-        .news-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #eee;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-
-        .news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-
-        /* --- RESPONSIVE ADJUSTMENTS --- */
+        /* --- RESPONSIVO (MÓVIL) --- */
         @media (max-width: 768px) {
-            .sidebar { left: -280px; } /* Esconder sidebar */
-            .sidebar.active { left: 0; } /* Mostrar sidebar */
-            .menu-toggle { display: block; } /* Mostrar hamburguesa */
-            .overlay.active { display: block; }
-            .main-content { margin-left: 0; padding: 20px; padding-top: 80px; }
+            .sidebar { left: -280px; }
+            .sidebar.active { left: 0; width: 280px; }
+            .sidebar.active .nav-text { display: inline; }
+            .main-content { margin-left: 0 !important; padding: 20px; padding-top: 70px; }
+            
+            .mobile-header {
+                position: fixed; top: 0; left: 0; width: 100%;
+                background: white; padding: 15px; border-bottom: 1px solid #eee;
+                display: flex; align-items: center; z-index: 900;
+            }
         }
+
+        @media (min-width: 769px) {
+            .mobile-header { display: none; }
+        }
+
+        /* Estilo Noticias */
+        .welcome-card { background: var(--ues-guinda); border-radius: 20px; padding: 30px; color: white; margin-bottom: 30px; }
+        .news-card { background: white; border-radius: 15px; padding: 15px; border: 1px solid #eee; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <button class="menu-toggle" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="mobile-header">
+        <button class="btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars fs-4"></i>
+        </button>
+        <h5 class="fw-bold m-0 ms-2">UES <span class="text-danger">HELPER</span></h5>
+    </div>
 
     <div class="sidebar" id="sidebar">
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <h4 class="fw-bold m-0 text-dark">UES <span class="text-danger">HELPER</span></h4>
-            <button class="btn d-md-none p-0" onclick="toggleMenu()">
-                <i class="fas fa-times fs-4"></i>
+        <div class="d-flex align-items-center">
+            <button class="toggle-btn d-none d-md-block" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
             </button>
+            <h4 class="fw-bold logo-text mb-4 ms-2 d-none d-md-block">UES <span class="text-danger">H.</span></h4>
         </div>
 
         <nav>
-            <a href="/home.html" class="nav-btn active"><i class="fas fa-home me-3"></i> Inicio</a>
-            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Tareas</a>
-            <a href="/perfil.html" class="nav-btn"><i class="fas fa-user-circle me-3"></i> Mi Perfil</a>
-            <a href="/seguridad.html" class="nav-btn"><i class="fas fa-shield-alt me-3"></i> Seguridad</a>
-            <a href="/soporte.html" class="nav-btn"><i class="fas fa-headset me-3"></i> Soporte</a>
+            <a href="/home.html" class="nav-btn active">
+                <i class="fas fa-home"></i> <span class="nav-text">Inicio</span>
+            </a>
+            <a href="/dashboard.html" class="nav-btn">
+                <i class="fas fa-tasks"></i> <span class="nav-text">Tareas</span>
+            </a>
+            <a href="/perfil.html" class="nav-btn">
+                <i class="fas fa-user-circle"></i> <span class="nav-text">Mi Perfil</span>
+            </a>
+            <a href="/seguridad.html" class="nav-btn">
+                <i class="fas fa-shield-alt"></i> <span class="nav-text">Seguridad</span>
+            </a>
+            <a href="/soporte.html" class="nav-btn">
+                <i class="fas fa-headset"></i> <span class="nav-text">Soporte</span>
+            </a>
             
-            <div style="margin-top: 100px;">
-                <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 fw-bold">
-                    <i class="fas fa-sign-out-alt me-2"></i> SALIR
+            <div style="margin-top: 50px;">
+                <button onclick="cerrarSesion()" class="nav-btn border-0 bg-transparent text-danger">
+                    <i class="fas fa-sign-out-alt"></i> <span class="nav-text">Cerrar Sesión</span>
                 </button>
             </div>
         </nav>
     </div>
 
-    <div class="main-content">
-        <div class="welcome-card">
-            <h1 class="fw-800 mb-2">¡Hola, <span id="userName">Estudiante</span>! 👋</h1>
-            <p class="m-0 opacity-75">Bienvenido a tu portal de UES Helper. Aquí tienes las últimas noticias del campus.</p>
+    <div class="main-content" id="mainContent">
+        <div class="welcome-card shadow-sm">
+            <h2 class="fw-bold">¡Qué onda, <span id="userName">Estudiante</span>!</h2>
+            <p class="m-0">Aquí están las noticias más importantes de tu universidad.</p>
         </div>
 
-        <h4 class="fw-bold mb-4 text-dark"><i class="fas fa-newspaper text-danger me-2"></i> Noticias Recientes</h4>
-        
-        <div id="noticiasContainer" class="row g-4">
-            <div class="text-center py-5">
-                <div class="spinner-border text-danger" role="status"></div>
-                <p class="mt-2 text-muted">Cargando comunicados...</p>
+        <h4 class="fw-bold mb-4">Comunicados UES</h4>
+        <div id="noticiasContainer" class="row">
             </div>
-        </div>
     </div>
 
     <script>
-        // --- FUNCIÓN DEL MENÚ HAMBURGUESA ---
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        // --- CARGAR DATOS DEL USUARIO ---
-        const userEmail = localStorage.getItem('userEmail');
-        const userName = localStorage.getItem('userName');
-
-        if (!userEmail) {
-            window.location.href = '/index.html';
-        } else {
-            document.getElementById('userName').innerText = userName || "Estudiante";
-        }
-
-        // --- CARGAR NOTICIAS DESDE EL SERVIDOR ---
-        async function cargarNoticias() {
-            try {
-                const res = await fetch('/obtener-noticias');
-                const noticias = await res.json();
-                const container = document.getElementById('noticiasContainer');
-                
-                if (noticias.length === 0) {
-                    container.innerHTML = '<p class="text-center text-muted">No hay noticias nuevas por ahora.</p>';
-                    return;
-                }
-
-                container.innerHTML = noticias.map(n => `
-                    <div class="col-md-6 col-lg-4">
-                        <div class="news-card">
-                            ${n.imagen ? `<img src="${n.imagen}" class="img-fluid rounded-4 mb-3" style="height:180px; width:100%; object-fit:cover;">` : ''}
-                            <h5 class="fw-bold text-dark">${n.titulo}</h5>
-                            <p class="text-muted small">${n.contenido.substring(0, 100)}...</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <small class="text-danger fw-bold">${new Date(n.fecha).toLocaleDateString()}</small>
-                                <button class="btn btn-sm btn-light rounded-pill px-3 fw-bold">Leer más</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                console.error("Error al cargar noticias:", e);
+        // Función para colapsar/expandir el menú
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth > 768) {
+                // Modo Computadora (Colapsar)
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            } else {
+                // Modo Celular (Entrar/Salir)
+                sidebar.classList.toggle('active');
             }
         }
 
-        function cerrarSesion() {
-            localStorage.clear();
-            window.location.href = '/index.html';
+        // Cargar datos y noticias
+        const userEmail = localStorage.getItem('userEmail');
+        const userName = localStorage.getItem('userName');
+
+        window.onload = async () => {
+            if (!userEmail) window.location.href = '/index.html';
+            document.getElementById('userName').innerText = userName || "Estudiante";
+            await cargarNoticias();
+        };
+
+        async function cargarNoticias() {
+            const container = document.getElementById('noticiasContainer');
+            try {
+                const res = await fetch('/obtener-noticias');
+                const noticias = await res.json();
+                container.innerHTML = noticias.map(n => `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="news-card h-100">
+                            ${n.imagen ? `<img src="${n.imagen}" class="img-fluid rounded-3 mb-3">` : ''}
+                            <h6 class="fw-bold">${n.titulo}</h6>
+                            <p class="small text-muted">${n.contenido.substring(0, 80)}...</p>
+                            <small class="text-danger fw-bold">${new Date(n.fecha).toLocaleDateString()}</small>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { container.innerHTML = 'Error al cargar noticias.'; }
         }
 
-        window.onload = cargarNoticias;
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
-
 </body>
 </html>

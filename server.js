@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const nodemailer = require("nodemailer");
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -257,6 +258,52 @@ app.post('/nuevo-registro', async (req, res) => {
     } catch (e) {
         console.error("Error en registro:", e);
         res.status(500).json({ message: "Error interno del servidor" });
+    }
+});
+// ... (Tus rutas anteriores de noticias y materias se mantienen igual)
+
+/// --- RUTA DE CAMBIO DE CONTRASEÑA CON NOTIFICACIÓN POR CORREO ---
+app.post('/actualizar-seguridad', async (req, res) => {
+    const { email, passActual, nuevaPass } = req.body;
+    try {
+        const idLower = email.toLowerCase().trim();
+        const usuario = await Usuario.findOne({ identificador: idLower });
+
+        if (!usuario) return res.status(404).json({ message: "Usuario no encontrado" });
+
+        // Verificación de contraseña actual (Texto plano por ahora)
+        if (usuario.password !== passActual) {
+            return res.status(401).json({ message: "La contraseña actual es incorrecta" });
+        }
+
+        // Actualizar contraseña
+        usuario.password = nuevaPass;
+        await usuario.save();
+
+        // Enviar correo de confirmación
+        const mailOptions = {
+            from: '"Seguridad UES Helper" <carlosfrancoaguayo44@gmail.com>',
+            to: idLower,
+            subject: '⚠️ Cambio de contraseña - UES Helper',
+            html: `
+                <div style="font-family: sans-serif; border: 1px solid #eee; padding: 25px; border-radius: 20px; max-width: 500px; margin: auto;">
+                    <h2 style="color: #800000; text-align: center;">Seguridad UES Helper</h2>
+                    <p>Hola, <b>${usuario.nombreReal}</b>.</p>
+                    <p>Te notificamos que la contraseña de tu cuenta ha sido modificada exitosamente el día de hoy.</p>
+                    <p style="background: #fdf6f6; padding: 10px; border-radius: 10px; color: #d9534f;">
+                        <b>¿No fuiste tú?</b> Si no autorizaste este cambio, contacta a soporte inmediatamente.
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #eee;">
+                    <p style="font-size: 0.8rem; color: #999; text-align: center;">Este es un aviso automático de seguridad.</p>
+                </div>
+            `
+        };
+
+        transporter.sendMail(mailOptions);
+        res.json({ success: true });
+
+    } catch (e) {
+        res.status(500).json({ success: false });
     }
 });
 // --- INICIO ---

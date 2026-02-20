@@ -215,7 +215,36 @@ app.post('/confirmar-recuperacion', async (req, res) => {
         res.status(200).json({ success: true });
     } else res.status(400).send("Código inválido");
 });
+// --- RUTA DE NUEVO REGISTRO ---
+app.post('/nuevo-registro', async (req, res) => {
+    try {
+        const { nombre, identificador, password, universidad, carrera } = req.body;
+        const idLower = identificador.toLowerCase().trim();
 
+        // 1. Verificar si el usuario ya existe
+        const existe = await Usuario.findOne({ identificador: idLower });
+        if (existe) {
+            return res.status(400).json({ message: "El correo ya está registrado" });
+        }
+
+        // 2. Crear el nuevo usuario
+        const nuevoUsuario = new Usuario({
+            identificador: idLower,
+            nombreReal: nombre,
+            password: password, // En un proyecto real, aquí deberías usar bcrypt para encriptar
+            universidad: universidad || "UES",
+            carrera: carrera || "Ingeniería",
+            ultimoAcceso: new Date().toLocaleString('es-MX', { timeZone: 'America/Hermosillo' })
+        });
+
+        await nuevoUsuario.save();
+        res.status(200).json({ success: true });
+
+    } catch (e) {
+        console.error("Error en registro:", e);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+});
 // --- INICIO ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'bienvenida.html')));
 

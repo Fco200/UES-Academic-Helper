@@ -85,14 +85,15 @@
                     body: JSON.stringify(d) 
                 });
 
-                if(res.ok) { 
-                    alert("✅ ¡Cuenta creada con éxito! Ahora puedes iniciar sesión."); 
-                    window.location.href = "/index.html"; 
-                } else { 
-                    alert("❌ El correo ya está registrado."); 
-                    btn.innerHTML = 'CREAR CUENTA <i class="fas fa-arrow-right ms-2"></i>';
-                    btn.disabled = false;
-                }
+               if(res.ok) { 
+    alert("✅ ¡Cuenta creada con éxito!"); 
+    window.location.href = "/index.html"; 
+} else { 
+    // Esto mostrará el mensaje real que envíe el servidor
+    alert("❌ " + (data.message || "Error al registrar")); 
+    btn.innerHTML = 'CREAR CUENTA <i class="fas fa-arrow-right ms-2"></i>';
+    btn.disabled = false;
+}
             } catch (e) {
                 alert("❌ Error de conexión con el servidor.");
                 btn.disabled = false;

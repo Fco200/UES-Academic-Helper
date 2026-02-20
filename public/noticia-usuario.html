@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticia | UES Helper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <style>
+        body { background: #f8f9fa; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .noticia-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .img-header { width: 100%; border-radius: 20px; margin-bottom: 30px; max-height: 400px; object-fit: cover; }
+        .btn-volver { color: #800000; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="noticia-container">
+            <a href="/home.html" class="btn-volver mb-4 d-inline-block"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
+            <div id="contenidoNoticia">
+                <div class="text-center py-5"><div class="spinner-border text-danger"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const noticiaId = urlParams.get('id');
+
+        window.onload = async () => {
+            try {
+                const res = await fetch('/obtener-noticias');
+                const noticias = await res.json();
+                const n = noticias.find(item => item._id === noticiaId);
+
+                if (n) {
+                    document.getElementById('contenidoNoticia').innerHTML = `
+                        <h1 class="fw-bold mb-3">${n.titulo}</h1>
+                        <p class="text-muted small mb-4"><i class="far fa-calendar-alt"></i> Publicado recientemente</p>
+                        ${n.imagen ? `<img src="${n.imagen}" class="img-header shadow">` : ''}
+                        <div class="content mt-4" style="font-size: 1.1rem; line-height: 1.8; color: #444;">
+                            ${n.contenido}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('contenidoNoticia').innerHTML = "<h3>Noticia no encontrada</h3>";
+                }
+            } catch (e) {
+                document.getElementById('contenidoNoticia').innerHTML = "Error al cargar.";
+            }
+        };
+    </script>
+</body>
+</html>

@@ -153,7 +153,16 @@ app.post('/verificar-codigo', async (req, res) => {
         }
     } catch (e) { res.status(500).json({ success: false }); }
 });
-
+app.get('/obtener-noticias', async (req, res) => {
+    try {
+        const noticias = await Noticia.find().sort({ fecha: -1 });
+        console.log("Noticias enviadas al home:", noticias.length);
+        res.json(noticias);
+    } catch (e) { 
+        console.error("Error al obtener noticias:", e);
+        res.status(500).json([]); 
+    }
+});
 app.post('/enviar-soporte', async (req, res) => {
     const { email, nombre, asunto, mensaje } = req.body;
     try {

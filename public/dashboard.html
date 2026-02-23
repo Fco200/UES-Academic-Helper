@@ -8,46 +8,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --ues-guinda: #800000; --bg-main: #f4f7f6; }
-        body { background: var(--bg-main); color: #333; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
-        .sidebar { width: 280px; background: white; border-right: 1px solid #ddd; height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
-        .main-content { margin-left: 280px; padding: 50px; }
-        .nav-link-custom { color: #666; padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; font-weight: 600; }
-        .nav-link-custom:hover { background: #f0f0f0; color: var(--ues-guinda); }
-        .nav-link-custom.active { background: var(--ues-guinda); color: white; }
-        .card-note { background: white; border: none; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s; }
-        .materia-header { padding: 20px; border-bottom: 1px solid #f0f0f0; }
-        .btn-ues { background: var(--ues-guinda); color: white; border: none; border-radius: 10px; font-weight: 700; }
-        .task-row { padding: 12px; border-radius: 15px; background: #f9f9f9; margin-bottom: 8px; border: 1px solid #eee; }
+        :root { --ues-guinda: #800000; --bg-main: #f4f7f6; --text-color: #333; --card-bg: white; }
         
-        /* Estilo para la barra de búsqueda */
-        .search-box {
-            background: white;
-            border-radius: 15px;
-            padding: 10px 20px;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
-            margin-bottom: 30px;
-        }
-        .search-box input {
-            border: none;
-            outline: none;
-            width: 100%;
-            padding: 5px;
-            font-weight: 600;
+        /* Variables Modo Oscuro */
+        [data-theme="dark"] {
+            --bg-main: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
         }
 
+        body { background: var(--bg-main); color: var(--text-color); font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s; }
+        .sidebar { width: 280px; background: var(--card-bg); border-right: 1px solid #ddd; height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
+        .main-content { margin-left: 280px; padding: 50px; }
+        .nav-link-custom { color: var(--text-color); padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; font-weight: 600; opacity: 0.8; }
+        .nav-link-custom:hover { background: rgba(128,0,0,0.1); color: var(--ues-guinda); }
+        .nav-link-custom.active { background: var(--ues-guinda); color: white; opacity: 1; }
+        .card-note { background: var(--card-bg); border: none; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); color: var(--text-color); }
+        .task-row { padding: 12px; border-radius: 15px; background: rgba(0,0,0,0.03); margin-bottom: 8px; border: 1px solid rgba(0,0,0,0.05); color: var(--text-color); }
+        
+        /* Botón de tema */
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 1001; width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--ues-guinda); color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
         @media (max-width: 768px) { .sidebar { display:none; } .main-content { margin-left: 0; padding: 20px; } }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
+
     <div class="sidebar">
-        <div class="text-center mb-5"><h4 class="fw-bold text-dark">UES <span class="text-danger">HELPER</span></h4></div>
+        <div class="text-center mb-5"><h4 class="fw-bold">UES <span class="text-danger">HELPER</span></h4></div>
         <nav>
             <a href="/home.html" class="nav-link-custom"><i class="fas fa-home me-2"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-link-custom active"><i class="fas fa-tasks me-2"></i> Mis Materias</a>
             <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
-            <a href="/soporte.html" class="nav-link-custom"><i class="fas fa-headset me-2"></i> Soporte</a>
         </nav>
         <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 mt-5 fw-bold">SALIR</button>
     </div>
@@ -62,23 +55,31 @@
             <label class="form-label small text-muted fw-bold mb-3">NUEVA ASIGNATURA</label>
             <div class="row g-3">
                 <div class="col-md-9"><input type="text" id="nombreInput" class="form-control" placeholder="Nombre de la materia..."></div>
-                <div class="col-md-3"><button onclick="guardarNuevo()" class="btn btn-ues w-100 py-2">AGREGAR</button></div>
+                <div class="col-md-3"><button onclick="guardarNuevo()" class="btn btn-danger w-100 py-2">AGREGAR</button></div>
             </div>
-        </div>
-
-        <div class="search-box d-flex align-items-center">
-            <i class="fas fa-search text-muted me-3"></i>
-            <input type="text" id="buscadorMaterias" placeholder="Buscar entre mis materias..." onkeyup="filtrarMaterias()">
         </div>
 
         <div id="contenedorPrincipal" class="row"></div>
     </div>
 
     <script>
+        // --- LÓGICA MODO OSCURO ---
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('themeIcon').className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
         const userEmail = localStorage.getItem('userEmail');
-        let materiasLocales = []; // Guardamos las materias aquí para filtrar rápido
 
         window.onload = async () => { 
+            // Cargar tema guardado
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
             if (!userEmail) return window.location.href = '/index.html'; 
             document.getElementById('userBadge').innerText = userEmail;
             await cargarTodo(); 
@@ -86,79 +87,39 @@
 
         async function cargarTodo() {
             const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-            materiasLocales = await res.json();
-            renderizarMaterias(materiasLocales);
-        }
-
-        // Función que dibuja las materias en pantalla
-        function renderizarMaterias(lista) {
+            const materias = await res.json();
             const cont = document.getElementById('contenedorPrincipal'); 
             cont.innerHTML = '';
 
-            if(lista.length === 0) {
-                cont.innerHTML = '<div class="text-center col-12 py-5 text-muted">No se encontraron materias.</div>';
-                return;
-            }
-
-            lista.forEach(m => {
+            materias.forEach(m => {
                 const tareasHtml = (m.tareas || []).map(t => `
                     <div class="task-row d-flex align-items-center">
-                        <input type="checkbox" class="form-check-input me-3" ${t.completada ? 'checked' : ''} 
-                            onchange="completarTarea('${m._id}', '${t._id}', ${t.completada})">
-                        <span class="${t.completada ? 'text-decoration-line-through text-muted' : 'fw-bold'} flex-grow-1">${t.descripcion}</span>
-                        <span class="badge bg-white text-muted border small">${t.fecha || ''}</span>
+                        <input type="checkbox" class="form-check-input me-3" ${t.completada ? 'checked' : ''} onchange="completarTarea('${m._id}', '${t._id}', ${t.completada})">
+                        <span class="${t.completada ? 'text-decoration-line-through opacity-50' : 'fw-bold'} flex-grow-1">${t.descripcion}</span>
                     </div>
-                `).join('') || '<p class="text-center text-muted py-3">No hay tareas pendientes</p>';
+                `).join('');
 
                 cont.innerHTML += `
-                    <div class="col-lg-6 mb-4 card-item">
-                        <div class="card card-note h-100">
-                            <div class="materia-header d-flex justify-content-between align-items-center">
-                                <h5 class="fw-bold m-0">${m.nombre}</h5>
-                                <button onclick="borrarMateria('${m._id}')" class="btn btn-sm text-danger"><i class="fas fa-trash"></i></button>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-4">${tareasHtml}</div>
-                                <div class="input-group">
-                                    <input type="text" id="t-${m._id}" class="form-control border-0 bg-light" placeholder="Nueva tarea...">
-                                    <input type="date" id="f-${m._id}" class="form-control border-0 bg-light">
-                                    <button onclick="agregarTarea('${m._id}')" class="btn btn-ues"><i class="fas fa-plus"></i></button>
-                                </div>
+                    <div class="col-lg-6 mb-4">
+                        <div class="card card-note h-100 p-3">
+                            <h5 class="fw-bold">${m.nombre}</h5>
+                            <div class="mb-3">${tareasHtml}</div>
+                            <div class="input-group">
+                                <input type="text" id="t-${m._id}" class="form-control border-0 bg-light" placeholder="Tarea...">
+                                <button onclick="agregarTarea('${m._id}')" class="btn btn-danger"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
                     </div>`;
             });
         }
 
-        // LÓGICA DEL BUSCADOR
-        function filtrarMaterias() {
-            const texto = document.getElementById('buscadorMaterias').value.toLowerCase();
-            const filtradas = materiasLocales.filter(m => 
-                m.nombre.toLowerCase().includes(texto)
-            );
-            renderizarMaterias(filtradas);
-        }
-
-        async function guardarNuevo() { 
-            const n = document.getElementById('nombreInput').value.trim(); 
-            if(!n) return;
-            await fetch('/agregar-materia', {
-                method:'POST', 
-                headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify({email: userEmail, nombre: n}) 
-            }); 
-            document.getElementById('nombreInput').value=''; 
-            cargarTodo();
-        }
-
         async function agregarTarea(id) { 
             const d = document.getElementById(`t-${id}`).value;
-            const f = document.getElementById(`f-${id}`).value; 
             if(!d) return;
             await fetch('/agregar-tarea', {
                 method:'POST', 
                 headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify({materiaId:id, descripcion:d, fecha:f})
+                body:JSON.stringify({materiaId:id, descripcion:d})
             }); 
             cargarTodo();
         }
@@ -170,13 +131,6 @@
                 body:JSON.stringify({materiaId: mId, tareaId: tId, completada: !estado})
             });
             cargarTodo();
-        }
-
-        async function borrarMateria(id) {
-            if(confirm("¿Eliminar materia?")) {
-                await fetch(`/borrar-materia/${id}`, { method: 'DELETE' });
-                cargarTodo();
-            }
         }
 
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }

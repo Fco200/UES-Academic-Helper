@@ -84,18 +84,34 @@
                     body: JSON.stringify(d) 
                 });
 
-                if(res.ok) { 
-                    // --- NOTIFICACIÓN POR WHATSAPP AL ADMINISTRADOR ---
-                    const miTelefono = "526625374491"; // Tu número
-                    const msgWhatsApp = encodeURIComponent(`¡Hola! 👋 Acabo de registrarme en UES Helper.\n\n👤 Nombre: ${d.nombre}\n📧 Correo: ${d.identificador}\n\n¡Espero mi contraseña por correo!`);
-                    const urlWhatsapp = `https://wa.me/${miTelefono}?text=${msgWhatsApp}`;
+               if(res.ok) { 
+    // --- CONFIGURACIÓN DEL MENSAJE Y REDIRECCIÓN ---
+    const miTelefono = "526625374491"; 
+    const urlPagina = "https://ues-academic-helper-t5b5.onrender.com";
+    
+    // Un mensaje más completo y profesional
+    const textoMensaje = `¡Hola, Administrador! 👋 
 
-                    alert("✅ ¡Cuenta creada con éxito! Ahora te redirigiremos a WhatsApp para confirmar tu registro con el administrador."); 
-                    
-                    // Abrimos WhatsApp y luego mandamos al login
-                    window.open(urlWhatsapp, '_blank');
-                    window.location.href = "/index.html"; 
-                } else { 
+Acabo de crear mi cuenta en *UES Helper*. 🎓
+
+👤 *Nombre:* ${d.nombre}
+📧 *Correo:* ${d.identificador}
+
+Me gustaría estar al tanto de las próximas actualizaciones y novedades de la plataforma. ¡Gracias! ✨
+
+Sigue aquí: ${urlPagina}`;
+
+    const msgWhatsApp = encodeURIComponent(textoMensaje);
+    const urlWhatsapp = `https://wa.me/${miTelefono}?text=${msgWhatsApp}`;
+
+    alert("✅ ¡Cuenta creada con éxito! Haz clic en Aceptar para enviarnos un WhatsApp y conocer las novedades."); 
+    
+    // Abrimos WhatsApp en una pestaña nueva
+    window.open(urlWhatsapp, '_blank');
+    
+    // Redirigimos la pestaña actual al Login en Render
+    window.location.href = urlPagina + "/index.html"; 
+} else { 
                     const data = await res.json();
                     alert("❌ " + (data.message || "Error al registrar")); 
                     btn.innerHTML = 'CREAR CUENTA <i class="fas fa-arrow-right ms-2"></i>';

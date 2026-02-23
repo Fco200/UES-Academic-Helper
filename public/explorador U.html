@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorar Universidades | UES Helper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --ues-guinda: #800000; --bg-main: #f4f7f6; --text-color: #333; --card-bg: white; }
+        [data-theme="dark"] { --bg-main: #121212; --text-color: #e0e0e0; --card-bg: #1e1e1e; }
+
+        body { background: var(--bg-main); color: var(--text-color); font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s; margin: 0; }
+        
+        /* Sidebar */
+        .sidebar { width: 280px; background: var(--card-bg); border-right: 1px solid rgba(0,0,0,0.1); height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
+        .main-content { margin-left: 280px; padding: 50px; }
+        
+        .nav-link-custom { color: var(--text-color); padding: 12px; border-radius: 12px; display: block; text-decoration: none; margin-bottom: 10px; font-weight: 600; transition: 0.2s; }
+        .nav-link-custom:hover { background: rgba(128,0,0,0.1); color: var(--ues-guinda); }
+        .nav-link-custom.active { background: var(--ues-guinda); color: white; }
+        
+        /* Cards */
+        .uni-card { 
+            background: var(--card-bg); border: none; border-radius: 25px; 
+            transition: 0.3s; overflow: hidden; height: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column;
+        }
+        .uni-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(128,0,0,0.15); }
+        
+        .badge-info { background: rgba(128,0,0,0.1); color: var(--ues-guinda); border: none; font-weight: 700; font-size: 0.7rem; }
+        .btn-portal { background: var(--ues-guinda); color: white !important; border-radius: 12px; font-weight: 700; border: none; padding: 12px; text-decoration: none; display: block; font-size: 0.8rem; transition: 0.3s; }
+        .btn-portal:hover { background: #600000; opacity: 0.9; }
+        
+        /* Buscador */
+        .search-box { background: var(--card-bg); border-radius: 25px; padding: 25px; margin-bottom: 40px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .form-control-custom { background: #f8f9fa !important; border-radius: 15px; border: 1px solid #eee; padding: 12px 20px; }
+
+        /* Carreras Demandadas */
+        .demand-pill { background: white; border: 1px solid #eee; border-radius: 50px; padding: 10px 20px; display: flex; align-items: center; margin-bottom: 15px; transition: 0.3s; cursor: default; }
+        [data-theme="dark"] .demand-pill { background: #252525; border-color: #333; }
+        .demand-pill i { width: 40px; height: 40px; background: rgba(128,0,0,0.1); color: var(--ues-guinda); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 1001; width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--ues-guinda); color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        @media (max-width: 992px) { .sidebar { display:none; } .main-content { margin-left: 0; padding: 20px; } }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
+
+    <div class="sidebar">
+        <div class="text-center mb-5"><h4 class="fw-bold">UES <span class="text-danger">HELPER</span></h4></div>
+        <nav>
+            <a href="/home.html" class="nav-link-custom"><i class="fas fa-home me-2"></i> Inicio</a>
+            <a href="/dashboard.html" class="nav-link-custom"><i class="fas fa-tasks me-2"></i> Mis Materias</a>
+            <a href="/explorar.html" class="nav-link-custom active"><i class="fas fa-university me-2"></i> Universidades</a>
+            <a href="/perfil.html" class="nav-link-custom"><i class="fas fa-user-circle me-2"></i> Mi Perfil</a>
+        </nav>
+        <div class="mt-5 pt-5">
+            <p class="small text-muted text-center fw-bold">V1.2.4</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="mb-5 d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-800 mb-0">Explorador Académico</h2>
+                <p class="text-muted">Encuentra tu futuro profesional en Sonora.</p>
+            </div>
+            <i class="fas fa-compass fa-3x text-danger opacity-25"></i>
+        </header>
+
+        <h5 class="fw-bold mb-4"><i class="fas fa-fire me-2 text-danger"></i> Carreras con Alta Demanda (2025-2026)</h5>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="demand-pill">
+                    <i class="fas fa-code"></i>
+                    <div><div class="fw-bold small">Ing. en Software</div><div class="text-muted" style="font-size: 0.7rem;">Alta empleabilidad</div></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="demand-pill">
+                    <i class="fas fa-user-md"></i>
+                    <div><div class="fw-bold small">Medicina Humana</div><div class="text-muted" style="font-size: 0.7rem;">Alta competencia</div></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="demand-pill">
+                    <i class="fas fa-car-battery"></i>
+                    <div><div class="fw-bold small">Litio y Energías</div><div class="text-muted" style="font-size: 0.7rem;">Sector emergente</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h6 class="fw-bold mb-1">Directorio de Instituciones</h6>
+                    <p class="small text-muted mb-0">Busca por nombre o ciudad (Hermosillo, Obregón, etc.)</p>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="filterInput" class="form-control form-control-custom border-start-0" placeholder="Ej: UNISON o Nogales..." onkeyup="filtrarCards()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4" id="uniContainer">
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">PÚBLICA</span><i class="fas fa-graduation-cap text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">UES</h4>
+                    <p class="small text-muted">Universidad Estatal de Sonora</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Hermosillo, Obregón, Navojoa, SLRC.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>EXANI-II</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.ues.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">PÚBLICA</span><i class="fas fa-university text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">UNISON</h4>
+                    <p class="small text-muted">Universidad de Sonora</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Todo el Estado.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>Propio / EXANI-II</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.unison.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">AUTÓNOMA</span><i class="fas fa-book text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">ITSON</h4>
+                    <p class="small text-muted">Inst. Tecnológico de Sonora</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Cd. Obregón, Guaymas, Navojoa.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>EXANI-II</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.itson.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">FEDERAL</span><i class="fas fa-microchip text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">ITH</h4>
+                    <p class="small text-muted">Tecnológico de Hermosillo</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Hermosillo, Sonora.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>Ceneval Ingreso</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.hermosillo.tecnm.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">PÚBLICA</span><i class="fas fa-tools text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">UTH</h4>
+                    <p class="small text-muted">Univ. Tecnológica de Hermosillo</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Hermosillo, Sonora.</p>
+                    <p class="small"><i class="fas fa-industry me-2 text-danger"></i>Enfoque: <strong>TSU e Ingeniería</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.uthermosillo.edu.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">FEDERAL</span><i class="fas fa-laptop-code text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">ITESCA</h4>
+                    <p class="small text-muted">Tecnológico de Cajeme</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Cd. Obregón, Álamos.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>Ceneval</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.itesca.edu.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">PRIVADA</span><i class="fas fa-heartbeat text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">U. DURANGO</h4>
+                    <p class="small text-muted">Universidad Durango Santander</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Hillo, Obregón, Nogales.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Especialidad: <strong>Medicina y Salud</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://www.univas.edu.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">PRIVADA</span><i class="fas fa-award text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">TEC DE MTY</h4>
+                    <p class="small text-muted">ITESM Sonora Norte</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Hermosillo, Sonora.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>PAA College Board</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://tec.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 uni-item">
+                <div class="card uni-card p-4">
+                    <div class="d-flex justify-content-between mb-3"><span class="badge badge-info px-3 py-2">PRIVADA</span><i class="fas fa-globe text-danger fa-2x"></i></div>
+                    <h4 class="fw-800 mb-2">UVM</h4>
+                    <p class="small text-muted">Univ. del Valle de México</p>
+                    <hr>
+                    <p class="small mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Hermosillo, Sonora.</p>
+                    <p class="small"><i class="fas fa-file-alt me-2 text-danger"></i>Examen: <strong>Diagnóstico</strong></p>
+                    <div class="mt-auto pt-3"><a href="https://uvm.mx" target="_blank" class="btn-portal text-center">SITIO OFICIAL</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('themeIcon').className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function filtrarCards() {
+            const input = document.getElementById('filterInput').value.toLowerCase();
+            const cards = document.getElementsByClassName('uni-item');
+            
+            for (let card of cards) {
+                const text = card.innerText.toLowerCase();
+                if(text.includes(input)) {
+                    card.style.display = "block";
+                    card.classList.add('animate__animated', 'animate__fadeIn');
+                } else {
+                    card.style.display = "none";
+                }
+            }
+        }
+
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        };
+    </script>
+</body>
+</html>

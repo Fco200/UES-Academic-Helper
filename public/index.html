@@ -21,8 +21,6 @@
         .btn-main { background: var(--ues-guinda); border: none; border-radius: 12px; padding: 16px; width: 100%; font-weight: 700; color: white; transition: 0.4s; text-transform: uppercase; box-shadow: 0 4px 15px rgba(128,0,0,0.2); }
         .btn-main:hover { background: #a00000; transform: translateY(-2px); }
         .version-tag { opacity: 0.6; font-size: 0.7rem; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-        
-        /* Estilo para el botón de registro */
         .register-section { margin-top: 25px; padding-top: 20px; border-top: 1px dashed #ddd; }
         .btn-register { background: #f0f0f0; color: #444; border: none; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.85rem; }
         .btn-register:hover { background: #e2e2e2; color: var(--ues-guinda); }
@@ -34,14 +32,27 @@
         <div class="text-center mb-4"><h1 class="brand-title">UES <span>HELPER</span></h1><p class="text-muted small fw-bold">Portal Académico Pro</p></div>
         
         <div id="paso1">
-            <label class="form-label">Institución</label>
-            <select id="uniInput" class="form-select" onchange="actualizarCarreras()">
-                <option value="" disabled selected>Selecciona...</option>
-                <option value="UES">UES</option>
-                <option value="UNISON">UNISON</option>
+            <label class="form-label">Sede / Ciudad</label>
+            <select id="sedeInput" class="form-select" onchange="actualizarUniversidades()">
+                <option value="" disabled selected>Selecciona ciudad...</option>
+                <option value="Hermosillo">Hermosillo</option>
+                <option value="Obregón">Ciudad Obregón</option>
+                <option value="Navojoa">Navojoa</option>
+                <option value="Nogales">Nogales</option>
+                <option value="San Luis Río Colorado">San Luis Río Colorado</option>
+                <option value="Caborca">Caborca</option>
             </select>
+
+            <label class="form-label">Institución</label>
+            <select id="uniInput" class="form-select" onchange="actualizarCarreras()" disabled>
+                <option value="" disabled selected>Elige una ciudad primero</option>
+            </select>
+
             <label class="form-label">Carrera</label>
-            <select id="carreraInput" class="form-select"><option>Esperando universidad...</option></select>
+            <select id="carreraInput" class="form-select" disabled>
+                <option>Esperando institución...</option>
+            </select>
+
             <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-2"></i></button>
         </div>
 
@@ -50,7 +61,7 @@
                 <span id="infoCarreraSeleccionada" class="badge bg-light text-danger border border-danger rounded-pill py-2 px-3"></span>
             </div>
             <label class="form-label">Correo Institucional</label>
-            <input type="email" id="emailInput" class="form-control" placeholder="usuario@ues.mx">
+            <input type="email" id="emailInput" class="form-control" placeholder="usuario@institucion.mx">
             <label class="form-label">Contraseña</label>
             <input type="password" id="passInput" class="form-control" placeholder="••••••••">
             <div class="text-end mb-4" style="margin-top: -15px;">
@@ -72,63 +83,112 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         particlesJS("particles-js", {"particles":{"number":{"value":40},"color":{"value":"#800000"},"opacity":{"value":0.2},"move":{"speed":1}}});
-       const oferta = {
-  "UES": [
-    "Ingeniería en Software",
-    "Ingeniería Mecatrónica",
-    "Ingeniería Ambiental",
-    "Ingeniería en Logística",
-    "Ingeniería en Energías Renovables",
-    "Ingeniería Industrial",
-    "Ingeniería en Sistemas de Información",
-    "Licenciatura en Derecho",
-    "Licenciatura en Administración",
-    "Licenciatura en Finanzas",
-    "Licenciatura en Mercadotecnia",
-    "Licenciatura en Educación",
-    "Licenciatura en Nutrición",
-    "Licenciatura en Enfermería",
-    "Licenciatura en Psicología"
-  ],
-  "UNISON": [
-    "Medicina",
-    "Odontología",
-    "Psicología",
-    "Ingeniería Industrial",
-    "Ingeniería Civil",
-    "Ingeniería Química",
-    "Ingeniería en Sistemas de Información",
-    "Ingeniería en Minas",
-    "Ingeniería Mecánica",
-    "Ingeniería Eléctrica",
-    "Licenciatura en Derecho",
-    "Licenciatura en Administración",
-    "Licenciatura en Contabilidad",
-    "Licenciatura en Economía",
-    "Licenciatura en Historia",
-    "Licenciatura en Filosofía",
-    "Licenciatura en Artes Escénicas",
-    "Licenciatura en Música",
-    "Licenciatura en Ciencias de la Comunicación",
-    "Licenciatura en Trabajo Social",
-    "Licenciatura en Biología",
-    "Licenciatura en Física",
-    "Licenciatura en Matemáticas",
-    "Licenciatura en Químico-Biólogo Clínico"
-  ]
-};
 
+        const oferta = {
+            "UES": {
+                "Hermosillo": ["Ingeniería en Software", "Ingeniería Mecatrónica", "Ingeniería Ambiental", "Licenciatura en Derecho", "Licenciatura en Administración", "Licenciatura en Finanzas", "Licenciatura en Nutrición", "Licenciatura en Enfermería"],
+                "Navojoa": ["Ingeniería Industrial", "Ingeniería en Energías Renovables", "Licenciatura en Educación", "Licenciatura en Criminología"],
+                "Obregón": ["Ingeniería en Sistemas de Información", "Ingeniería en Logística", "Licenciatura en Administración", "Licenciatura en Comercio Internacional"],
+                "San Luis Río Colorado": ["Ingeniería Mecatrónica", "Licenciatura en Psicología", "Licenciatura en Enfermería", "Ingeniería Industrial"]
+            },
+            "UNISON": {
+                "Hermosillo": ["Medicina", "Odontología", "Ingeniería Civil", "Ingeniería Química", "Licenciatura en Física", "Licenciatura en Matemáticas", "Licenciatura en Artes Escénicas", "Licenciatura en Ciencias de la Comunicación", "Químico Biólogo Clínico"],
+                "Nogales": ["Licenciatura en Derecho", "Licenciatura en Administración", "Licenciatura en Contabilidad", "Licenciatura en Comunicación"],
+                "Caborca": ["Ingeniería Industrial", "Licenciatura en Contabilidad", "Licenciatura en Derecho", "Ingeniería en Minas"],
+                "Navojoa": ["Ingeniería Civil", "Licenciatura en Derecho", "Licenciatura en Administración"]
+            },
+            "ITH": {
+                "Hermosillo": ["Ingeniería en Sistemas Computacionales", "Ingeniería Electrónica", "Ingeniería Mecánica", "Ingeniería Mecatrónica", "Ingeniería Industrial", "Ingeniería en Gestión Empresarial", "Ingeniería Eléctrica"]
+            },
+            "UTH": {
+                "Hermosillo": ["Ingeniería en Desarrollo de Software", "Ingeniería en Mecatrónica", "Ingeniería en Mantenimiento Industrial", "Licenciatura en Innovación de Negocios y Mercadotecnia", "Ingeniería en Energías Renovables"]
+            },
+            "ITESM": {
+                "Hermosillo": ["Ingeniería en Tecnologías Computacionales", "Licenciatura en Estrategia y Transformación de Negocios", "Ingeniería en Mecatrónica", "Licenciatura en Negocios Internacionales"]
+            },
+            "DURANGO SANTANDER": {
+                "Hermosillo": ["Medicina General", "Licenciatura en Nutrición", "Licenciatura en Arquitectura", "Licenciatura en Criminología", "Licenciatura en Fisioterapia"],
+                "Obregón": ["Medicina General", "Licenciatura en Derecho", "Licenciatura en Psicología"]
+            },
+            "UNIDEP": {
+                "Hermosillo": ["Licenciatura en Administración de Empresas", "Licenciatura en Derecho", "Licenciatura en Psicología"],
+                "Obregón": ["Licenciatura en Contaduría Pública", "Licenciatura en Educación"],
+                "Nogales": ["Licenciatura en Administración de Empresas"]
+            }
+        };
 
-        function actualizarCarreras(){ const u=document.getElementById('uniInput').value; document.getElementById('carreraInput').innerHTML=oferta[u].map(c=>`<option value="${c}">${c}</option>`).join(''); }
-        function validarYPasar(){ document.getElementById('infoCarreraSeleccionada').innerText=document.getElementById('carreraInput').value; document.getElementById('paso1').style.display='none'; document.getElementById('paso2').style.display='block'; }
-        
+        function actualizarUniversidades() {
+            const sede = document.getElementById('sedeInput').value;
+            const uniSelect = document.getElementById('uniInput');
+            const carreraSelect = document.getElementById('carreraInput');
+            
+            uniSelect.innerHTML = '<option value="" disabled selected>Selecciona institución...</option>';
+            uniSelect.disabled = false;
+            carreraSelect.innerHTML = '<option>Esperando institución...</option>';
+            carreraSelect.disabled = true;
+
+            // Filtrar universidades que tengan carreras en la sede seleccionada
+            for (const uni in oferta) {
+                if (oferta[uni][sede]) {
+                    const option = document.createElement('option');
+                    option.value = uni;
+                    option.textContent = uni;
+                    uniSelect.appendChild(option);
+                }
+            }
+        }
+
+        function actualizarCarreras() {
+            const sede = document.getElementById('sedeInput').value;
+            const uni = document.getElementById('uniInput').value;
+            const carreraSelect = document.getElementById('carreraInput');
+            
+            carreraSelect.innerHTML = '';
+            carreraSelect.disabled = false;
+
+            const listaCarreras = oferta[uni][sede];
+            listaCarreras.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c;
+                option.textContent = c;
+                carreraSelect.appendChild(option);
+            });
+        }
+
+        function validarYPasar() {
+            const carrera = document.getElementById('carreraInput').value;
+            const uni = document.getElementById('uniInput').value;
+            if(!uni || !carrera || carrera.includes("Esperando")) {
+                alert("Por favor, selecciona todos los campos.");
+                return;
+            }
+            document.getElementById('infoCarreraSeleccionada').innerText = `${uni} | ${carrera}`;
+            document.getElementById('paso1').style.display = 'none';
+            document.getElementById('paso2').style.display = 'block';
+        }
+
         async function entrar() {
             const email = document.getElementById('emailInput').value.trim();
             const pass = document.getElementById('passInput').value.trim();
-            if (email === "franciscoaguayo2005@gmail.com" && pass === "VILLA1") { localStorage.setItem('userEmail', email); window.location.href = "/home.html"; return; }
-            const res = await fetch('/verificar-codigo', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email, codigo: pass }) });
-            if(res.ok) { localStorage.setItem('userEmail', email); window.location.href = "/home.html"; } 
-            else { alert("Acceso Denegado: Revisa tus credenciales."); }
+            
+            if (email === "franciscoaguayo2005@gmail.com" && pass === "VILLA1") {
+                localStorage.setItem('userEmail', email);
+                window.location.href = "/home.html";
+                return;
+            }
+
+            const res = await fetch('/verificar-codigo', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ email, codigo: pass }) 
+            });
+
+            if(res.ok) { 
+                localStorage.setItem('userEmail', email); 
+                window.location.href = "/home.html"; 
+            } else { 
+                alert("Acceso Denegado: Revisa tus credenciales."); 
+            }
         }
     </script>
 </body>

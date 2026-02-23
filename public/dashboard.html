@@ -10,7 +10,6 @@
     <style>
         :root { --ues-guinda: #800000; --bg-main: #f4f7f6; --text-color: #333; --card-bg: white; }
         
-        /* Variables Modo Oscuro */
         [data-theme="dark"] {
             --bg-main: #121212;
             --text-color: #e0e0e0;
@@ -26,7 +25,11 @@
         .card-note { background: var(--card-bg); border: none; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); color: var(--text-color); }
         .task-row { padding: 12px; border-radius: 15px; background: rgba(0,0,0,0.03); margin-bottom: 8px; border: 1px solid rgba(0,0,0,0.05); color: var(--text-color); }
         
-        /* Botón de tema */
+        /* Estilos Buscador */
+        .search-container { position: relative; margin-bottom: 25px; }
+        .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+        .search-input { padding-left: 45px !important; border-radius: 15px !important; border: 1px solid #ddd !important; background: var(--card-bg) !important; color: var(--text-color) !important; }
+
         .theme-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 1001; width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--ues-guinda); color: white; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
         @media (max-width: 768px) { .sidebar { display:none; } .main-content { margin-left: 0; padding: 20px; } }
@@ -51,6 +54,11 @@
             <span id="userBadge" class="badge bg-white text-dark border rounded-pill px-3 py-2 shadow-sm"></span>
         </div>
 
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="buscadorInput" class="form-control search-input" placeholder="Buscar materia por nombre..." onkeyup="filtrarMaterias()">
+        </div>
+
         <div class="card p-4 card-note mb-4">
             <label class="form-label small text-muted fw-bold mb-3">NUEVA ASIGNATURA</label>
             <div class="row g-3">
@@ -63,7 +71,8 @@
     </div>
 
     <script>
-        // --- LÓGICA MODO OSCURO ---
+        let materiasLocales = []; // Almacén local para el filtrado
+
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -75,7 +84,6 @@
         const userEmail = localStorage.getItem('userEmail');
 
         window.onload = async () => { 
-            // Cargar tema guardado
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
@@ -87,11 +95,15 @@
 
         async function cargarTodo() {
             const res = await fetch(`/obtener-materias/${encodeURIComponent(userEmail)}`);
-            const materias = await res.json();
+            materiasLocales = await res.json();
+            renderizarMaterias(materiasLocales);
+        }
+
+        function renderizarMaterias(lista) {
             const cont = document.getElementById('contenedorPrincipal'); 
             cont.innerHTML = '';
 
-            materias.forEach(m => {
+            lista.forEach(m => {
                 const tareasHtml = (m.tareas || []).map(t => `
                     <div class="task-row d-flex align-items-center">
                         <input type="checkbox" class="form-check-input me-3" ${t.completada ? 'checked' : ''} onchange="completarTarea('${m._id}', '${t._id}', ${t.completada})">
@@ -100,7 +112,7 @@
                 `).join('');
 
                 cont.innerHTML += `
-                    <div class="col-lg-6 mb-4">
+                    <div class="col-lg-6 mb-4 card-materia" data-nombre="${m.nombre.toLowerCase()}">
                         <div class="card card-note h-100 p-3">
                             <h5 class="fw-bold">${m.nombre}</h5>
                             <div class="mb-3">${tareasHtml}</div>
@@ -111,6 +123,33 @@
                         </div>
                     </div>`;
             });
+        }
+
+        // FUNCIÓN DEL BUSCADOR
+        function filtrarMaterias() {
+            const texto = document.getElementById('buscadorInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.card-materia');
+            
+            cards.forEach(card => {
+                const nombre = card.getAttribute('data-nombre');
+                if(nombre.includes(texto)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        async function guardarNuevo() {
+            const nombre = document.getElementById('nombreInput').value;
+            if(!nombre) return;
+            await fetch('/agregar-materia', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: userEmail, nombre })
+            });
+            document.getElementById('nombreInput').value = '';
+            cargarTodo();
         }
 
         async function agregarTarea(id) { 

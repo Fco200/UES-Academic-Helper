@@ -10,20 +10,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --ues-guinda: #800000; --ues-oro: #b8860b; --bg-light: #f8f9fa; --sidebar-w: 280px; }
-        body { background: var(--bg-light); color: #222; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+        body { background: var(--bg-light); color: #222; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; transition: 0.3s; }
+        
+        /* Sidebar */
         .sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; height: 100vh; position: fixed; padding: 30px 20px; z-index: 1000; }
         .main-content { margin-left: var(--sidebar-w); padding: 50px; }
         .nav-btn { width: 100%; padding: 15px; border-radius: 12px; display: flex; align-items: center; color: #555; text-decoration: none; transition: 0.3s; margin-bottom: 8px; font-weight: 600; }
         .nav-btn:hover { background: #f0f0f0; color: var(--ues-guinda); }
         .nav-btn.active { background: var(--ues-guinda); color: white; box-shadow: 0 4px 12px rgba(128,0,0,0.2); }
+        
+        /* Profile Card */
         .profile-card { background: white; border: 1px solid #eee; border-radius: 30px; padding: 40px; text-align: center; max-width: 900px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .avatar-l { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .avatar-l { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.1); background: #eee; }
+        
+        /* Data Grid */
         .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 35px; }
         .data-box { background: #fdfdfd; border-radius: 20px; padding: 22px; text-align: left; border: 1px solid #eaeaea; border-top: 4px solid var(--ues-guinda); }
         .label-custom { color: #888; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
         .val-custom { font-size: 1.1rem; font-weight: 700; color: #111; margin: 0; }
         .bio-box { grid-column: span 3; border-top: 4px solid var(--ues-oro); }
-        .form-control, .form-select { background: #f9f9f9 !important; border-radius: 12px; padding: 12px; }
+        
+        .form-control, .form-select { background: #f9f9f9 !important; border-radius: 12px; padding: 12px; border: 1px solid #ddd; }
+        
+        @media (max-width: 992px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .data-grid { grid-template-columns: 1fr; }
+            .bio-box { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
@@ -34,7 +48,6 @@
             <a href="/home.html" class="nav-btn"><i class="fas fa-home me-3"></i> Inicio</a>
             <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks me-3"></i> Tareas</a>
             <a href="/perfil.html" class="nav-btn active"><i class="fas fa-user-circle me-3"></i> Mi Perfil</a>
-            <a href="/seguridad.html" class="nav-btn"><i class="fas fa-shield-alt me-3"></i> Seguridad</a>
             <button onclick="cerrarSesion()" class="btn btn-outline-danger w-100 rounded-pill py-2 mt-5 fw-bold">SALIR</button>
         </nav>
     </div>
@@ -56,48 +69,48 @@
                 <div class="data-box"><span class="label-custom">Carrera</span><p id="dispCarrera" class="val-custom">--</p></div>
                 <div class="data-box"><span class="label-custom">Semestre</span><p id="dispSemestre" class="val-custom">--</p></div>
                 <div class="data-box"><span class="label-custom">WhatsApp</span><p id="dispTelefono" class="val-custom">--</p></div>
-                <div class="data-box bio-box"><span class="label-custom">Acerca de mí</span><p id="dispBio" class="val-custom" style="font-weight:400;">Sin descripción.</p></div>
+                <div class="data-box bio-box"><span class="label-custom">Acerca de mí</span><p id="dispBio" class="val-custom" style="font-weight:400; line-height: 1.6;">Sin descripción.</p></div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalEditar" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-4" style="border-radius: 25px;">
+            <div class="modal-content p-4" style="border-radius: 25px; border: none;">
                 <h5 class="fw-bold mb-4 text-center">Editar Perfil</h5>
                 
                 <div class="mb-3 text-center">
-                    <label class="small fw-bold text-muted d-block mb-2">FOTO DE PERFIL</label>
+                    <label class="small fw-bold text-muted d-block mb-2">FOTO DE PERFIL (Link o Archivo)</label>
                     <input type="file" id="inputFoto" class="form-control" accept="image/*" onchange="procesarFoto()">
                 </div>
 
                 <div class="mb-3">
                     <label class="small fw-bold text-muted">NOMBRE COMPLETO</label>
-                    <input type="text" id="editNombre" class="form-control">
+                    <input type="text" id="editNombre" class="form-control" placeholder="Ej. Juan Pérez">
                 </div>
 
                 <div class="mb-3">
                     <label class="small fw-bold text-muted">CARRERA</label>
-                    <input type="text" id="editCarrera" class="form-control">
+                    <input type="text" id="editCarrera" class="form-control" placeholder="Ej. Ing. en Software">
                 </div>
 
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label class="small fw-bold text-muted">SEMESTRE</label>
-                        <input type="number" id="editSemestre" class="form-control">
+                        <input type="number" id="editSemestre" class="form-control" min="1" max="12">
                     </div>
                     <div class="col-6 mb-3">
                         <label class="small fw-bold text-muted">WHATSAPP</label>
-                        <input type="text" id="editTelefono" class="form-control">
+                        <input type="text" id="editTelefono" class="form-control" placeholder="662XXXXXXX">
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <label class="small fw-bold text-muted">BIOGRAFÍA</label>
-                    <textarea id="editBio" class="form-control" rows="2"></textarea>
+                    <textarea id="editBio" class="form-control" rows="3" placeholder="Cuéntanos un poco sobre ti..."></textarea>
                 </div>
 
-                <button class="btn btn-danger w-100 py-3 rounded-4 fw-bold" onclick="guardarCambios()">
+                <button class="btn btn-danger w-100 py-3 rounded-4 fw-bold shadow" onclick="guardarCambios()" id="btnGuardar">
                     <i class="fas fa-save me-2"></i> GUARDAR TODO
                 </button>
             </div>
@@ -110,75 +123,101 @@
         let fotoBase64 = "";
 
         window.onload = async () => {
-            if (!userEmail) return window.location.href = '/index.html';
+            if (!userEmail) {
+                window.location.href = '/index.html';
+                return;
+            }
             await cargarDatos();
         };
 
         async function cargarDatos() {
             try {
                 const res = await fetch(`/obtener-usuario/${encodeURIComponent(userEmail)}`);
+                if (!res.ok) throw new Error("No se pudo obtener el usuario");
+                
                 const u = await res.json();
                 
-                // Mostrar en pantalla
-                document.getElementById('dispNombre').innerText = u.nombreReal || "Estudiante";
+                // Actualizar Interfaz Principal
+                document.getElementById('dispNombre').innerText = u.nombreReal || "Estudiante UES";
                 document.getElementById('dispCorreo').innerText = u.identificador;
-                document.getElementById('dispCarrera').innerText = u.carrera || "No asignada";
-                document.getElementById('dispSemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "--";
-                document.getElementById('dispTelefono').innerText = u.telefono || "--";
-                document.getElementById('dispBio').innerText = u.biografia || "Sin biografía.";
-                if(u.foto) document.getElementById('dispFoto').src = u.foto;
+                document.getElementById('dispCarrera').innerText = u.carrera || "Ingeniería";
+                document.getElementById('dispSemestre').innerText = u.semestre ? u.semestre + "° Semestre" : "No definido";
+                document.getElementById('dispTelefono').innerText = u.telefono || "No registrado";
+                document.getElementById('dispBio').innerText = u.biografia || "Sin biografía aún.";
+                
+                if(u.foto) {
+                    document.getElementById('dispFoto').src = u.foto;
+                    fotoBase64 = u.foto;
+                }
 
-                // Rellenar modal
+                // Rellenar Modal de Edición
                 document.getElementById('editNombre').value = u.nombreReal || "";
                 document.getElementById('editCarrera').value = u.carrera || "";
                 document.getElementById('editSemestre').value = u.semestre || "";
                 document.getElementById('editTelefono').value = u.telefono || "";
                 document.getElementById('editBio').value = u.biografia || "";
-                fotoBase64 = u.foto || "";
-            } catch (e) { console.error("Error al cargar"); }
+            } catch (e) {
+                console.error("Error al cargar perfil:", e);
+            }
         }
 
         function procesarFoto() {
             const file = document.getElementById('inputFoto').files[0];
+            if (!file) return;
+
+            // Validación de tamaño (máx 2MB para evitar errores de servidor)
+            if (file.size > 2 * 1024 * 1024) {
+                alert("La imagen es muy pesada. Máximo 2MB.");
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 fotoBase64 = reader.result;
                 document.getElementById('dispFoto').src = fotoBase64;
             };
-            if(file) reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
         }
 
         async function guardarCambios() {
-            const btn = document.querySelector('#modalEditar button');
+            const btn = document.getElementById('btnGuardar');
             btn.disabled = true;
-            btn.innerHTML = "Guardando...";
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Guardando...';
 
             const datos = {
                 email: userEmail,
-                nombreReal: document.getElementById('editNombre').value,
-                carrera: document.getElementById('editCarrera').value,
+                nombreReal: document.getElementById('editNombre').value.trim(),
+                carrera: document.getElementById('editCarrera').value.trim(),
                 semestre: document.getElementById('editSemestre').value,
-                telefono: document.getElementById('editTelefono').value,
-                biografia: document.getElementById('editBio').value,
+                telefono: document.getElementById('editTelefono').value.trim(),
+                biografia: document.getElementById('editBio').value.trim(),
                 foto: fotoBase64
             };
 
-            const res = await fetch('/actualizar-perfil-completo', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(datos)
-            });
+            try {
+                const res = await fetch('/actualizar-perfil-completo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(datos)
+                });
 
-            if(res.ok) {
-                alert("✅ Perfil actualizado correctamente");
-                location.reload();
-            } else {
-                alert("❌ Error al guardar");
+                if(res.ok) {
+                    alert("✅ Perfil actualizado correctamente");
+                    location.reload();
+                } else {
+                    throw new Error("Error en servidor");
+                }
+            } catch (e) {
+                alert("❌ Hubo un error al guardar los cambios");
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-2"></i> GUARDAR TODO';
             }
         }
 
-        function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = '/index.html';
+        }
     </script>
 </body>
 </html>

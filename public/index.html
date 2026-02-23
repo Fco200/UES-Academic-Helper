@@ -56,19 +56,32 @@
             <button onclick="validarYPasar()" class="btn-main">Siguiente <i class="fas fa-chevron-right ms-2"></i></button>
         </div>
 
-        <div id="paso2" style="display:none;">
-            <div class="text-center mb-4">
-                <span id="infoCarreraSeleccionada" class="badge bg-light text-danger border border-danger rounded-pill py-2 px-3"></span>
-            </div>
-            <label class="form-label">Correo Institucional</label>
-            <input type="email" id="emailInput" class="form-control" placeholder="usuario@institucion.mx">
-            <label class="form-label">Contraseña</label>
-            <input type="password" id="passInput" class="form-control" placeholder="••••••••">
-            <div class="text-end mb-4" style="margin-top: -15px;">
-                <a href="/recuperar.html" class="text-danger small fw-bold text-decoration-none">¿Olvidaste tu contraseña?</a>
-            </div>
-            <button onclick="entrar()" class="btn-main">Ingresar al Portal</button>
+       <div id="paso2" style="display:none;">
+    <div class="text-center mb-4">
+        <span id="infoCarreraSeleccionada" class="badge bg-light text-danger border border-danger rounded-pill py-2 px-3"></span>
+    </div>
+
+    <div class="alert alert-warning border-0 shadow-sm mb-4" style="border-radius: 15px; background-color: rgba(255, 193, 7, 0.1);">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-circle text-warning me-3" style="font-size: 1.2rem;"></i>
+            <p class="small mb-0 text-dark" style="line-height: 1.4;">
+                <strong>¡Importante!</strong> El correo y la contraseña que ingreses serán tus credenciales definitivas. Asegúrate de anotarlas o recordarlas para tus próximos accesos.
+            </p>
         </div>
+    </div>
+
+    <label class="form-label">Correo Institucional</label>
+    <input type="email" id="emailInput" class="form-control mb-3" placeholder="usuario@institucion.mx">
+    
+    <label class="form-label">Contraseña</label>
+    <input type="password" id="passInput" class="form-control" placeholder="••••••••">
+    
+    <div class="text-end mb-4" style="margin-top: 5px;">
+        <a href="/recuperar.html" class="text-danger small fw-bold text-decoration-none">¿Olvidaste tu contraseña?</a>
+    </div>
+    
+    <button onclick="entrar()" class="btn-main">Ingresar al Portal</button>
+</div>
 
         <div class="register-section text-center">
             <p class="text-muted small mb-2">¿Eres nuevo en la plataforma?</p>

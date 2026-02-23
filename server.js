@@ -127,7 +127,7 @@ app.post('/verificar-codigo', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// --- 7. RUTAS DE MATERIAS Y TAREAS (CRUD) ---
+// --- 7. RUTAS DE MATERIAS Y TAREAS (CRUD COMPLETO) ---
 
 app.get('/obtener-materias/:email', async (req, res) => {
     try {
@@ -146,6 +146,15 @@ app.post('/agregar-materia', async (req, res) => {
             tareas: []
         });
         await nuevaMateria.save();
+        res.json({ success: true });
+    } catch (e) { res.status(500).send(e); }
+});
+
+// NUEVO: Editar nombre de materia
+app.put('/editar-materia', async (req, res) => {
+    try {
+        const { materiaId, nombre } = req.body;
+        await Materia.findByIdAndUpdate(materiaId, { nombre });
         res.json({ success: true });
     } catch (e) { res.status(500).send(e); }
 });
@@ -178,6 +187,33 @@ app.post('/completar-tarea', async (req, res) => {
             await materia.save();
             res.sendStatus(200);
         } else { res.status(404).send("Tarea no encontrada"); }
+    } catch (e) { res.status(500).send(e); }
+});
+
+// NUEVO: Editar descripción de tarea
+app.put('/editar-tarea', async (req, res) => {
+    try {
+        const { materiaId, tareaId, descripcion } = req.body;
+        const materia = await Materia.findById(materiaId);
+        const tarea = materia.tareas.id(tareaId);
+        if (tarea) {
+            tarea.descripcion = descripcion;
+            await materia.save();
+            res.json({ success: true });
+        } else { res.status(404).send("Tarea no encontrada"); }
+    } catch (e) { res.status(500).send(e); }
+});
+
+// NUEVO: Eliminar tarea específica
+app.delete('/eliminar-tarea', async (req, res) => {
+    try {
+        const { materiaId, tareaId } = req.body;
+        const materia = await Materia.findById(materiaId);
+        if (materia) {
+            materia.tareas.pull({ _id: tareaId });
+            await materia.save();
+            res.json({ success: true });
+        } else { res.status(404).send("Materia no encontrada"); }
     } catch (e) { res.status(500).send(e); }
 });
 
@@ -243,7 +279,6 @@ app.listen(PORT, '0.0.0.0', () => {
     ===========================================
     🚀 SERVIDOR UES HELPER LISTO
     🌐 PUERTO: ${PORT}
-    📂 MODO: PRODUCCIÓN / DESARROLLO
     ===========================================
     `);
 });

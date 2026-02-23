@@ -8,95 +8,165 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --ues-guinda: #800000; --ues-oro: #b8860b; }
-        body { background: #f4f7f6; font-family: 'Plus Jakarta Sans', sans-serif; color: #333; }
-        
-        /* Contenedor Adaptable */
-        .noticia-container { 
-            max-width: 750px; 
-            margin: 30px auto; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
+        :root { 
+            --ues-guinda: #800000; 
+            --ues-guinda-light: #a52a2a;
+            --bg-body: #f8fafc;
         }
 
-        /* Imagen Ajustada */
+        body { 
+            background: var(--bg-body); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: #1e293b;
+            display: flex; /* Para manejo de sidebar lateral */
+        }
+
+        /* Layout Estructurado */
+        .app-wrapper { display: flex; width: 100%; min-height: 100vh; }
+        
+        .sidebar-aside {
+            width: 280px;
+            background: white;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px; /* Espacio para la sidebar */
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Contenedor de la Noticia Estilo Articulo */
+        .article-card { 
+            max-width: 800px; 
+            width: 100%;
+            background: white; 
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .category-tag {
+            background: rgba(128, 0, 0, 0.1);
+            color: var(--ues-guinda);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        h1 { 
+            font-weight: 800; 
+            font-size: 2.5rem;
+            letter-spacing: -0.02em; 
+            color: #0f172a; 
+            line-height: 1.1;
+            margin: 20px 0;
+        }
+
+        .meta-info { color: #64748b; font-size: 0.9rem; margin-bottom: 30px; }
+
         .img-wrapper {
             width: 100%;
-            max-height: 350px; /* Evita que la imagen sea gigante */
-            overflow: hidden;
             border-radius: 20px;
-            margin-bottom: 25px;
+            overflow: hidden;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
+
         .img-header { 
             width: 100%; 
-            height: 100%;
-            object-fit: cover; /* Ajusta la imagen sin deformarla */
-            transition: transform 0.5s;
+            height: auto;
+            max-height: 450px;
+            object-fit: cover;
         }
 
-        /* Tipografía Clara */
-        h1 { font-weight: 800; letter-spacing: -1px; color: #111; line-height: 1.2; }
         .content { 
-            font-size: 1.05rem; 
-            line-height: 1.7; 
-            color: #4a4a4a; 
-            text-align: justify; 
+            font-size: 1.15rem; 
+            line-height: 1.8; 
+            color: #334155;
         }
 
-        .btn-volver { 
-            color: var(--ues-guinda); 
-            text-decoration: none; 
-            font-weight: 700; 
-            font-size: 0.9rem;
-            transition: 0.3s;
+        /* Botón WhatsApp Flotante o Minimalista */
+        .share-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px dashed #e2e8f0;
         }
-        .btn-volver:hover { transform: translateX(-5px); color: #550000; }
 
-        /* Ajustes para Celulares */
-        @media (max-width: 768px) {
-            .noticia-container { margin: 15px; padding: 20px; border-radius: 15px; }
-            h1 { font-size: 1.6rem; }
-            .img-wrapper { max-height: 250px; }
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128c7e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        /* Ajustes Móviles */
+        @media (max-width: 992px) {
+            .sidebar-aside { display: none; } /* En móviles puedes usar un menú hamburguesa */
+            .main-content { margin-left: 0; padding: 20px; }
+            h1 { font-size: 1.8rem; }
+            .article-card { padding: 25px; border-radius: 0; box-shadow: none; background: transparent; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="noticia-container">
-         <nav class="nav-container mb-4">
-    <a href="/home.html" class="nav-btn"><i class="fas fa-home"></i> <span class="nav-text">Inicio</span></a>
-    <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks"></i> <span class="nav-text">Tareas</span></a>
-    <a href="/perfil.html" class="nav-btn"><i class="fas fa-user-circle"></i> <span class="nav-text">Mi Perfil</span></a>
-    <a href="/noticia-usuario.html" class="nav-btn active"><i class="fas fa-newspaper"></i> <span class="nav-text">Noticias</span></a>
-    
-    <hr class="nav-divider">
-    
-    <a href="/explorador-u.html" class="nav-btn"><i class="fas fa-university"></i> <span class="nav-text">Universidades</span></a>
-    <a href="/calendario.html" class="nav-btn"><i class="fas fa-calendar-alt"></i> <span class="nav-text">Calendario</span></a>
-    
-    <hr class="nav-divider">
-    
-    <a href="/seguridad.html" class="nav-btn"><i class="fas fa-lock"></i> <span class="nav-text">Seguridad</span></a>
-    <a href="/soporte.html" class="nav-btn"><i class="fas fa-headset"></i> <span class="nav-text">Ayuda</span></a>
-</nav>
-            <div id="contenidoNoticia">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-danger" role="status"></div>
-                    <p class="mt-2 text-muted">Cargando noticia...</p>
-                </div>
-            </div>
 
-            <div class="text-center mt-5 pt-4 border-top">
-                <p class="text-muted small fw-bold">¿Quieres informar a tus compañeros?</p>
-                <button onclick="compartirWhatsApp()" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
-                    <i class="fab fa-whatsapp me-2"></i> COMPARTIR EN WHATSAPP
-                </button>
+    <div class="app-wrapper">
+        <aside class="sidebar-aside">
+            <div class="mb-5 px-3">
+                <img src="logo.png" alt="Logo" width="50">
+                <span class="ms-2 fw-bold" style="color: var(--ues-guinda)">UES Helper</span>
             </div>
-        </div>
+            <nav class="nav-container">
+                <a href="/home.html" class="nav-btn"><i class="fas fa-home"></i> <span class="nav-text">Inicio</span></a>
+                <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks"></i> <span class="nav-text">Tareas</span></a>
+                <a href="/perfil.html" class="nav-btn"><i class="fas fa-user-circle"></i> <span class="nav-text">Mi Perfil</span></a>
+                <a href="/noticia-usuario.html" class="nav-btn active"><i class="fas fa-newspaper"></i> <span class="nav-text">Noticias</span></a>
+                <hr class="nav-divider">
+                <a href="/explorador-u.html" class="nav-btn"><i class="fas fa-university"></i> <span class="nav-text">Universidades</span></a>
+                <a href="/calendario.html" class="nav-btn"><i class="fas fa-calendar-alt"></i> <span class="nav-text">Calendario</span></a>
+                <hr class="nav-divider">
+                <a href="/seguridad.html" class="nav-btn"><i class="fas fa-lock"></i> <span class="nav-text">Seguridad</span></a>
+                <a href="/soporte.html" class="nav-btn"><i class="fas fa-headset"></i> <span class="nav-text">Ayuda</span></a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <article class="article-card">
+                <div id="contenidoNoticia">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-danger" role="status"></div>
+                        <p class="mt-2 text-muted">Preparando lectura...</p>
+                    </div>
+                </div>
+
+                <div class="share-section text-center">
+                    <p class="text-muted small mb-3">¿Esta información es útil? Compártela con tu grupo</p>
+                    <button onclick="compartirWhatsApp()" class="btn-whatsapp">
+                        <i class="fab fa-whatsapp me-2"></i> DIFUNDIR EN WHATSAPP
+                    </button>
+                </div>
+            </article>
+        </main>
     </div>
 
     <script>
@@ -104,31 +174,32 @@
         const noticiaId = urlParams.get('id');
 
         window.onload = async () => {
-    console.log("ID recibido:", noticiaId); // Para depuración
+            if (!noticiaId || noticiaId === "null") {
+                document.getElementById('contenidoNoticia').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h3>Noticia no encontrada</h3>
+                        <a href="/home.html" class="btn btn-outline-danger mt-3">Volver al inicio</a>
+                    </div>`;
+                return;
+            }
 
-    if (!noticiaId || noticiaId === "null" || noticiaId === "undefined") {
-        document.getElementById('contenidoNoticia').innerHTML = "<h3 class='text-center'>ID de noticia no válido.</h3>";
-        return;
-    }
-
-    try {
-        const res = await fetch('/obtener-noticias');
-        const noticias = await res.json();
-        
-        // Usamos trim() por si acaso hay espacios en el ID
-        const n = noticias.find(item => item._id.toString() === noticiaId.trim());
+            try {
+                const res = await fetch('/obtener-noticias');
+                const noticias = await res.json();
+                const n = noticias.find(item => item._id.toString() === noticiaId.trim());
 
                 if (n) {
                     document.getElementById('contenidoNoticia').innerHTML = `
-                        <h1 class="mb-2">${n.titulo}</h1>
-                        <div class="d-flex align-items-center mb-4">
-                            <span class="badge bg-light text-dark border me-2">Academia</span>
-                            <small class="text-muted"><i class="far fa-calendar-alt me-1"></i> ${new Date(n.fecha || Date.now()).toLocaleDateString()}</small>
+                        <span class="category-tag">Institucional</span>
+                        <h1>${n.titulo}</h1>
+                        <div class="meta-info">
+                            <i class="far fa-calendar-alt me-1"></i> Publicado el ${new Date(n.fecha || Date.now()).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </div>
                         
                         ${n.imagen ? `
-                            <div class="img-wrapper shadow-sm">
-                                <img src="${n.imagen}" class="img-header">
+                            <div class="img-wrapper">
+                                <img src="${n.imagen}" class="img-header" alt="Imagen noticia">
                             </div>
                         ` : ''}
                         
@@ -137,25 +208,17 @@
                         </div>
                     `;
                 } else {
-                    document.getElementById('contenidoNoticia').innerHTML = "<h3 class='text-center'>La noticia ya no está disponible.</h3>";
+                    document.getElementById('contenidoNoticia').innerHTML = "<h3 class='text-center'>La noticia ha sido removida.</h3>";
                 }
             } catch (e) {
-                document.getElementById('contenidoNoticia').innerHTML = "<p class='text-center text-danger'>Error al conectar con el servidor.</p>";
+                document.getElementById('contenidoNoticia').innerHTML = "<p class='text-center text-danger'>Error de conexión.</p>";
             }
         };
 
         function compartirWhatsApp() {
-            const h1 = document.querySelector('#contenidoNoticia h1');
+            const h1 = document.querySelector('h1');
             if (!h1) return;
-            const titulo = h1.innerText;
-            const urlActual = window.location.href;
-            
-            const mensaje = encodeURIComponent(
-                `📢 *UES HELPER - INFORMACIÓN IMPORTANTE*\n\n` +
-                `🔔 *${titulo}*\n\n` +
-                `Lee la nota completa aquí: \n${urlActual}`
-            );
-            
+            const mensaje = encodeURIComponent(`📢 *AVISO UES HELPER*\n\n*${h1.innerText}*\n\nConsulta los detalles aquí:\n${window.location.href}`);
             window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
         }
     </script>

@@ -104,6 +104,19 @@
         async function eliminarTarea(m, t) { if(confirm('¿Eliminar tarea?')) { await fetch('/eliminar-tarea', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: m, tareaId: t }) }); cargarEditor(); } }
         async function eliminarMateria(m) { if(confirm('¿Eliminar asignatura?')) { await fetch('/eliminar-materia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ materiaId: m }) }); cargarEditor(); } }
         window.onload = cargarEditor;
+       
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-btn');
+        
+        navLinks.forEach(link => {
+            // Verifica si el href coincide con la ruta actual
+            if (currentPath.includes(link.getAttribute('href'))) {
+                link.classList.add('active');
+            }
+        });
+    });
+
     </script>
 </body>
 </html>

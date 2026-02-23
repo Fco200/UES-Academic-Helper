@@ -56,6 +56,19 @@
             const calendarEl = document.getElementById('calendar');
             new FullCalendar.Calendar(calendarEl, { initialView: 'dayGridMonth', locale: 'es', events: events }).render();
         });
+       
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-btn');
+        
+        navLinks.forEach(link => {
+            // Verifica si el href coincide con la ruta actual
+            if (currentPath.includes(link.getAttribute('href'))) {
+                link.classList.add('active');
+            }
+        });
+    });
+
     </script>
 </body>
 </html>

@@ -270,20 +270,7 @@ app.post('/actualizar-seguridad', async (req, res) => {
         }
     } catch (e) { res.status(500).json({ success: false }); }
 });
-// Detecta la URL actual y marca el botón correcto como activo
-document.addEventListener("DOMContentLoaded", function() {
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.nav-btn');
-    
-    navLinks.forEach(link => {
-        // Si el href del link coincide con la ruta actual
-        if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-});
+
 // --- 10. INICIO DEL SERVIDOR ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

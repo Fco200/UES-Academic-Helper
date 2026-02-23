@@ -1,0 +1,68 @@
+/* sidebar.css - Diseño Unificado para UES Helper */
+
+/* Contenedor principal del nav */
+.nav-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Botones de navegación */
+.nav-btn {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    text-decoration: none;
+    color: var(--text-color); /* Usa la variable de tu body */
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.75;
+}
+
+/* Iconos */
+.nav-btn i {
+    width: 28px;
+    font-size: 1.1rem;
+    margin-right: 12px;
+    text-align: center;
+    color: var(--ues-guinda); /* El icono siempre tiene el color de marca */
+}
+
+/* Efecto Hover */
+.nav-btn:hover {
+    background: rgba(128, 0, 0, 0.08);
+    color: var(--ues-guinda);
+    opacity: 1;
+    transform: translateX(6px);
+}
+
+/* Estado Activo */
+.nav-btn.active {
+    background: var(--ues-guinda) !important;
+    color: white !important;
+    opacity: 1;
+    box-shadow: 0 4px 15px rgba(128, 0, 0, 0.2);
+}
+
+/* El icono del botón activo cambia a blanco */
+.nav-btn.active i {
+    color: white !important;
+}
+
+/* Divisores */
+.nav-divider {
+    margin: 15px 10px;
+    border: 0;
+    border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Soporte para modo oscuro si el body tiene [data-theme="dark"] */
+[data-theme="dark"] .nav-divider {
+    border-top-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}

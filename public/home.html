@@ -11,63 +11,88 @@
     <style>
         :root { --ues-guinda: #800000; --sidebar-w: 280px; --sidebar-collapsed: 80px; }
         body { background: #f4f7f6; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; }
+        
+        /* Sidebar Styles */
         .sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #eee; height: 100vh; position: fixed; padding: 20px; left: 0; top: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; overflow: hidden; }
         .sidebar.collapsed { width: var(--sidebar-collapsed); }
         .sidebar.collapsed .nav-text, .sidebar.collapsed .logo-text { display: none; }
         .sidebar.collapsed .nav-btn { justify-content: center; padding: 15px 0; }
+        
         .nav-btn { width: 100%; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; color: #555; text-decoration: none; margin-bottom: 8px; font-weight: 600; transition: 0.2s; }
         .nav-btn:hover { background: #f8f9fa; color: var(--ues-guinda); }
         .nav-btn.active { background: var(--ues-guinda); color: white; }
         .nav-btn i { font-size: 1.2rem; min-width: 35px; }
-        .toggle-btn { background: none; border: none; font-size: 1.5rem; color: #333; cursor: pointer; padding: 5px 15px; margin-bottom: 30px; }
+        
         .main-content { margin-left: var(--sidebar-w); padding: 40px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .main-content.expanded { margin-left: var(--sidebar-collapsed); }
+
+        /* Welcome Card */
+        .welcome-card { 
+            background: linear-gradient(135deg, var(--ues-guinda) 0%, #a00000 100%); 
+            border-radius: 25px; padding: 40px; color: white; margin-bottom: 40px; 
+            box-shadow: 0 15px 30px rgba(128,0,0,0.2);
+            position: relative; overflow: hidden;
+        }
+        .welcome-card::after { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+
+        /* News Cards */
+        .news-item { cursor: pointer; transition: 0.3s; border: none; border-radius: 20px; overflow: hidden; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .news-item:hover { transform: translateY(-10px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
+        .news-img { height: 200px; object-fit: cover; width: 100%; }
+        
         @media (max-width: 768px) {
             .sidebar { left: -280px; }
             .sidebar.active { left: 0; width: 280px; }
-            .sidebar.active .nav-text { display: inline; }
-            .main-content { margin-left: 0 !important; padding: 20px; padding-top: 70px; }
+            .main-content { margin-left: 0 !important; padding: 20px; padding-top: 80px; }
             .mobile-header { position: fixed; top: 0; left: 0; width: 100%; background: white; padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; z-index: 900; }
         }
-        @media (min-width: 769px) { .mobile-header { display: none; } }
-        .welcome-card { background: var(--ues-guinda); border-radius: 20px; padding: 30px; color: white; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(128,0,0,0.15); }
-        .news-card { background: white; border-radius: 15px; padding: 15px; border: 1px solid #eee; margin-bottom: 20px; transition: 0.3s; }
-        .news-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
-    <div class="mobile-header">
+
+    <div class="mobile-header d-md-none">
         <button class="btn" onclick="toggleSidebar()"><i class="fas fa-bars fs-4"></i></button>
         <h5 class="fw-bold m-0 ms-2">UES <span class="text-danger">HELPER</span></h5>
     </div>
 
     <div class="sidebar" id="sidebar">
-        <div class="d-flex align-items-center">
-            <button class="toggle-btn d-none d-md-block" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <h4 class="fw-bold logo-text mb-4 ms-2 d-none d-md-block">UES <span class="text-danger">H.</span></h4>
+        <div class="d-flex align-items-center mb-4">
+            <button class="btn d-none d-md-block" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h4 class="fw-bold logo-text m-0 ms-2">UES <span class="text-danger">H.</span></h4>
         </div>
         <nav>
             <a href="/home.html" class="nav-btn active"><i class="fas fa-home"></i> <span class="nav-text">Inicio</span></a>
             <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tasks"></i> <span class="nav-text">Tareas</span></a>
             <a href="/perfil.html" class="nav-btn"><i class="fas fa-user-circle"></i> <span class="nav-text">Mi Perfil</span></a>
             <a href="/seguridad.html" class="nav-btn"><i class="fas fa-shield-alt"></i> <span class="nav-text">Seguridad</span></a>
-            <a href="/soporte.html" class="nav-btn"><i class="fas fa-headset"></i> <span class="nav-text">Soporte</span></a>
-            <div style="margin-top: 50px;">
-                <button onclick="cerrarSesion()" class="nav-btn border-0 bg-transparent text-danger"><i class="fas fa-sign-out-alt"></i> <span class="nav-text">Cerrar Sesión</span></button>
-            </div>
+            <hr>
+            <button onclick="cerrarSesion()" class="nav-btn border-0 bg-transparent text-danger"><i class="fas fa-sign-out-alt"></i> <span class="nav-text">Cerrar Sesión</span></button>
         </nav>
     </div>
 
     <div class="main-content" id="mainContent">
-        <div class="welcome-card shadow-sm">
-            <h2 class="fw-bold">¡Qué onda, <span id="userNameDisplay">Estudiante</span>! 👋</h2>
-            <p class="m-0" id="welcomeMessage">Cargando noticias de hoy...</p>
+        <div class="welcome-card">
+            <h1 class="fw-bold">¡Qué onda, <span id="userNameDisplay">Estudiante</span>! 👋</h1>
+            <p class="lead opacity-75" id="welcomeMessage">Cargando tu resumen académico...</p>
         </div>
-        <h4 class="fw-bold mb-4">Comunicados UES</h4>
-        <div id="noticiasContainer" class="row"></div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold m-0">Comunicados Recientes</h4>
+            <span class="badge bg-white text-dark border rounded-pill px-3 py-2 shadow-sm">Novedades</span>
+        </div>
+
+        <div id="noticiasContainer" class="row">
+            <div class="text-center py-5">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p class="mt-2 text-muted">Buscando noticias...</p>
+            </div>
+        </div>
     </div>
 
     <script>
+        const userEmail = localStorage.getItem('userEmail');
+        const userName = localStorage.getItem('userName');
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -79,56 +104,58 @@
             }
         }
 
-        const userEmail = localStorage.getItem('userEmail');
-        const userName = localStorage.getItem('userName');
-
         window.onload = async () => {
-            if (!userEmail) window.location.href = '/index.html';
+            if (!userEmail) return window.location.href = '/index.html';
             
-            // Mostrar Nombre y Saludo
+            // Configurar Saludo Dinámico
             document.getElementById('userNameDisplay').innerText = userName || "Estudiante";
             const hora = new Date().getHours();
-            let msg = "Aquí tienes lo más relevante del campus.";
-            if(hora < 12) msg = "¡Buenos días! Revisa los comunicados de hoy.";
-            else if(hora < 19) msg = "¡Buenas tardes! Mantente al día con tu universidad.";
-            document.getElementById('welcomeMessage').innerText = msg;
+            let saludo = "¡Buenas noches!";
+            if(hora < 12) saludo = "¡Buen día!";
+            else if(hora < 19) saludo = "¡Buenas tardes!";
+            
+            document.getElementById('welcomeMessage').innerText = `${saludo} Aquí tienes lo más relevante del campus hoy.`;
 
             await cargarNoticias();
         };
 
-      async function cargarNoticias() {
-    try {
-        const res = await fetch('/obtener-noticias');
-        const noticias = await res.json();
-        const contenedor = document.getElementById('contenedorNoticias'); // Asegúrate que el ID exista
-        
-        if (!noticias || noticias.length === 0) {
-            contenedor.innerHTML = '<p class="text-center">No hay noticias hoy.</p>';
-            return;
+        async function cargarNoticias() {
+            const contenedor = document.getElementById('noticiasContainer');
+            try {
+                const res = await fetch('/obtener-noticias');
+                const noticias = await res.json();
+                
+                if (!noticias || noticias.length === 0) {
+                    contenedor.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No hay comunicados oficiales por el momento.</p></div>';
+                    return;
+                }
+
+                contenedor.innerHTML = noticias.map(n => `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card news-item h-100" onclick="verNoticia('${n._id}')">
+                            ${n.imagen ? `<img src="${n.imagen}" class="news-img" alt="Noticia">` : 
+                            `<div class="news-img bg-secondary d-flex align-items-center justify-content-center text-white"><i class="fas fa-image fa-3x"></i></div>`}
+                            <div class="card-body">
+                                <h5 class="fw-bold text-dark">${n.titulo}</h5>
+                                <p class="text-muted small">${n.contenido.substring(0, 100)}...</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="text-danger fw-bold small"><i class="far fa-calendar-alt me-1"></i> ${new Date(n.fecha).toLocaleDateString()}</span>
+                                    <span class="btn btn-sm btn-outline-danger rounded-pill">Leer más</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                contenedor.innerHTML = '<p class="text-center text-danger">Error al conectar con el servidor.</p>';
+            }
         }
 
-        contenedor.innerHTML = noticias.map(n => `
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                    ${n.imagen ? `<img src="${n.imagen}" class="card-img-top" style="height: 200px; object-fit: cover;">` : ''}
-                    <div class="card-body">
-                        <h5 class="fw-bold">${n.titulo}</h5>
-                        <p class="text-muted small">${n.contenido}</p>
-                        <hr>
-                        <small class="text-danger fw-bold"><i class="far fa-calendar-alt me-1"></i> ${new Date(n.fecha).toLocaleDateString()}</small>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    } catch (e) {
-        console.error("Error cargando noticias:", e);
-    }
-}
+        function verNoticia(id) {
+            // Redirige a la página de detalle pasando el ID
+            window.location.href = `noticia-usuario.html?id=${id}`;
+        }
 
-// Llamar a la función al cargar la página
-window.onload = () => {
-    cargarNoticias();
-};
         function cerrarSesion() { localStorage.clear(); window.location.href = '/index.html'; }
     </script>
 </body>

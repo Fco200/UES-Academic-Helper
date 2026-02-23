@@ -90,20 +90,27 @@ app.post('/eliminar-noticia', async (req, res) => {
 
 // --- RUTAS DE MATERIAS Y TAREAS (PRIVACIDAD TOTAL) ---
 
-app.get('/obtener-materias/:identificador', async (req, res) => {
+// OBTENER MATERIAS (FILTRADO POR EMAIL)
+app.get('/obtener-materias/:email', async (req, res) => {
     try {
-        // Filtramos por el email del usuario para que nadie vea tareas ajenas
-        const email = req.params.identificador.toLowerCase().trim();
-        const datos = await Materia.find({ user: email });
-        res.json(datos);
-    } catch (e) { res.status(500).json([]); }
+        const emailUsuario = req.params.email.toLowerCase().trim();
+        // Filtramos para que solo traiga las que pertenecen a este email
+        const materias = await Materia.find({ emailDueño: emailUsuario }); 
+        res.json(materias);
+    } catch (e) { res.status(500).send(e); }
 });
 
+// AGREGAR MATERIA (GUARDANDO EL EMAIL)
 app.post('/agregar-materia', async (req, res) => {
     try {
         const { email, nombre } = req.body;
-        await Materia.create({ user: email.toLowerCase().trim(), nombre, tareas: [] });
-        res.sendStatus(200);
+        const nuevaMateria = new Materia({
+            nombre: nombre,
+            emailDueño: email.toLowerCase().trim(), // Guardamos quién la creó
+            tareas: []
+        });
+        await nuevaMateria.save();
+        res.json({ success: true });
     } catch (e) { res.status(500).send(e); }
 });
 
@@ -310,6 +317,34 @@ app.post('/actualizar-seguridad', async (req, res) => {
     } catch (e) {
         console.error("Error en servidor:", e);
         res.status(500).json({ success: false });
+    }
+});
+// --- RUTA DE SOPORTE TÉCNICO ---
+app.post('/enviar-soporte', async (req, res) => {
+    const { email, nombre, asunto, mensaje } = req.body;
+
+    try {
+        const mailOptions = {
+            from: '"Soporte UES Helper" <carlosfrancoaguayo44@gmail.com>',
+            to: 'carlosfrancoaguayo44@gmail.com', // Tú recibes el reporte
+            subject: `🚨 Reporte de Soporte: ${asunto}`,
+            html: `
+                <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 15px;">
+                    <h2 style="color: #800000;">Nuevo Mensaje de Soporte</h2>
+                    <p><b>Usuario:</b> ${nombre} (${email})</p>
+                    <p><b>Asunto:</b> ${asunto}</p>
+                    <hr>
+                    <p><b>Mensaje:</b></p>
+                    <p style="background: #f9f9f9; padding: 15px; border-radius: 10px;">${mensaje}</p>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Mensaje enviado correctamente" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error al enviar el mensaje" });
     }
 });
 // --- INICIO ---
